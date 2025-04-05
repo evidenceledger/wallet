@@ -10,10 +10,6 @@ import { render, html, svg } from "uhtml";
 // Translation support
 import "./i18n/tr.js";
 
-// The logo in the header
-// @ts-ignore
-import logo_img from "./img/logo.png";
-
 // The database operations
 import { storage } from "./components/db";
 // @ts-ignore
@@ -74,11 +70,12 @@ if (basePath.length > 1) {
 // in the HTML page importing us in the window.homePage variable.
 // @ts-ignore
 var homePage = window.homePage;
-// @ts-ignore
-var myAppTitle = window.myAppTitle;
 if (!homePage) {
    throw "No homePage was set.";
 }
+
+// @ts-ignore
+var myAppTitle = window.myAppTitle;
 
 // The name of the page when we try to go to a non-existent page
 var name404 = "Page404";
@@ -168,7 +165,8 @@ async function processPageEntered(pageNameToClass, pageName, pageData, historyDa
    for (let [name, classInstance] of pageNameToClass) {
       // Hide the page
       classInstance.domElem.style.display = "none";
-      // Call the page exit() method for all pages except the target page, so they can perform any cleanup
+
+      // Call the page exit() method for all pages except the target page, so they can perform any cleanup.
       // Implementation of the exit() function is optional, so we check for its existence
       if (name !== pageName && classInstance.exit) {
          try {
@@ -249,6 +247,7 @@ window.addEventListener("popstate", async function (event) {
 async function getAndUpdateVersion() {
    // @ts-ignore
    // let version = import.meta.env.VITE_APP_VERSION
+   // TODO: put version info in the config file
    let version = "1.1.2";
 
    // Store the version in global Window object and in local storage
@@ -381,7 +380,7 @@ function T(e) {
  * @param {boolean} backButton - If true, a back button is shown in the header
  * @param {string} loginData? - Login data to show in header
  *
- * @returns {import("uhtml").Renderable} The HTML structure.
+ * @returns {import("uhtml").Hole} The HTML structure.
  */
 function HeaderBar(backButton = true, loginData) {
    var backButtonHTML;
@@ -416,7 +415,7 @@ function HeaderBar(backButton = true, loginData) {
  * @param {string} message - The main message to display in the error panel.
  * @param {string} [details] - Optional additional details to display in the error panel.
  *
- * @returns {import("uhtml").Renderable} The HTML structure for the error panel.
+ * @returns {import("uhtml").Hole} The HTML structure for the error panel.
  */
 function ErrorPanel(title, message, details) {
    let theHtml = html`
@@ -589,9 +588,10 @@ register(
             };
          }
 
-         // We expect pageData to be an object with four fields:
+         // We expect pageData to be an object with these fields:
          // - title: the string to be used for the title of the error page
          // - msg: the string with the details of the error
+         // - details: a string with more details of the error, if needed
          // - back: a boolean indicating if a back button must be displayed
          // - level: a string with the level ("error", "warning", "info")
 
@@ -601,7 +601,7 @@ register(
             title = T(pageData.title);
          }
 
-         //Provide a default message if the user did not specify it
+         // Provide a default message if the user did not specify it
          let msg = T("An error has happened.");
          if (pageData.msg) {
             msg = T(pageData.msg);
@@ -636,7 +636,8 @@ register(
                        <ion-card-content class="ion-padding-bottom">
                           <div>${T("Please click Accept to refresh the page.")}</div>
                        </ion-card-content>
-                    `}
+                    `
+                  }
 
                <div class="ion-margin-start ion-margin-bottom">
                   ${pageData.back == true

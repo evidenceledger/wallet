@@ -160,6 +160,61 @@ func buildOptions(cfg *yaml.YAML) api.BuildOptions {
 	entryPoints = append(entryPoints, pages...)
 
 	options := api.BuildOptions{
+		// AbsWorkingDir: "Put here the working directory for the build",
+
+		// Build for the browser
+		Platform: api.PlatformBrowser,
+
+		// These are the main files (entrypoints) to be processed
+		EntryPoints:       entryPoints,
+		Format:            api.FormatESModule,
+		Plugins:           []api.Plugin{riteOnLoadPlugin},
+		Outdir:            cfg.String("targetdir"),
+		Write:             true,
+		Bundle:            true,
+		Splitting:         true,
+		ChunkNames:        "chunks/[name]-[hash]",
+		Charset:           api.CharsetUTF8,
+		MinifyWhitespace:  false,
+		MinifyIdentifiers: false,
+		MinifySyntax:      false,
+		Define: map[string]string{
+			"JR_IN_DEVELOPMENT": "true",
+		},
+		Loader: map[string]api.Loader{
+			".png": api.LoaderDataURL,
+			".svg": api.LoaderDataURL,
+		},
+		// Generate sourcemaps for better debugging
+		Sourcemap:      api.SourceMapLinked,
+		SourcesContent: api.SourcesContentInclude,
+		Metafile:       true,
+	}
+
+	// if cfg.Bool("hashEntrypointNames") {
+	// 	options.EntryNames = "[dir]/[name]-[hash]"
+	// }
+
+	return options
+}
+func buildProductionOptions(cfg *yaml.YAML) api.BuildOptions {
+
+	// The base input directory of the project
+	sourceDir := cfg.String("sourcedir", defaultsourcedir)
+
+	// Build an array with the relative path of the main entrypoints
+	entryPoints := cfg.ListString("entryPoints")
+	for i := range entryPoints {
+		entryPoints[i] = filepath.Join(sourceDir, entryPoints[i])
+	}
+
+	// The pages are also entrypoints to process, because they are lazy-loaded
+	pages := pageEntryPoints(cfg)
+
+	// Consolidate all entrypoints in a single list
+	entryPoints = append(entryPoints, pages...)
+
+	options := api.BuildOptions{
 		EntryPoints: entryPoints,
 		Format:      api.FormatESModule,
 		Plugins:     []api.Plugin{riteOnLoadPlugin},
@@ -570,7 +625,7 @@ func dedupLoop(w *fsnotify.Watcher, cfg *yaml.YAML) {
 		timers = make(map[string]*time.Timer)
 
 		// Callback we run.
-		printEvent = func(e fsnotify.Event) {
+		performBuild = func(e fsnotify.Event) {
 			printTime(e.String())
 			Build(cfg)
 
@@ -608,7 +663,7 @@ func dedupLoop(w *fsnotify.Watcher, cfg *yaml.YAML) {
 
 			// No timer yet, so create one.
 			if !ok {
-				t = time.AfterFunc(math.MaxInt64, func() { printEvent(e) })
+				t = time.AfterFunc(math.MaxInt64, func() { performBuild(e) })
 				t.Stop()
 
 				mu.Lock()

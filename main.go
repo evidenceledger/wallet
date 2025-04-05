@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/evidenceledger/vcdemo/faster"
+	"github.com/evidenceledger/wallet/faster"
 	"github.com/hesusruiz/vcutils/yaml"
 	"github.com/labstack/echo/v5"
 	echomiddle "github.com/labstack/echo/v5/middleware"
@@ -34,7 +34,7 @@ func main() {
 		fmt.Println("  faster build\tBuild the application")
 		fmt.Println("  faster serve\tStart a development server that builds automatically when reloading")
 		fmt.Println()
-		fmt.Println("faster uses a configuration file named 'devserver.yaml' located in the current directory.")
+		fmt.Println("faster uses a configuration file named 'buildfront.yaml' located in the current directory.")
 		fmt.Println()
 		fmt.Println("The development server has the following flags:")
 		flag.PrintDefaults()
@@ -62,7 +62,7 @@ func main() {
 	}
 
 	// Watch and build
-	if args["watch"] {
+	if args["serve"] {
 		StartServices(*configFile)
 		os.Exit(0)
 	}

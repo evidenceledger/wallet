@@ -7,9 +7,6 @@
 // Logging level (if false, only log Errors)
 const LOG_ALL = true
 
-// Logging support
-import { log } from "../log";
-
 // We use a library on top of IndexedDB
 // There are two application stores and one logging store:
 //    "credentials" for storing the credentials
@@ -43,7 +40,7 @@ db.version(0.7).stores({
  */
 async function credentialsSave(_credential, replace = false) {
 
-    log.log("CredentialSave", _credential)
+    mylog("CredentialSave", _credential)
 
 
     if (_credential.id) {
@@ -74,8 +71,8 @@ async function credentialsSave(_credential, replace = false) {
             //@ts-ignore
             await db.credentials.put(credential_to_store)
         } catch (error) {
+            myerror("Error saving credential", error)
             window.MHR.gotoPage("ErrorPage", { "title": "Error saving credential", "msg": error.message })
-            log.error("Error saving credential", error)
             return;
         }
     } else {
@@ -84,12 +81,12 @@ async function credentialsSave(_credential, replace = false) {
             // @ts-ignore
             await db.credentials.add(credential_to_store)
         } catch (error) {
+            myerror("Error saving credential", error)
             if (error.name == "ConstraintError") {
                 window.MHR.gotoPage("ErrorPage", { "title": "Credential already exists", "msg": "Can not save credential: already exists" })
             } else {
                 window.MHR.gotoPage("ErrorPage", { "title": "Error saving credential", "msg": error.message })
             }
-            log.error("Error saving credential", error)
             return;
         }
     }
@@ -100,17 +97,22 @@ async function credentialsSave(_credential, replace = false) {
 }
 
 
-// The _credential object has the following structure:
-//    _credential = {
-//        type: the type of credential: "w3cvc", "eHealth", "ukimmigration", etc
-//        status: the status in the lifecycle of the credential: offered, tobesigned, signed
-//        encoded: the credential encoded in JWT, COSE or any other suitable format
-//        decoded: the credential in plain format as a Javascript object
-//    }
+
+/**
+ * @param {{ encoded: string; }} _credential
+ * 
+ * 
+ * The _credential object has the following structure:
+ * _credential = {
+ *    type: the type of credential: "w3cvc", "eHealth", "ukimmigration", etc
+ *    status: the status in the lifecycle of the credential: offered, tobesigned, signed
+ *    encoded: the credential encoded in JWT, COSE or any other suitable format
+ *    decoded: the credential in plain format as a Javascript object
+ * }
+ */
 async function credentialsDeleteCred(_credential) {
 
-
-    log.log("credentialsDeleteCred", _credential)
+    mylog("credentialsDeleteCred", _credential)
 
     // Calculate the hash of the encoded credential, which will be the key
     var data = new TextEncoder().encode(_credential.encoded);
@@ -123,18 +125,21 @@ async function credentialsDeleteCred(_credential) {
         // @ts-ignore
         await db.credentials.delete(hashHex)
     } catch (error) {
-        log.error(error);
+        myerror(error);
         window.MHR.gotoPage("ErrorPage", { "title": "Error", "msg": "Error deleting credential" })
     }
 }
 
 
+/**
+ * @param {any} key
+ */
 async function credentialsDelete(key) {
     try {
         // @ts-ignore
         await db.credentials.delete(key)
     } catch (error) {
-        log.error(error);
+        myerror(error);
         window.MHR.gotoPage("ErrorPage", { "title": "Error", "msg": "Error deleting credential" })
     }
 }
@@ -144,17 +149,20 @@ async function credentialsDeleteAll() {
         // @ts-ignore
         await db.credentials.clear()
     } catch (error) {
-        log.error(error);
+        myerror(error);
         window.MHR.gotoPage("ErrorPage", { "title": "Error", "msg": "Error deleting all credential" })
     }
 }
 
+/**
+ * @param {any} key
+ */
 async function credentialsGet(key) {
     try {
         // @ts-ignore
         var credential = await db.credentials.get(key)
     } catch (error) {
-        log.error(error);
+        myerror(error);
         alert("Error getting credential")
     }
 
@@ -179,7 +187,7 @@ async function credentialsGetAllRecent(days) {
         var credentials = await db.credentials
             .where('timestamp').aboveOrEqual(dateInThePast).toArray();
     } catch (error) {
-        log.error(error);
+        myerror(error);
         return
     }
 
@@ -192,7 +200,7 @@ async function credentialsGetAllKeys() {
         // @ts-ignore
         var keys = await db.credentials.orderBy("timestamp").primaryKeys();
     } catch (error) {
-        log.error(error);
+        myerror(error);
         window.MHR.gotoPage("ErrorPage", { "title": "Error", "msg": "Error getting all credentials" })
     }
 
@@ -231,7 +239,12 @@ async function resetDatabase() {
 // Basic persistent rotating log on top of IndexedDB
 const MAX_LOG_ENTRIES = 1000
 
-async function mylog_entry(_level, _desc, _item) {
+/**
+ * @param {string} _level
+ * @param {string} _desc
+ * @param {any[]} _item
+ */
+async function mylog_entry(_level, _desc, ..._item) {
 
     // _item should be compatible with Dexie (most objects are)
 
@@ -284,6 +297,10 @@ async function mylog_entry(_level, _desc, _item) {
 //     }
 // }
 
+/**
+ * @param {any} _desc
+ * @param {any[]} additional
+ */
 async function mylog(_desc, ...additional) {
     console.log(_desc, ...additional)
     if (LOG_ALL) {
@@ -303,6 +320,10 @@ async function mylog(_desc, ...additional) {
 //     }
 // }
 
+/**
+ * @param {any} _desc
+ * @param {any[]} additional
+ */
 async function myerror(_desc, ...additional) {
     if (_desc instanceof Error) {
         console.error(_desc, ...additional)
@@ -324,6 +345,10 @@ async function myerror(_desc, ...additional) {
 
 
 // The following are simple wrappers to insulate from future changes in the db
+/**
+ * @param {any} key
+ * @param {any} value
+ */
 async function settingsPut(key, value) {
     try {
         // @ts-ignore
@@ -334,6 +359,9 @@ async function settingsPut(key, value) {
     }
 }
 
+/**
+ * @param {any} key
+ */
 async function settingsGet(key) {
     try {
         // @ts-ignore
@@ -348,6 +376,9 @@ async function settingsGet(key) {
     return setting.value;
 }
 
+/**
+ * @param {any} key
+ */
 async function settingsDelete(key) {
     try {
         // @ts-ignore
@@ -395,7 +426,7 @@ async function didSave(_didObject) {
     // @ts-ignore
     const oldDID = await db.dids.get(_didObject.did)
     if (oldDID) {
-        log.log("DID already existed")
+        mylog("DID already existed")
         return oldDID
     }
 

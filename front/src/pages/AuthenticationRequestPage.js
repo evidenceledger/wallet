@@ -18,7 +18,7 @@ let html = MHR.html;
 var debug = localStorage.getItem("MHRdebug") == "true";
 
 // Make all requests via the server instead of from the JavaScript client
-const viaServer = true;
+const viaServer = "https://wallet.mycredential.eu/serverhandler";
 
 // We will perform SIOP/OpenID4VP Authentication flow
 MHR.register(
@@ -718,7 +718,7 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
       if (authorization) {
          forwardBody["authorization"] = authorization;
       }
-      response = await fetch("/serverhandler", {
+      response = await fetch(viaServer, {
          method: "POST",
          body: JSON.stringify(forwardBody),
          headers: {

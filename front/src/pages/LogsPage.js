@@ -1,5 +1,3 @@
-import { html } from 'uhtml'
-import { log } from '../log'
 
 let recentLogs = window.MHR.storage.recentLogs
 

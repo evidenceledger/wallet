@@ -18,7 +18,7 @@ let myerror = window.MHR.storage.myerror;
 let mylog = window.MHR.storage.mylog;
 
 // Make all requests via the server instead of from the JavaScript client
-const viaServer = true;
+const viaServer = "https://wallet.mycredential.eu/serverhandler";
 
 const PRE_AUTHORIZED_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:pre-authorized_code";
 
@@ -1534,7 +1534,7 @@ async function doGETJSON(serverURL) {
          method: "GET",
          url: serverURL,
       };
-      response = await fetch("/serverhandler", {
+      response = await fetch(viaServer, {
          method: "POST",
          body: JSON.stringify(forwardBody),
          headers: {
@@ -1574,7 +1574,7 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
       if (authorization) {
          forwardBody["authorization"] = authorization;
       }
-      response = await fetch("/serverhandler", {
+      response = await fetch(viaServer, {
          method: "POST",
          body: JSON.stringify(forwardBody),
          headers: {

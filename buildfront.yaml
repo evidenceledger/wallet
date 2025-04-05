@@ -1,3 +1,6 @@
+# Build environment (production or development)
+environment: development
+
 # The directory with the source files for the PWA, relative to current directory
 sourcedir: front/src
 
@@ -11,8 +14,6 @@ cleantarget: true
 # Name is relative to the 'sourcedir'
 htmlfiles:
   - index.html
-  - indexSigner.html
-  - onboarding.html
 
 # The JavaScript files which are the entrypoints (normally included in the HTML files)
 # Name is relative to the 'sourcedir'

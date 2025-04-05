@@ -4,7 +4,6 @@ go 1.23.1
 
 require (
 	github.com/evanw/esbuild v0.25.2
-	github.com/evidenceledger/vcdemo v1.0.8
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/hesusruiz/vcutils v1.1.1
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
@@ -19,6 +18,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
