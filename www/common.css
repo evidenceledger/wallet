@@ -258,6 +258,7 @@
   --ion-margin: 10px
 }
 
+.mobile-centered{margin:auto;max-width: 600px;}
 .half-centered{margin:auto;max-width: 1100px;}
 .small-centered{margin:auto;max-width: 900px;}
 .w3-responsive{display:block;overflow-x:auto}

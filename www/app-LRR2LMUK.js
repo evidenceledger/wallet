@@ -64,7 +64,6 @@ var fullPath = parsedUrl.pathname;
 console.log("Fullpath of app:", fullPath);
 var basePath = fullPath.substring(0, fullPath.lastIndexOf("/"));
 console.log("Base path:", basePath);
-debugger;
 if (basePath.length > 1) {
   for (const path in pageModulesMap) {
     pageModulesMap[path] = basePath + pageModulesMap[path];
@@ -441,4 +440,4 @@ globalThis.MHR = {
   atobUrl,
   pageNameToClass
 };
-//# sourceMappingURL=app-6PVZF4AL.js.map
+//# sourceMappingURL=app-LRR2LMUK.js.map
