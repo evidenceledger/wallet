@@ -288,10 +288,9 @@ func postprocess(r api.BuildResult, config *Config) error {
 	// dynamically load the JavascriptFile before giving control to the page entry point
 	pageNamesMapping := map[string]string{}
 
-	// rootEntryPointMap is a mapping between the target name of the entry point (possibly including its hash in the name),
+	// rootEntries is an array with the target name of the entry point (possibly including its hash in the name),
 	// and the CSS file bundle that is associated to that entry point (possibly because some CSS was imported by the entrypoint
 	// or its dependencies).
-	rootEntryPointMap := map[string]string{}
 
 	type rootEntry struct {
 		EntryPoint string
@@ -318,9 +317,6 @@ func postprocess(r api.BuildResult, config *Config) error {
 		// Get the base name for the outfile of the entrypoint
 		outFileBaseName := filepath.Base(outFile)
 
-		// Get the base name for the CSS bundle corresponding to the entrypoint
-		cssBundleBasename := filepath.Base(outMetaEntry.String("cssBundle"))
-
 		// If the entry point of this outfile is in the configured list of entrypoints
 		if entryPointsMap[outEntryPoint] {
 
@@ -331,11 +327,6 @@ func postprocess(r api.BuildResult, config *Config) error {
 			}
 
 			rootEntries = append(rootEntries, re)
-
-			// Add an entry to the root entry point map
-			rootEntryPointMap[outFile] = cssBundleBasename
-
-			fmt.Println("entryPoint:", outEntryPoint, "-->", outFileBaseName, "+", cssBundleBasename)
 
 		}
 

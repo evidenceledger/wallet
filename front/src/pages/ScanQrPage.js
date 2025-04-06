@@ -282,7 +282,7 @@ MHR.register(
          // Handle a normal QR code with a URL
          if (qrType === QR_URL) {
             mylog("Going to ", this.displayPage);
-            window.MHR.gotoPage(this.displayPage, qrData);
+            window.MHR.gotoPage("DisplayNormalQR", qrData);
             return true;
          }
 
