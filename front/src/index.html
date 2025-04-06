@@ -27,8 +27,8 @@
             { page: "ConfirmDeleteAll", text: "Delete ALL credentials" },
             { page: "ConfirmResetApp", text: "Reset application" },
          ];
-         // The page mapping
-         window.pageModules = PUT_PAGEMAP_HERE;
+         // The page mapping, inserted automatically by the build process
+         window.pageModules = {{ .PageModules }}
 
          window.Ionic = {
             config: {
@@ -37,9 +37,10 @@
          };
       </script>
 
-      <!-- Load the application -->
-      <!-- <link rel="stylesheet" href="PUT_APP_CSS_NAME_HERE" /> -->
-      <script type="module" src="PUT_APP_JS_NAME_HERE"></script>
+      <!-- Load the JavaScrip entry point. Inserted by the build process. -->
+      {{ range .EntryPoints }}
+      <script type="module" src="{{ .EntryPoint }}"></script>
+      {{ end }}
 
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -125,6 +126,7 @@
    </head>
 
    <body>
+
       <header></header>
 
       <splash-screen id="SplashScreen" style="padding: 25px 15px 50px 15px; text-align: center">
@@ -143,6 +145,6 @@
 
       <footer></footer>
 
-      <script src="prism.js"></script>
+      <script src="prism.js" defer></script>
    </body>
 </html>

@@ -36,4 +36,4 @@ window.MHR.register("DisplayNormalQR", class DisplayNormalQR extends window.MHR.
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=DisplayNormalQR.js.map
+//# sourceMappingURL=DisplayNormalQR-M5MIU22O.js.map

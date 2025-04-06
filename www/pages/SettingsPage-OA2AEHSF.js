@@ -42,4 +42,4 @@ var mainPage = html`
       </ion-item>
    </ion-card>
 `;
-//# sourceMappingURL=SettingsPage.js.map
+//# sourceMappingURL=SettingsPage-OA2AEHSF.js.map

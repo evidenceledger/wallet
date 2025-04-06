@@ -38,4 +38,4 @@ window.MHR.register("SWNotify", class SWNotify extends window.MHR.AbstractPage {
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=SWNotify.js.map
+//# sourceMappingURL=SWNotify-BFGJT5Z3.js.map

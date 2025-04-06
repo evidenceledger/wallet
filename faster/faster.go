@@ -15,27 +15,12 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/hesusruiz/vcutils/yaml"
-	"github.com/valyala/fasttemplate"
 
 	"github.com/evanw/esbuild/pkg/api"
 
 	"log"
 
 	"github.com/otiai10/copy"
-)
-
-const (
-	defaultConfigFile              = "./data/config/devserver.yaml"
-	defaultsourcedir               = "front/src"
-	defaulttargetdir               = "docs"
-	defaulthtmlfile                = "index.html"
-	defaultentryPoints             = "app.js"
-	defaultpagedir                 = "/pages"
-	defaultstaticAssets_source     = "front/src/public"
-	defaultstaticAssets_target     = "docs"
-	defaultsubdomainprefix         = "/faster"
-	defaultdevserver_listenAddress = ":3500"
-	defaultdevserver_autobuild     = true
 )
 
 func LookupEnvOrString(key string, defaultVal string) string {
@@ -45,46 +30,56 @@ func LookupEnvOrString(key string, defaultVal string) string {
 	return defaultVal
 }
 
-func BuildFront(configFile string) {
-	// Read configuration file
-	cfg := readConfiguration(configFile)
-	Build(cfg)
+func BuildFront(configFile string) (api.BuildResult, error) {
+
+	// Load the configuration
+	config, err := LoadConfig(configFile)
+	if err != nil {
+		return api.BuildResult{}, err
+	}
+
+	return Build(config)
 }
 
 func WatchAndBuild(configFile string) error {
-	// Read configuration file
-	cfg := readConfiguration(configFile)
-	watchAndBuild(cfg)
+	// Load the configuration
+	config, err := LoadConfig(configFile)
+	if err != nil {
+		return err
+	}
+
+	watchAndBuild(config)
 	return nil
 }
 
 // Build performs a standard Build
-func Build(cfg *yaml.YAML) api.BuildResult {
+func Build(config *Config) (api.BuildResult, error) {
 	// processTemplates(cfg)
-	source := cfg.String("sourcedir")
-	target := cfg.String("targetdir")
+	source := config.Sourcedir
+	target := config.Targetdir
+
 	fmt.Printf("Building: %s --> %s\n", source, target)
 
-	preprocess(cfg)
-	result := buildAndBundle(cfg)
+	preprocess(config)
+	result := buildAndBundle(config)
 	// processResult(result, cfg)
-	copyStaticAssets(cfg)
-	postprocess(result, cfg)
+	copyStaticAssets(config)
+	postprocess(result, config)
 
-	return result
+	return result, nil
 
 }
 
 // preprocess is executed before build, for example to clean the target directory
-func preprocess(cfg *yaml.YAML) {
-	if cfg.Bool("cleantarget") {
-		deleteTargetDir(cfg)
+func preprocess(config *Config) {
+	if config.CleanTarget {
+		deleteTargetDir(config)
 	}
 }
 
 // Clean the target directory from all build artifacts
-func deleteTargetDir(cfg *yaml.YAML) {
-	targetDir := cfg.String("targetdir", defaulttargetdir)
+func deleteTargetDir(config *Config) {
+	targetDir := config.Targetdir
 	if targetDir == "" {
 		log.Println("Warning: targetdir is empty, skipping deletion.")
 		return
@@ -95,10 +90,10 @@ func deleteTargetDir(cfg *yaml.YAML) {
 }
 
 // buildAndBundle uses ESBUILD to build and bundle js/css files
-func buildAndBundle(cfg *yaml.YAML) api.BuildResult {
+func buildAndBundle(config *Config) api.BuildResult {
 
 	// Generate the options structure
-	options := buildOptions(cfg)
+	options := buildOptions(config)
 
 	// Run ESBUILD
 	result := api.Build(options)
@@ -128,7 +123,7 @@ var riteOnLoadPlugin = api.Plugin{
 				// 	return api.OnLoadResult{}, err
 				// }
 
-				fmt.Println("--plugin-- ", args.Path)
+				// fmt.Println("--plugin-- ", args.Path)
 				return api.OnLoadResult{}, nil
 
 				// contents := string(text)
@@ -142,19 +137,19 @@ var riteOnLoadPlugin = api.Plugin{
 }
 
 // Generate the build options struct for ESBUILD
-func buildOptions(cfg *yaml.YAML) api.BuildOptions {
+func buildOptions(config *Config) api.BuildOptions {
 
 	// The base input directory of the project
-	sourceDir := cfg.String("sourcedir", defaultsourcedir)
+	sourceDir := config.Sourcedir
 
 	// Build an array with the relative path of the main entrypoints
-	entryPoints := cfg.ListString("entryPoints")
-	for i := range entryPoints {
-		entryPoints[i] = filepath.Join(sourceDir, entryPoints[i])
+	var entryPoints []string
+	for _, k := range config.EntryPoints {
+		entryPoints = append(entryPoints, filepath.Join(sourceDir, k))
 	}
 
 	// The pages are also entrypoints to process, because they are lazy-loaded
-	pages := pageEntryPoints(cfg)
+	pages := pageEntryPoints(config)
 
 	// Consolidate all entrypoints in a single list
 	entryPoints = append(entryPoints, pages...)
@@ -169,7 +164,7 @@ func buildOptions(cfg *yaml.YAML) api.BuildOptions {
 		EntryPoints:       entryPoints,
 		Format:            api.FormatESModule,
 		Plugins:           []api.Plugin{riteOnLoadPlugin},
-		Outdir:            cfg.String("targetdir"),
+		Outdir:            config.Targetdir,
 		Write:             true,
 		Bundle:            true,
 		Splitting:         true,
@@ -191,25 +186,25 @@ func buildOptions(cfg *yaml.YAML) api.BuildOptions {
 		Metafile:       true,
 	}
 
-	// if cfg.Bool("hashEntrypointNames") {
-	// 	options.EntryNames = "[dir]/[name]-[hash]"
-	// }
+	if config.HashEntrypointNames {
+		options.EntryNames = "[dir]/[name]-[hash]"
+	}
 
 	return options
 }
-func buildProductionOptions(cfg *yaml.YAML) api.BuildOptions {
+func buildProductionOptions(config *Config) api.BuildOptions {
 
 	// The base input directory of the project
-	sourceDir := cfg.String("sourcedir", defaultsourcedir)
+	sourceDir := config.Sourcedir
 
 	// Build an array with the relative path of the main entrypoints
-	entryPoints := cfg.ListString("entryPoints")
+	entryPoints := config.EntryPoints
 	for i := range entryPoints {
 		entryPoints[i] = filepath.Join(sourceDir, entryPoints[i])
 	}
 
 	// The pages are also entrypoints to process, because they are lazy-loaded
-	pages := pageEntryPoints(cfg)
+	pages := pageEntryPoints(config)
 
 	// Consolidate all entrypoints in a single list
 	entryPoints = append(entryPoints, pages...)
@@ -218,7 +213,7 @@ func buildProductionOptions(cfg *yaml.YAML) api.BuildOptions {
 		EntryPoints: entryPoints,
 		Format:      api.FormatESModule,
 		Plugins:     []api.Plugin{riteOnLoadPlugin},
-		Outdir:      cfg.String("targetdir"),
+		Outdir:      config.Targetdir,
 		Write:       true,
 		Bundle:      true,
 		Splitting:   true,
@@ -234,7 +229,7 @@ func buildProductionOptions(cfg *yaml.YAML) api.BuildOptions {
 		Charset:  api.CharsetUTF8,
 	}
 
-	if cfg.Bool("hashEntrypointNames") {
+	if config.HashEntrypointNames {
 		options.EntryNames = "[dir]/[name]-[hash]"
 	}
 
@@ -242,11 +237,14 @@ func buildProductionOptions(cfg *yaml.YAML) api.BuildOptions {
 }
 
 // postprocess is executed after the build for example to modify the resulting files
-func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
+func postprocess(r api.BuildResult, config *Config) error {
 
-	for _, ofile := range r.OutputFiles {
-		fmt.Println(ofile.Path)
-	}
+	// // Print the output structure
+	// fmt.Println("Output files:")
+	// for _, ofile := range r.OutputFiles {
+	// 	fmt.Println(ofile.Path)
+	// }
+	// fmt.Println("================")
 
 	// Get the metafile data and parse it as a string representing a JSON file
 	meta, err := yaml.ParseJson(r.Metafile)
@@ -254,28 +252,35 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 		return err
 	}
 
-	var m map[string]any
-	json.Unmarshal([]byte(r.Metafile), &m)
-	metaOut, _ := json.MarshalIndent(m, "", "  ")
-	fmt.Println(string(metaOut))
+	// var m map[string]any
+	// json.Unmarshal([]byte(r.Metafile), &m)
+	// metaOut, _ := json.MarshalIndent(m, "", "  ")
+	// fmt.Println(string(metaOut))
 
 	// Get the outputs field, which is a map with the key as each output file name
 	outputs := meta.Map("outputs")
+	// printJSON(outputs)
 
-	targetFullDir := cfg.String("pagedir", defaultpagedir)
+	targetFullDir := config.PageDir
+
+	// The base input directory of the project
+	sourceDir := config.Sourcedir
+
+	// Build an array with the relative path of the main entrypoints
+	var entryPoints []string
+	for _, k := range config.EntryPoints {
+		entryPoints = append(entryPoints, filepath.Join(sourceDir, k))
+	}
 
 	// Get a map of the source entrypoints full path, by getting the list in the config file
-	// and prepending the source directory path
-	sourceDir := cfg.String("sourcedir", defaultsourcedir)
-	entryPoints := cfg.ListString("entryPoints")
 	entryPointsMap := map[string]bool{}
 	for i := range entryPoints {
-		entryPointsMap[filepath.Join(sourceDir, entryPoints[i])] = true
+		entryPointsMap[entryPoints[i]] = true
 	}
 
 	// Get a list of the pages of the application, to generate the routing page map
 	// This is the list of file path names in the pagesdir directory, relative to sourcedir
-	pageSourceFileNames := pageEntryPointsAsMap(cfg)
+	pageSourceFileNames := pageEntryPointsAsMap(config)
 
 	// pageNamesMapping will be a mapping between the page name (the file name without the path and extension),
 	// and the full file path for the corresponding target file with the JavaScript code for the page.
@@ -288,6 +293,12 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 	// or its dependencies).
 	rootEntryPointMap := map[string]string{}
 
+	type rootEntry struct {
+		EntryPoint string
+		CssBundle  string
+	}
+	var rootEntries []rootEntry
+
 	// Iterate over all output files in the metadata file
 	// Find the source entrypoint in the output metadata map
 	for outFile, metaData := range outputs {
@@ -295,6 +306,14 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 
 		// The name of the source entrypoint file
 		outEntryPoint := outMetaEntry.String("entryPoint")
+		if len(outEntryPoint) == 0 {
+			continue
+		}
+		fmt.Println(outEntryPoint, "-->", outFile)
+		cssBundle := outMetaEntry.String("cssBundle")
+		if len(cssBundle) > 0 {
+			fmt.Println("    cssBundle:", cssBundle)
+		}
 
 		// Get the base name for the outfile of the entrypoint
 		outFileBaseName := filepath.Base(outFile)
@@ -304,6 +323,14 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 
 		// If the entry point of this outfile is in the configured list of entrypoints
 		if entryPointsMap[outEntryPoint] {
+
+			re := rootEntry{}
+			re.EntryPoint = path.Join(config.Subdomainprefix, filepath.Base(outFile))
+			if len(outMetaEntry.String("cssBundle")) > 0 {
+				re.CssBundle = filepath.Base(outMetaEntry.String("cssBundle"))
+			}
+
+			rootEntries = append(rootEntries, re)
 
 			// Add an entry to the root entry point map
 			rootEntryPointMap[outFile] = cssBundleBasename
@@ -327,17 +354,19 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 		}
 	}
 
-	// We are going to modify the HTML file to:
+	printJSON(rootEntries)
+
+	// We are going to modify the HTML files to:
 	// - Load the JavaScript main entrypoints
 	// - Load the associated CSS bundles (one for each entrypoint)
 
 	pageNamesMappingJSON, _ := json.MarshalIndent(pageNamesMapping, "", "  ")
 
-	indexFiles := cfg.ListString("htmlfiles", []string{defaulthtmlfile})
+	indexFiles := config.HtmlFiles
 
 	for _, indexf := range indexFiles {
 		fmt.Println(indexf)
-		indexFilePath := path.Join(cfg.String("targetdir"), indexf)
+		indexFilePath := path.Join(config.Targetdir, indexf)
 
 		// Read the contents of the output HTML file
 		bytesOut, err := os.ReadFile(indexFilePath)
@@ -345,30 +374,21 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 			log.Fatal(err)
 		}
 
-		for outFile, cssBundleBasename := range rootEntryPointMap {
-
-			// Get the base name for the outfile of the entrypoint
-			outFileBaseName := path.Join(cfg.String("subdomainprefix"), filepath.Base(outFile))
-			fullCSS := path.Join(cfg.String("subdomainprefix"), cssBundleBasename)
-
-			// Replace the entrypoint name for JavaScript
-			bytesOut = bytes.Replace(bytesOut, []byte("PUT_APP_JS_NAME_HERE"), []byte(outFileBaseName), 1)
-
-			// Replace the entrypoint name for CSS
-			bytesOut = bytes.Replace(bytesOut, []byte("PUT_APP_CSS_NAME_HERE"), []byte(fullCSS), 1)
-
-			bytesOut = bytes.Replace(bytesOut, []byte("PUT_PAGEMAP_HERE"), pageNamesMappingJSON, 1)
-
+		templateInputData := map[string]any{
+			"PageModules": string(pageNamesMappingJSON),
+			"EntryPoints": rootEntries,
 		}
 
-		template := string(bytesOut)
-		t := fasttemplate.New(template, "{{", "}}")
-		str := t.ExecuteString(map[string]interface{}{
-			"subdomainprefix": cfg.String("subdomainprefix"),
-		})
+		te := template.Must(template.New("letter").Parse(string(bytesOut)))
+		var templateoutputBuffer bytes.Buffer
+		err = te.Execute(&templateoutputBuffer, templateInputData)
+		if err != nil {
+			log.Println("executing template:", err)
+		}
+		bytesOut = templateoutputBuffer.Bytes()
 
 		// Overwrite file with modified contents
-		err = os.WriteFile(indexFilePath, []byte(str), 0755)
+		err = os.WriteFile(indexFilePath, bytesOut, 0755)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -379,11 +399,11 @@ func postprocess(r api.BuildResult, cfg *yaml.YAML) error {
 
 }
 
-func buildDeps(cfg *yaml.YAML) api.BuildResult {
+func buildDeps(config *Config) api.BuildResult {
 	// processTemplates(cfg)
 
-	preprocess(cfg)
-	result := buildDependencies(cfg)
+	preprocess(config)
+	result := buildDependencies(config)
 
 	return result
 
@@ -391,10 +411,10 @@ func buildDeps(cfg *yaml.YAML) api.BuildResult {
 
 // pageEntryPointsAsMap returns a map with all source page file names (path relative to sourcedir) in the application,
 // which will be entrypoints for the building process.
-func pageEntryPointsAsMap(cfg *yaml.YAML) map[string]bool {
+func pageEntryPointsAsMap(config *Config) map[string]bool {
 
 	// The directory where the pages are located
-	pageDir := filepath.Join(cfg.String("sourcedir", defaultsourcedir), cfg.String("pagedir", defaultpagedir))
+	pageDir := filepath.Join(config.Sourcedir, config.PageDir)
 
 	// Get the files in the directory
 	files, err := os.ReadDir(pageDir)
@@ -411,15 +431,15 @@ func pageEntryPointsAsMap(cfg *yaml.YAML) map[string]bool {
 	return pageMap
 }
 
-func buildOptionsDependencies(cfg *yaml.YAML) api.BuildOptions {
+func buildOptionsDependencies(config *Config) api.BuildOptions {
 
 	// The JavaScript entrypoints
-	entryPoints := cfg.ListString("dependencies")
+	entryPoints := config.Dependencies
 
 	options := api.BuildOptions{
 		EntryPoints: entryPoints,
 		Format:      api.FormatESModule,
-		Outdir:      cfg.String("targetdir"),
+		Outdir:      config.Targetdir,
 		Write:       true,
 		Bundle:      true,
 		Splitting:   false,
@@ -436,10 +456,10 @@ func buildOptionsDependencies(cfg *yaml.YAML) api.BuildOptions {
 	return options
 }
 
-func buildDependencies(cfg *yaml.YAML) api.BuildResult {
+func buildDependencies(config *Config) api.BuildResult {
 	fmt.Println("Building dependencies")
 
-	options := buildOptionsDependencies(cfg)
+	options := buildOptionsDependencies(config)
 	result := api.Build(options)
 
 	printErrors(result.Errors)
@@ -463,9 +483,9 @@ func printErrors(resultErrors []api.Message) {
 // The structure of the source directory is replicated in the target.
 // A file 'images/example.png' in the source staticAssets directory will be accessed as '/images/example.png'
 // via the web.
-func copyStaticAssets(cfg *yaml.YAML) {
-	sourceDir := cfg.String("staticAssets.source", defaultstaticAssets_source)
-	targetDir := cfg.String("staticAssets.target", defaultstaticAssets_target)
+func copyStaticAssets(config *Config) {
+	sourceDir := config.StaticAssets.Source
+	targetDir := config.StaticAssets.Target
 
 	// Copy the source directory to the target root
 	err := copy.Copy(sourceDir, targetDir)
@@ -476,10 +496,10 @@ func copyStaticAssets(cfg *yaml.YAML) {
 	// HTML files are a special case of static assets. The common case for a PWA is that there is just
 	// one html file in the root of the project source directory.
 	// In the future, the 'htmlfiles' entry may be used to pre-process the html files in special ways
-	pages := cfg.ListString("htmlfiles", []string{defaulthtmlfile})
+	pages := config.HtmlFiles
 
-	sourceDir = cfg.String("sourcedir", defaultsourcedir)
-	targetDir = cfg.String("targetdir", defaulttargetdir)
+	sourceDir = config.Sourcedir
+	targetDir = config.Targetdir
 
 	// Copy all HTML files from source to target
 	for _, page := range pages {
@@ -491,24 +511,12 @@ func copyStaticAssets(cfg *yaml.YAML) {
 
 }
 
-func readConfiguration(configFile string) *yaml.YAML {
-	var cfg *yaml.YAML
-	var err error
-
-	cfg, err = yaml.ParseYamlFile(configFile)
-	if err != nil {
-		fmt.Printf("Config file not found\n")
-		panic(err)
-	}
-	return cfg
-}
-
 // pageEntryPoints returns an array with all pages in the application, which will be entrypoints
 // for the building process.
-func pageEntryPoints(cfg *yaml.YAML) []string {
+func pageEntryPoints(config *Config) []string {
 
 	// The directory where the pages are located
-	pageDir := filepath.Join(cfg.String("sourcedir", defaultsourcedir), cfg.String("pagedir", defaultpagedir))
+	pageDir := filepath.Join(config.Sourcedir, config.PageDir)
 
 	// Get the files in the directory
 	files, err := os.ReadDir(pageDir)
@@ -533,9 +541,9 @@ func printJSON(val any) {
 	fmt.Println(string(out))
 }
 
-func processTemplates(cfg *yaml.YAML) {
+func processTemplates(config *Config) {
 
-	parseGlob := filepath.Join(cfg.String("templates.dir"), "*.tpl")
+	parseGlob := filepath.Join(config.Templates.Dir, "*.tpl")
 
 	t, err := template.ParseGlob(parseGlob)
 	if err != nil {
@@ -544,7 +552,7 @@ func processTemplates(cfg *yaml.YAML) {
 
 	var out bytes.Buffer
 
-	for _, elem := range cfg.List("templates.elems") {
+	for _, elem := range config.Templates.Elems {
 		ele := yaml.New(elem)
 		name := ele.String("name")
 		data := ele.Map("data")
@@ -564,9 +572,9 @@ func processTemplates(cfg *yaml.YAML) {
 //
 // The general strategy to deal with this is to wait a short time for more write
 // events, resetting the wait period for every new event.
-func watchAndBuild(cfg *yaml.YAML) {
+func watchAndBuild(config *Config) {
 
-	Build(cfg)
+	Build(config)
 
 	// Create a new watcher.
 	w, err := fsnotify.NewWatcher()
@@ -577,30 +585,33 @@ func watchAndBuild(cfg *yaml.YAML) {
 	defer w.Close()
 
 	// Start listening for events.
-	go dedupLoop(w, cfg)
+	go dedupLoop(w, config)
 
-	watchDir := cfg.String("sourcedir", "src")
+	// Watch the source directory
+	err = w.Add(config.Sourcedir)
+	if err != nil {
+		fmt.Printf("%q: %s", config.Sourcedir, err)
+		os.Exit(1)
+	}
+
+	// Watch the pages directory
+	watchDir := path.Join(config.Sourcedir, config.PageDir)
 	err = w.Add(watchDir)
 	if err != nil {
 		fmt.Printf("%q: %s", watchDir, err)
 		os.Exit(1)
 	}
 
-	watchDir = path.Join(cfg.String("sourcedir"), cfg.String("pagedir", "pages"))
+	// Watch the components directory
+	watchDir = path.Join(config.Sourcedir, config.Components)
 	err = w.Add(watchDir)
 	if err != nil {
 		fmt.Printf("%q: %s", watchDir, err)
 		os.Exit(1)
 	}
 
-	watchDir = path.Join(cfg.String("sourcedir"), cfg.String("components", "components"))
-	err = w.Add(watchDir)
-	if err != nil {
-		fmt.Printf("%q: %s", watchDir, err)
-		os.Exit(1)
-	}
-
-	watchDir = path.Join(cfg.String("sourcedir"), cfg.String("public", "public"))
+	// Watch the Public assets directory
+	watchDir = path.Join(config.Sourcedir, config.Public)
 	err = w.Add(watchDir)
 	if err != nil {
 		fmt.Printf("%q: %s", watchDir, err)
@@ -615,7 +626,7 @@ func printTime(s string, args ...interface{}) {
 	fmt.Printf(time.Now().Format("15:04:05.0000")+" "+s+"\n", args...)
 }
 
-func dedupLoop(w *fsnotify.Watcher, cfg *yaml.YAML) {
+func dedupLoop(w *fsnotify.Watcher, config *Config) {
 	var (
 		// Wait 100ms for new events; each new event resets the timer.
 		waitFor = 100 * time.Millisecond
@@ -627,7 +638,7 @@ func dedupLoop(w *fsnotify.Watcher, cfg *yaml.YAML) {
 		// Callback we run.
 		performBuild = func(e fsnotify.Event) {
 			printTime(e.String())
-			Build(cfg)
+			Build(config)
 
 			// Don't need to remove the timer if you don't have a lot of files.
 			mu.Lock()

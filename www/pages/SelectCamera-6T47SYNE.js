@@ -44,4 +44,4 @@ window.MHR.register("SelectCamera", class extends window.MHR.AbstractPage {
     goHome();
   }
 });
-//# sourceMappingURL=SelectCamera.js.map
+//# sourceMappingURL=SelectCamera-6T47SYNE.js.map

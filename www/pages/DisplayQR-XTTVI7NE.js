@@ -764,4 +764,4 @@ window.MHR.register("DisplayQR", class DisplayQR extends window.MHR.AbstractPage
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=DisplayQR.js.map
+//# sourceMappingURL=DisplayQR-XTTVI7NE.js.map

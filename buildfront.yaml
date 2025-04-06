@@ -35,6 +35,7 @@ staticAssets:
 # This includes the pages names
 hashEntrypointNames: true
 
+# Set this when the application will run under a prefix (e.g. Github Pages)
 subdomainprefix: ""
 
 # Configuration specific to the development server process
@@ -42,8 +43,3 @@ subdomainprefix: ""
 # servers, helping development in complex projects
 devserver:
   listenAddress: ":3500"
-  autobuild: true
-  # Information to proxy some requests to other server
-  # proxy:
-  #   - route: /webauthn/*
-  #     target: http://localhost:3000

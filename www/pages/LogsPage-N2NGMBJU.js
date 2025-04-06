@@ -42,4 +42,4 @@ window.MHR.register("LogsPage", class extends window.MHR.AbstractPage {
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=LogsPage.js.map
+//# sourceMappingURL=LogsPage-N2NGMBJU.js.map

@@ -521,4 +521,4 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error(errormsg);
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage.js.map
+//# sourceMappingURL=AuthenticationRequestPage-KSX6PUED.js.map

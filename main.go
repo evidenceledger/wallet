@@ -55,6 +55,12 @@ func main() {
 		args["build"] = true
 	}
 
+	// Load the configuration
+	_, err := faster.LoadConfig(*configFile)
+	if err != nil {
+		panic(err)
+	}
+
 	// Perform a standard build
 	if args["build"] {
 		faster.BuildFront(*configFile)

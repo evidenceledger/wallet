@@ -22,4 +22,4 @@ window.MHR.register("MenuPage", class extends window.MHR.AbstractPage {
     this.render(menu, true);
   }
 });
-//# sourceMappingURL=MenuPage.js.map
+//# sourceMappingURL=MenuPage-GREVDABR.js.map
