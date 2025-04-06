@@ -4,7 +4,7 @@ import {
 } from "../chunks/chunk-HG7OFKPQ.js";
 import {
   html
-} from "../chunks/chunk-THCKPUYZ.js";
+} from "../chunks/chunk-K7R3KOTQ.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/ScanQrPage.js
@@ -44,7 +44,7 @@ MHR.register(
       super(id);
       if (!("BarcodeDetector" in window)) {
         mylog("Barcode Detector is not supported by this browser.");
-        this.zxingPromise = import("../chunks/esm-NUDK3WF7.js");
+        this.zxingPromise = import("../chunks/esm-PWM52CDK.js");
       } else {
         mylog("Barcode Detector supported!");
         this.nativeBarcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
@@ -466,4 +466,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-HDUSBJ5J.js.map
+//# sourceMappingURL=ScanQrPage-FHEO772S.js.map

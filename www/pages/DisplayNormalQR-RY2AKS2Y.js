@@ -1,6 +1,6 @@
 import {
   html
-} from "../chunks/chunk-THCKPUYZ.js";
+} from "../chunks/chunk-K7R3KOTQ.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/DisplayNormalQR.js
@@ -51,4 +51,4 @@ window.MHR.register(
     }
   }
 );
-//# sourceMappingURL=DisplayNormalQR-4LONP3H6.js.map
+//# sourceMappingURL=DisplayNormalQR-RY2AKS2Y.js.map

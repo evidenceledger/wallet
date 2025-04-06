@@ -2,14 +2,12 @@ import {
   decodeUnsafeJWT,
   renderAnyCredentialCard,
   signJWT
-} from "../chunks/chunk-WYI3LR6R.js";
+} from "../chunks/chunk-SQXV5JUG.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/node_modules/js-base64/base64.mjs
-var version = "3.7.5";
+var version = "3.7.7";
 var VERSION = version;
-var _hasatob = typeof atob === "function";
-var _hasbtoa = typeof btoa === "function";
 var _hasBuffer = typeof Buffer === "function";
 var _TD = typeof TextDecoder === "function" ? new TextDecoder() : void 0;
 var _TE = typeof TextEncoder === "function" ? new TextEncoder() : void 0;
@@ -36,7 +34,7 @@ var btoaPolyfill = (bin) => {
   }
   return pad ? asc.slice(0, pad - 3) + "===".substring(pad) : asc;
 };
-var _btoa = _hasbtoa ? (bin) => btoa(bin) : _hasBuffer ? (bin) => Buffer.from(bin, "binary").toString("base64") : btoaPolyfill;
+var _btoa = typeof btoa === "function" ? (bin) => btoa(bin) : _hasBuffer ? (bin) => Buffer.from(bin, "binary").toString("base64") : btoaPolyfill;
 var _fromUint8Array = _hasBuffer ? (u8a) => Buffer.from(u8a).toString("base64") : (u8a) => {
   const maxargs = 4096;
   let strs = [];
@@ -85,7 +83,7 @@ var atobPolyfill = (asc) => {
   }
   return bin;
 };
-var _atob = _hasatob ? (asc) => atob(_tidyB64(asc)) : _hasBuffer ? (asc) => Buffer.from(asc, "base64").toString("binary") : atobPolyfill;
+var _atob = typeof atob === "function" ? (asc) => atob(_tidyB64(asc)) : _hasBuffer ? (asc) => Buffer.from(asc, "base64").toString("binary") : atobPolyfill;
 var _toUint8Array = _hasBuffer ? (a) => _U8Afrom(Buffer.from(a, "base64")) : (a) => _U8Afrom(_atob(a).split("").map((c) => c.charCodeAt(0)));
 var toUint8Array = (a) => _toUint8Array(_unURI(a));
 var _decode = _hasBuffer ? (a) => Buffer.from(a, "base64").toString("utf8") : _TD ? (a) => _TD.decode(_toUint8Array(a)) : (a) => btou(_atob(a));
@@ -521,4 +519,4 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error(errormsg);
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage-KSX6PUED.js.map
+//# sourceMappingURL=AuthenticationRequestPage-3UK3C2KF.js.map

@@ -48,6 +48,1091 @@ var require_lodash = __commonJS({
   }
 });
 
+// front/node_modules/reflect-metadata/Reflect.js
+var require_Reflect = __commonJS({
+  "front/node_modules/reflect-metadata/Reflect.js"() {
+    var Reflect2;
+    (function(Reflect3) {
+      (function(factory) {
+        var root = typeof globalThis === "object" ? globalThis : typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : sloppyModeThis();
+        var exporter = makeExporter(Reflect3);
+        if (typeof root.Reflect !== "undefined") {
+          exporter = makeExporter(root.Reflect, exporter);
+        }
+        factory(exporter, root);
+        if (typeof root.Reflect === "undefined") {
+          root.Reflect = Reflect3;
+        }
+        function makeExporter(target, previous) {
+          return function(key, value) {
+            Object.defineProperty(target, key, { configurable: true, writable: true, value });
+            if (previous)
+              previous(key, value);
+          };
+        }
+        function functionThis() {
+          try {
+            return Function("return this;")();
+          } catch (_) {
+          }
+        }
+        function indirectEvalThis() {
+          try {
+            return (void 0, eval)("(function() { return this; })()");
+          } catch (_) {
+          }
+        }
+        function sloppyModeThis() {
+          return functionThis() || indirectEvalThis();
+        }
+      })(function(exporter, root) {
+        var hasOwn = Object.prototype.hasOwnProperty;
+        var supportsSymbol = typeof Symbol === "function";
+        var toPrimitiveSymbol = supportsSymbol && typeof Symbol.toPrimitive !== "undefined" ? Symbol.toPrimitive : "@@toPrimitive";
+        var iteratorSymbol = supportsSymbol && typeof Symbol.iterator !== "undefined" ? Symbol.iterator : "@@iterator";
+        var supportsCreate = typeof Object.create === "function";
+        var supportsProto = { __proto__: [] } instanceof Array;
+        var downLevel = !supportsCreate && !supportsProto;
+        var HashMap = {
+          // create an object in dictionary mode (a.k.a. "slow" mode in v8)
+          create: supportsCreate ? function() {
+            return MakeDictionary(/* @__PURE__ */ Object.create(null));
+          } : supportsProto ? function() {
+            return MakeDictionary({ __proto__: null });
+          } : function() {
+            return MakeDictionary({});
+          },
+          has: downLevel ? function(map, key) {
+            return hasOwn.call(map, key);
+          } : function(map, key) {
+            return key in map;
+          },
+          get: downLevel ? function(map, key) {
+            return hasOwn.call(map, key) ? map[key] : void 0;
+          } : function(map, key) {
+            return map[key];
+          }
+        };
+        var functionPrototype = Object.getPrototypeOf(Function);
+        var _Map = typeof Map === "function" && typeof Map.prototype.entries === "function" ? Map : CreateMapPolyfill();
+        var _Set = typeof Set === "function" && typeof Set.prototype.entries === "function" ? Set : CreateSetPolyfill();
+        var _WeakMap = typeof WeakMap === "function" ? WeakMap : CreateWeakMapPolyfill();
+        var registrySymbol = supportsSymbol ? Symbol.for("@reflect-metadata:registry") : void 0;
+        var metadataRegistry = GetOrCreateMetadataRegistry();
+        var metadataProvider = CreateMetadataProvider(metadataRegistry);
+        function decorate(decorators, target, propertyKey, attributes) {
+          if (!IsUndefined(propertyKey)) {
+            if (!IsArray(decorators))
+              throw new TypeError();
+            if (!IsObject(target))
+              throw new TypeError();
+            if (!IsObject(attributes) && !IsUndefined(attributes) && !IsNull(attributes))
+              throw new TypeError();
+            if (IsNull(attributes))
+              attributes = void 0;
+            propertyKey = ToPropertyKey(propertyKey);
+            return DecorateProperty(decorators, target, propertyKey, attributes);
+          } else {
+            if (!IsArray(decorators))
+              throw new TypeError();
+            if (!IsConstructor(target))
+              throw new TypeError();
+            return DecorateConstructor(decorators, target);
+          }
+        }
+        exporter("decorate", decorate);
+        function metadata(metadataKey, metadataValue) {
+          function decorator(target, propertyKey) {
+            if (!IsObject(target))
+              throw new TypeError();
+            if (!IsUndefined(propertyKey) && !IsPropertyKey(propertyKey))
+              throw new TypeError();
+            OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+          }
+          return decorator;
+        }
+        exporter("metadata", metadata);
+        function defineMetadata(metadataKey, metadataValue, target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+        }
+        exporter("defineMetadata", defineMetadata);
+        function hasMetadata(metadataKey, target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryHasMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("hasMetadata", hasMetadata);
+        function hasOwnMetadata(metadataKey, target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryHasOwnMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("hasOwnMetadata", hasOwnMetadata);
+        function getMetadata(metadataKey, target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryGetMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("getMetadata", getMetadata);
+        function getOwnMetadata(metadataKey, target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryGetOwnMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("getOwnMetadata", getOwnMetadata);
+        function getMetadataKeys(target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryMetadataKeys(target, propertyKey);
+        }
+        exporter("getMetadataKeys", getMetadataKeys);
+        function getOwnMetadataKeys(target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          return OrdinaryOwnMetadataKeys(target, propertyKey);
+        }
+        exporter("getOwnMetadataKeys", getOwnMetadataKeys);
+        function deleteMetadata(metadataKey, target, propertyKey) {
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          if (!IsObject(target))
+            throw new TypeError();
+          if (!IsUndefined(propertyKey))
+            propertyKey = ToPropertyKey(propertyKey);
+          var provider = GetMetadataProvider(
+            target,
+            propertyKey,
+            /*Create*/
+            false
+          );
+          if (IsUndefined(provider))
+            return false;
+          return provider.OrdinaryDeleteMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("deleteMetadata", deleteMetadata);
+        function DecorateConstructor(decorators, target) {
+          for (var i = decorators.length - 1; i >= 0; --i) {
+            var decorator = decorators[i];
+            var decorated = decorator(target);
+            if (!IsUndefined(decorated) && !IsNull(decorated)) {
+              if (!IsConstructor(decorated))
+                throw new TypeError();
+              target = decorated;
+            }
+          }
+          return target;
+        }
+        function DecorateProperty(decorators, target, propertyKey, descriptor) {
+          for (var i = decorators.length - 1; i >= 0; --i) {
+            var decorator = decorators[i];
+            var decorated = decorator(target, propertyKey, descriptor);
+            if (!IsUndefined(decorated) && !IsNull(decorated)) {
+              if (!IsObject(decorated))
+                throw new TypeError();
+              descriptor = decorated;
+            }
+          }
+          return descriptor;
+        }
+        function OrdinaryHasMetadata(MetadataKey, O, P) {
+          var hasOwn2 = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+          if (hasOwn2)
+            return true;
+          var parent = OrdinaryGetPrototypeOf(O);
+          if (!IsNull(parent))
+            return OrdinaryHasMetadata(MetadataKey, parent, P);
+          return false;
+        }
+        function OrdinaryHasOwnMetadata(MetadataKey, O, P) {
+          var provider = GetMetadataProvider(
+            O,
+            P,
+            /*Create*/
+            false
+          );
+          if (IsUndefined(provider))
+            return false;
+          return ToBoolean(provider.OrdinaryHasOwnMetadata(MetadataKey, O, P));
+        }
+        function OrdinaryGetMetadata(MetadataKey, O, P) {
+          var hasOwn2 = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+          if (hasOwn2)
+            return OrdinaryGetOwnMetadata(MetadataKey, O, P);
+          var parent = OrdinaryGetPrototypeOf(O);
+          if (!IsNull(parent))
+            return OrdinaryGetMetadata(MetadataKey, parent, P);
+          return void 0;
+        }
+        function OrdinaryGetOwnMetadata(MetadataKey, O, P) {
+          var provider = GetMetadataProvider(
+            O,
+            P,
+            /*Create*/
+            false
+          );
+          if (IsUndefined(provider))
+            return;
+          return provider.OrdinaryGetOwnMetadata(MetadataKey, O, P);
+        }
+        function OrdinaryDefineOwnMetadata(MetadataKey, MetadataValue, O, P) {
+          var provider = GetMetadataProvider(
+            O,
+            P,
+            /*Create*/
+            true
+          );
+          provider.OrdinaryDefineOwnMetadata(MetadataKey, MetadataValue, O, P);
+        }
+        function OrdinaryMetadataKeys(O, P) {
+          var ownKeys = OrdinaryOwnMetadataKeys(O, P);
+          var parent = OrdinaryGetPrototypeOf(O);
+          if (parent === null)
+            return ownKeys;
+          var parentKeys = OrdinaryMetadataKeys(parent, P);
+          if (parentKeys.length <= 0)
+            return ownKeys;
+          if (ownKeys.length <= 0)
+            return parentKeys;
+          var set = new _Set();
+          var keys = [];
+          for (var _i = 0, ownKeys_1 = ownKeys; _i < ownKeys_1.length; _i++) {
+            var key = ownKeys_1[_i];
+            var hasKey = set.has(key);
+            if (!hasKey) {
+              set.add(key);
+              keys.push(key);
+            }
+          }
+          for (var _a3 = 0, parentKeys_1 = parentKeys; _a3 < parentKeys_1.length; _a3++) {
+            var key = parentKeys_1[_a3];
+            var hasKey = set.has(key);
+            if (!hasKey) {
+              set.add(key);
+              keys.push(key);
+            }
+          }
+          return keys;
+        }
+        function OrdinaryOwnMetadataKeys(O, P) {
+          var provider = GetMetadataProvider(
+            O,
+            P,
+            /*create*/
+            false
+          );
+          if (!provider) {
+            return [];
+          }
+          return provider.OrdinaryOwnMetadataKeys(O, P);
+        }
+        function Type(x) {
+          if (x === null)
+            return 1;
+          switch (typeof x) {
+            case "undefined":
+              return 0;
+            case "boolean":
+              return 2;
+            case "string":
+              return 3;
+            case "symbol":
+              return 4;
+            case "number":
+              return 5;
+            case "object":
+              return x === null ? 1 : 6;
+            default:
+              return 6;
+          }
+        }
+        function IsUndefined(x) {
+          return x === void 0;
+        }
+        function IsNull(x) {
+          return x === null;
+        }
+        function IsSymbol(x) {
+          return typeof x === "symbol";
+        }
+        function IsObject(x) {
+          return typeof x === "object" ? x !== null : typeof x === "function";
+        }
+        function ToPrimitive(input, PreferredType) {
+          switch (Type(input)) {
+            case 0:
+              return input;
+            case 1:
+              return input;
+            case 2:
+              return input;
+            case 3:
+              return input;
+            case 4:
+              return input;
+            case 5:
+              return input;
+          }
+          var hint = PreferredType === 3 ? "string" : PreferredType === 5 ? "number" : "default";
+          var exoticToPrim = GetMethod(input, toPrimitiveSymbol);
+          if (exoticToPrim !== void 0) {
+            var result = exoticToPrim.call(input, hint);
+            if (IsObject(result))
+              throw new TypeError();
+            return result;
+          }
+          return OrdinaryToPrimitive(input, hint === "default" ? "number" : hint);
+        }
+        function OrdinaryToPrimitive(O, hint) {
+          if (hint === "string") {
+            var toString_1 = O.toString;
+            if (IsCallable(toString_1)) {
+              var result = toString_1.call(O);
+              if (!IsObject(result))
+                return result;
+            }
+            var valueOf = O.valueOf;
+            if (IsCallable(valueOf)) {
+              var result = valueOf.call(O);
+              if (!IsObject(result))
+                return result;
+            }
+          } else {
+            var valueOf = O.valueOf;
+            if (IsCallable(valueOf)) {
+              var result = valueOf.call(O);
+              if (!IsObject(result))
+                return result;
+            }
+            var toString_2 = O.toString;
+            if (IsCallable(toString_2)) {
+              var result = toString_2.call(O);
+              if (!IsObject(result))
+                return result;
+            }
+          }
+          throw new TypeError();
+        }
+        function ToBoolean(argument) {
+          return !!argument;
+        }
+        function ToString(argument) {
+          return "" + argument;
+        }
+        function ToPropertyKey(argument) {
+          var key = ToPrimitive(
+            argument,
+            3
+            /* String */
+          );
+          if (IsSymbol(key))
+            return key;
+          return ToString(key);
+        }
+        function IsArray(argument) {
+          return Array.isArray ? Array.isArray(argument) : argument instanceof Object ? argument instanceof Array : Object.prototype.toString.call(argument) === "[object Array]";
+        }
+        function IsCallable(argument) {
+          return typeof argument === "function";
+        }
+        function IsConstructor(argument) {
+          return typeof argument === "function";
+        }
+        function IsPropertyKey(argument) {
+          switch (Type(argument)) {
+            case 3:
+              return true;
+            case 4:
+              return true;
+            default:
+              return false;
+          }
+        }
+        function SameValueZero(x, y) {
+          return x === y || x !== x && y !== y;
+        }
+        function GetMethod(V, P) {
+          var func = V[P];
+          if (func === void 0 || func === null)
+            return void 0;
+          if (!IsCallable(func))
+            throw new TypeError();
+          return func;
+        }
+        function GetIterator(obj) {
+          var method = GetMethod(obj, iteratorSymbol);
+          if (!IsCallable(method))
+            throw new TypeError();
+          var iterator = method.call(obj);
+          if (!IsObject(iterator))
+            throw new TypeError();
+          return iterator;
+        }
+        function IteratorValue(iterResult) {
+          return iterResult.value;
+        }
+        function IteratorStep(iterator) {
+          var result = iterator.next();
+          return result.done ? false : result;
+        }
+        function IteratorClose(iterator) {
+          var f = iterator["return"];
+          if (f)
+            f.call(iterator);
+        }
+        function OrdinaryGetPrototypeOf(O) {
+          var proto = Object.getPrototypeOf(O);
+          if (typeof O !== "function" || O === functionPrototype)
+            return proto;
+          if (proto !== functionPrototype)
+            return proto;
+          var prototype = O.prototype;
+          var prototypeProto = prototype && Object.getPrototypeOf(prototype);
+          if (prototypeProto == null || prototypeProto === Object.prototype)
+            return proto;
+          var constructor = prototypeProto.constructor;
+          if (typeof constructor !== "function")
+            return proto;
+          if (constructor === O)
+            return proto;
+          return constructor;
+        }
+        function CreateMetadataRegistry() {
+          var fallback;
+          if (!IsUndefined(registrySymbol) && typeof root.Reflect !== "undefined" && !(registrySymbol in root.Reflect) && typeof root.Reflect.defineMetadata === "function") {
+            fallback = CreateFallbackProvider(root.Reflect);
+          }
+          var first;
+          var second;
+          var rest;
+          var targetProviderMap = new _WeakMap();
+          var registry = {
+            registerProvider,
+            getProvider,
+            setProvider
+          };
+          return registry;
+          function registerProvider(provider) {
+            if (!Object.isExtensible(registry)) {
+              throw new Error("Cannot add provider to a frozen registry.");
+            }
+            switch (true) {
+              case fallback === provider:
+                break;
+              case IsUndefined(first):
+                first = provider;
+                break;
+              case first === provider:
+                break;
+              case IsUndefined(second):
+                second = provider;
+                break;
+              case second === provider:
+                break;
+              default:
+                if (rest === void 0)
+                  rest = new _Set();
+                rest.add(provider);
+                break;
+            }
+          }
+          function getProviderNoCache(O, P) {
+            if (!IsUndefined(first)) {
+              if (first.isProviderFor(O, P))
+                return first;
+              if (!IsUndefined(second)) {
+                if (second.isProviderFor(O, P))
+                  return first;
+                if (!IsUndefined(rest)) {
+                  var iterator = GetIterator(rest);
+                  while (true) {
+                    var next = IteratorStep(iterator);
+                    if (!next) {
+                      return void 0;
+                    }
+                    var provider = IteratorValue(next);
+                    if (provider.isProviderFor(O, P)) {
+                      IteratorClose(iterator);
+                      return provider;
+                    }
+                  }
+                }
+              }
+            }
+            if (!IsUndefined(fallback) && fallback.isProviderFor(O, P)) {
+              return fallback;
+            }
+            return void 0;
+          }
+          function getProvider(O, P) {
+            var providerMap = targetProviderMap.get(O);
+            var provider;
+            if (!IsUndefined(providerMap)) {
+              provider = providerMap.get(P);
+            }
+            if (!IsUndefined(provider)) {
+              return provider;
+            }
+            provider = getProviderNoCache(O, P);
+            if (!IsUndefined(provider)) {
+              if (IsUndefined(providerMap)) {
+                providerMap = new _Map();
+                targetProviderMap.set(O, providerMap);
+              }
+              providerMap.set(P, provider);
+            }
+            return provider;
+          }
+          function hasProvider(provider) {
+            if (IsUndefined(provider))
+              throw new TypeError();
+            return first === provider || second === provider || !IsUndefined(rest) && rest.has(provider);
+          }
+          function setProvider(O, P, provider) {
+            if (!hasProvider(provider)) {
+              throw new Error("Metadata provider not registered.");
+            }
+            var existingProvider = getProvider(O, P);
+            if (existingProvider !== provider) {
+              if (!IsUndefined(existingProvider)) {
+                return false;
+              }
+              var providerMap = targetProviderMap.get(O);
+              if (IsUndefined(providerMap)) {
+                providerMap = new _Map();
+                targetProviderMap.set(O, providerMap);
+              }
+              providerMap.set(P, provider);
+            }
+            return true;
+          }
+        }
+        function GetOrCreateMetadataRegistry() {
+          var metadataRegistry2;
+          if (!IsUndefined(registrySymbol) && IsObject(root.Reflect) && Object.isExtensible(root.Reflect)) {
+            metadataRegistry2 = root.Reflect[registrySymbol];
+          }
+          if (IsUndefined(metadataRegistry2)) {
+            metadataRegistry2 = CreateMetadataRegistry();
+          }
+          if (!IsUndefined(registrySymbol) && IsObject(root.Reflect) && Object.isExtensible(root.Reflect)) {
+            Object.defineProperty(root.Reflect, registrySymbol, {
+              enumerable: false,
+              configurable: false,
+              writable: false,
+              value: metadataRegistry2
+            });
+          }
+          return metadataRegistry2;
+        }
+        function CreateMetadataProvider(registry) {
+          var metadata2 = new _WeakMap();
+          var provider = {
+            isProviderFor: function(O, P) {
+              var targetMetadata = metadata2.get(O);
+              if (IsUndefined(targetMetadata))
+                return false;
+              return targetMetadata.has(P);
+            },
+            OrdinaryDefineOwnMetadata: OrdinaryDefineOwnMetadata2,
+            OrdinaryHasOwnMetadata: OrdinaryHasOwnMetadata2,
+            OrdinaryGetOwnMetadata: OrdinaryGetOwnMetadata2,
+            OrdinaryOwnMetadataKeys: OrdinaryOwnMetadataKeys2,
+            OrdinaryDeleteMetadata
+          };
+          metadataRegistry.registerProvider(provider);
+          return provider;
+          function GetOrCreateMetadataMap(O, P, Create) {
+            var targetMetadata = metadata2.get(O);
+            var createdTargetMetadata = false;
+            if (IsUndefined(targetMetadata)) {
+              if (!Create)
+                return void 0;
+              targetMetadata = new _Map();
+              metadata2.set(O, targetMetadata);
+              createdTargetMetadata = true;
+            }
+            var metadataMap = targetMetadata.get(P);
+            if (IsUndefined(metadataMap)) {
+              if (!Create)
+                return void 0;
+              metadataMap = new _Map();
+              targetMetadata.set(P, metadataMap);
+              if (!registry.setProvider(O, P, provider)) {
+                targetMetadata.delete(P);
+                if (createdTargetMetadata) {
+                  metadata2.delete(O);
+                }
+                throw new Error("Wrong provider for target.");
+              }
+            }
+            return metadataMap;
+          }
+          function OrdinaryHasOwnMetadata2(MetadataKey, O, P) {
+            var metadataMap = GetOrCreateMetadataMap(
+              O,
+              P,
+              /*Create*/
+              false
+            );
+            if (IsUndefined(metadataMap))
+              return false;
+            return ToBoolean(metadataMap.has(MetadataKey));
+          }
+          function OrdinaryGetOwnMetadata2(MetadataKey, O, P) {
+            var metadataMap = GetOrCreateMetadataMap(
+              O,
+              P,
+              /*Create*/
+              false
+            );
+            if (IsUndefined(metadataMap))
+              return void 0;
+            return metadataMap.get(MetadataKey);
+          }
+          function OrdinaryDefineOwnMetadata2(MetadataKey, MetadataValue, O, P) {
+            var metadataMap = GetOrCreateMetadataMap(
+              O,
+              P,
+              /*Create*/
+              true
+            );
+            metadataMap.set(MetadataKey, MetadataValue);
+          }
+          function OrdinaryOwnMetadataKeys2(O, P) {
+            var keys = [];
+            var metadataMap = GetOrCreateMetadataMap(
+              O,
+              P,
+              /*Create*/
+              false
+            );
+            if (IsUndefined(metadataMap))
+              return keys;
+            var keysObj = metadataMap.keys();
+            var iterator = GetIterator(keysObj);
+            var k = 0;
+            while (true) {
+              var next = IteratorStep(iterator);
+              if (!next) {
+                keys.length = k;
+                return keys;
+              }
+              var nextValue = IteratorValue(next);
+              try {
+                keys[k] = nextValue;
+              } catch (e) {
+                try {
+                  IteratorClose(iterator);
+                } finally {
+                  throw e;
+                }
+              }
+              k++;
+            }
+          }
+          function OrdinaryDeleteMetadata(MetadataKey, O, P) {
+            var metadataMap = GetOrCreateMetadataMap(
+              O,
+              P,
+              /*Create*/
+              false
+            );
+            if (IsUndefined(metadataMap))
+              return false;
+            if (!metadataMap.delete(MetadataKey))
+              return false;
+            if (metadataMap.size === 0) {
+              var targetMetadata = metadata2.get(O);
+              if (!IsUndefined(targetMetadata)) {
+                targetMetadata.delete(P);
+                if (targetMetadata.size === 0) {
+                  metadata2.delete(targetMetadata);
+                }
+              }
+            }
+            return true;
+          }
+        }
+        function CreateFallbackProvider(reflect) {
+          var defineMetadata2 = reflect.defineMetadata, hasOwnMetadata2 = reflect.hasOwnMetadata, getOwnMetadata2 = reflect.getOwnMetadata, getOwnMetadataKeys2 = reflect.getOwnMetadataKeys, deleteMetadata2 = reflect.deleteMetadata;
+          var metadataOwner = new _WeakMap();
+          var provider = {
+            isProviderFor: function(O, P) {
+              var metadataPropertySet = metadataOwner.get(O);
+              if (!IsUndefined(metadataPropertySet) && metadataPropertySet.has(P)) {
+                return true;
+              }
+              if (getOwnMetadataKeys2(O, P).length) {
+                if (IsUndefined(metadataPropertySet)) {
+                  metadataPropertySet = new _Set();
+                  metadataOwner.set(O, metadataPropertySet);
+                }
+                metadataPropertySet.add(P);
+                return true;
+              }
+              return false;
+            },
+            OrdinaryDefineOwnMetadata: defineMetadata2,
+            OrdinaryHasOwnMetadata: hasOwnMetadata2,
+            OrdinaryGetOwnMetadata: getOwnMetadata2,
+            OrdinaryOwnMetadataKeys: getOwnMetadataKeys2,
+            OrdinaryDeleteMetadata: deleteMetadata2
+          };
+          return provider;
+        }
+        function GetMetadataProvider(O, P, Create) {
+          var registeredProvider = metadataRegistry.getProvider(O, P);
+          if (!IsUndefined(registeredProvider)) {
+            return registeredProvider;
+          }
+          if (Create) {
+            if (metadataRegistry.setProvider(O, P, metadataProvider)) {
+              return metadataProvider;
+            }
+            throw new Error("Illegal state.");
+          }
+          return void 0;
+        }
+        function CreateMapPolyfill() {
+          var cacheSentinel = {};
+          var arraySentinel = [];
+          var MapIterator = (
+            /** @class */
+            function() {
+              function MapIterator2(keys, values, selector) {
+                this._index = 0;
+                this._keys = keys;
+                this._values = values;
+                this._selector = selector;
+              }
+              MapIterator2.prototype["@@iterator"] = function() {
+                return this;
+              };
+              MapIterator2.prototype[iteratorSymbol] = function() {
+                return this;
+              };
+              MapIterator2.prototype.next = function() {
+                var index = this._index;
+                if (index >= 0 && index < this._keys.length) {
+                  var result = this._selector(this._keys[index], this._values[index]);
+                  if (index + 1 >= this._keys.length) {
+                    this._index = -1;
+                    this._keys = arraySentinel;
+                    this._values = arraySentinel;
+                  } else {
+                    this._index++;
+                  }
+                  return { value: result, done: false };
+                }
+                return { value: void 0, done: true };
+              };
+              MapIterator2.prototype.throw = function(error) {
+                if (this._index >= 0) {
+                  this._index = -1;
+                  this._keys = arraySentinel;
+                  this._values = arraySentinel;
+                }
+                throw error;
+              };
+              MapIterator2.prototype.return = function(value) {
+                if (this._index >= 0) {
+                  this._index = -1;
+                  this._keys = arraySentinel;
+                  this._values = arraySentinel;
+                }
+                return { value, done: true };
+              };
+              return MapIterator2;
+            }()
+          );
+          var Map2 = (
+            /** @class */
+            function() {
+              function Map3() {
+                this._keys = [];
+                this._values = [];
+                this._cacheKey = cacheSentinel;
+                this._cacheIndex = -2;
+              }
+              Object.defineProperty(Map3.prototype, "size", {
+                get: function() {
+                  return this._keys.length;
+                },
+                enumerable: true,
+                configurable: true
+              });
+              Map3.prototype.has = function(key) {
+                return this._find(
+                  key,
+                  /*insert*/
+                  false
+                ) >= 0;
+              };
+              Map3.prototype.get = function(key) {
+                var index = this._find(
+                  key,
+                  /*insert*/
+                  false
+                );
+                return index >= 0 ? this._values[index] : void 0;
+              };
+              Map3.prototype.set = function(key, value) {
+                var index = this._find(
+                  key,
+                  /*insert*/
+                  true
+                );
+                this._values[index] = value;
+                return this;
+              };
+              Map3.prototype.delete = function(key) {
+                var index = this._find(
+                  key,
+                  /*insert*/
+                  false
+                );
+                if (index >= 0) {
+                  var size = this._keys.length;
+                  for (var i = index + 1; i < size; i++) {
+                    this._keys[i - 1] = this._keys[i];
+                    this._values[i - 1] = this._values[i];
+                  }
+                  this._keys.length--;
+                  this._values.length--;
+                  if (SameValueZero(key, this._cacheKey)) {
+                    this._cacheKey = cacheSentinel;
+                    this._cacheIndex = -2;
+                  }
+                  return true;
+                }
+                return false;
+              };
+              Map3.prototype.clear = function() {
+                this._keys.length = 0;
+                this._values.length = 0;
+                this._cacheKey = cacheSentinel;
+                this._cacheIndex = -2;
+              };
+              Map3.prototype.keys = function() {
+                return new MapIterator(this._keys, this._values, getKey);
+              };
+              Map3.prototype.values = function() {
+                return new MapIterator(this._keys, this._values, getValue);
+              };
+              Map3.prototype.entries = function() {
+                return new MapIterator(this._keys, this._values, getEntry);
+              };
+              Map3.prototype["@@iterator"] = function() {
+                return this.entries();
+              };
+              Map3.prototype[iteratorSymbol] = function() {
+                return this.entries();
+              };
+              Map3.prototype._find = function(key, insert) {
+                if (!SameValueZero(this._cacheKey, key)) {
+                  this._cacheIndex = -1;
+                  for (var i = 0; i < this._keys.length; i++) {
+                    if (SameValueZero(this._keys[i], key)) {
+                      this._cacheIndex = i;
+                      break;
+                    }
+                  }
+                }
+                if (this._cacheIndex < 0 && insert) {
+                  this._cacheIndex = this._keys.length;
+                  this._keys.push(key);
+                  this._values.push(void 0);
+                }
+                return this._cacheIndex;
+              };
+              return Map3;
+            }()
+          );
+          return Map2;
+          function getKey(key, _) {
+            return key;
+          }
+          function getValue(_, value) {
+            return value;
+          }
+          function getEntry(key, value) {
+            return [key, value];
+          }
+        }
+        function CreateSetPolyfill() {
+          var Set3 = (
+            /** @class */
+            function() {
+              function Set4() {
+                this._map = new _Map();
+              }
+              Object.defineProperty(Set4.prototype, "size", {
+                get: function() {
+                  return this._map.size;
+                },
+                enumerable: true,
+                configurable: true
+              });
+              Set4.prototype.has = function(value) {
+                return this._map.has(value);
+              };
+              Set4.prototype.add = function(value) {
+                return this._map.set(value, value), this;
+              };
+              Set4.prototype.delete = function(value) {
+                return this._map.delete(value);
+              };
+              Set4.prototype.clear = function() {
+                this._map.clear();
+              };
+              Set4.prototype.keys = function() {
+                return this._map.keys();
+              };
+              Set4.prototype.values = function() {
+                return this._map.keys();
+              };
+              Set4.prototype.entries = function() {
+                return this._map.entries();
+              };
+              Set4.prototype["@@iterator"] = function() {
+                return this.keys();
+              };
+              Set4.prototype[iteratorSymbol] = function() {
+                return this.keys();
+              };
+              return Set4;
+            }()
+          );
+          return Set3;
+        }
+        function CreateWeakMapPolyfill() {
+          var UUID_SIZE = 16;
+          var keys = HashMap.create();
+          var rootKey = CreateUniqueKey();
+          return (
+            /** @class */
+            function() {
+              function WeakMap2() {
+                this._key = CreateUniqueKey();
+              }
+              WeakMap2.prototype.has = function(target) {
+                var table = GetOrCreateWeakMapTable(
+                  target,
+                  /*create*/
+                  false
+                );
+                return table !== void 0 ? HashMap.has(table, this._key) : false;
+              };
+              WeakMap2.prototype.get = function(target) {
+                var table = GetOrCreateWeakMapTable(
+                  target,
+                  /*create*/
+                  false
+                );
+                return table !== void 0 ? HashMap.get(table, this._key) : void 0;
+              };
+              WeakMap2.prototype.set = function(target, value) {
+                var table = GetOrCreateWeakMapTable(
+                  target,
+                  /*create*/
+                  true
+                );
+                table[this._key] = value;
+                return this;
+              };
+              WeakMap2.prototype.delete = function(target) {
+                var table = GetOrCreateWeakMapTable(
+                  target,
+                  /*create*/
+                  false
+                );
+                return table !== void 0 ? delete table[this._key] : false;
+              };
+              WeakMap2.prototype.clear = function() {
+                this._key = CreateUniqueKey();
+              };
+              return WeakMap2;
+            }()
+          );
+          function CreateUniqueKey() {
+            var key;
+            do
+              key = "@@WeakMap@@" + CreateUUID();
+            while (HashMap.has(keys, key));
+            keys[key] = true;
+            return key;
+          }
+          function GetOrCreateWeakMapTable(target, create4) {
+            if (!hasOwn.call(target, rootKey)) {
+              if (!create4)
+                return void 0;
+              Object.defineProperty(target, rootKey, { value: HashMap.create() });
+            }
+            return target[rootKey];
+          }
+          function FillRandomBytes(buffer, size) {
+            for (var i = 0; i < size; ++i)
+              buffer[i] = Math.random() * 255 | 0;
+            return buffer;
+          }
+          function GenRandomBytes(size) {
+            if (typeof Uint8Array === "function") {
+              var array = new Uint8Array(size);
+              if (typeof crypto !== "undefined") {
+                crypto.getRandomValues(array);
+              } else if (typeof msCrypto !== "undefined") {
+                msCrypto.getRandomValues(array);
+              } else {
+                FillRandomBytes(array, size);
+              }
+              return array;
+            }
+            return FillRandomBytes(new Array(size), size);
+          }
+          function CreateUUID() {
+            var data = GenRandomBytes(UUID_SIZE);
+            data[6] = data[6] & 79 | 64;
+            data[8] = data[8] & 191 | 128;
+            var result = "";
+            for (var offset = 0; offset < UUID_SIZE; ++offset) {
+              var byte = data[offset];
+              if (offset === 4 || offset === 6 || offset === 8)
+                result += "-";
+              if (byte < 16)
+                result += "0";
+              result += byte.toString(16).toLowerCase();
+            }
+            return result;
+          }
+        }
+        function MakeDictionary(obj) {
+          obj.__ = void 0;
+          delete obj.__;
+          return obj;
+        }
+      });
+    })(Reflect2 || (Reflect2 = {}));
+  }
+});
+
 // front/node_modules/pvtsutils/build/index.js
 var require_build = __commonJS({
   "front/node_modules/pvtsutils/build/index.js"(exports) {
@@ -134,7 +1219,7 @@ var require_build = __commonJS({
       }
     };
     var STRING_TYPE = "string";
-    var HEX_REGEX = /^[0-9a-f]+$/i;
+    var HEX_REGEX = /^[0-9a-f\s]+$/i;
     var BASE64_REGEX = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
     var BASE64URL_REGEX = /^[a-zA-Z0-9-_]+$/;
     var Utf8Converter = class {
@@ -162,8 +1247,8 @@ var require_build = __commonJS({
         const dataView = new DataView(arrayBuffer);
         let res = "";
         for (let i = 0; i < arrayBuffer.byteLength; i += 2) {
-          const code2 = dataView.getUint16(i, littleEndian);
-          res += String.fromCharCode(code2);
+          const code3 = dataView.getUint16(i, littleEndian);
+          res += String.fromCharCode(code3);
         }
         return res;
       }
@@ -241,8 +1326,8 @@ var require_build = __commonJS({
           return Buffer.from(buf).toString("base64");
         }
       }
-      static FromBase64(base64) {
-        const formatted = this.formatString(base64);
+      static FromBase64(base642) {
+        const formatted = this.formatString(base642);
         if (!formatted) {
           return new ArrayBuffer(0);
         }
@@ -255,8 +1340,8 @@ var require_build = __commonJS({
           return new Uint8Array(Buffer.from(formatted, "base64")).buffer;
         }
       }
-      static FromBase64Url(base64url) {
-        const formatted = this.formatString(base64url);
+      static FromBase64Url(base64url2) {
+        const formatted = this.formatString(base64url2);
         if (!formatted) {
           return new ArrayBuffer(0);
         }
@@ -353,14 +1438,14 @@ var require_build = __commonJS({
       static FromUtf16String(text, littleEndian = false) {
         return Utf16Converter.fromString(text, littleEndian);
       }
-      static Base64Padding(base64) {
-        const padCount = 4 - base64.length % 4;
+      static Base64Padding(base642) {
+        const padCount = 4 - base642.length % 4;
         if (padCount < 4) {
           for (let i = 0; i < padCount; i++) {
-            base64 += "=";
+            base642 += "=";
           }
         }
-        return base64;
+        return base642;
       }
       static formatString(data) {
         return (data === null || data === void 0 ? void 0 : data.replace(/[\n\r\t ]/g, "")) || "";
@@ -409,740 +1494,6 @@ var require_build = __commonJS({
     exports.assign = assign;
     exports.combine = combine2;
     exports.isEqual = isEqual3;
-  }
-});
-
-// front/node_modules/ipaddr.js/lib/ipaddr.js
-var require_ipaddr = __commonJS({
-  "front/node_modules/ipaddr.js/lib/ipaddr.js"(exports, module) {
-    (function(root) {
-      "use strict";
-      const ipv4Part = "(0?\\d+|0x[a-f0-9]+)";
-      const ipv4Regexes = {
-        fourOctet: new RegExp(`^${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}$`, "i"),
-        threeOctet: new RegExp(`^${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}$`, "i"),
-        twoOctet: new RegExp(`^${ipv4Part}\\.${ipv4Part}$`, "i"),
-        longValue: new RegExp(`^${ipv4Part}$`, "i")
-      };
-      const octalRegex = new RegExp(`^0[0-7]+$`, "i");
-      const hexRegex = new RegExp(`^0x[a-f0-9]+$`, "i");
-      const zoneIndex = "%[0-9a-z]{1,}";
-      const ipv6Part = "(?:[0-9a-f]+::?)+";
-      const ipv6Regexes = {
-        zoneIndex: new RegExp(zoneIndex, "i"),
-        "native": new RegExp(`^(::)?(${ipv6Part})?([0-9a-f]+)?(::)?(${zoneIndex})?$`, "i"),
-        deprecatedTransitional: new RegExp(`^(?:::)(${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}(${zoneIndex})?)$`, "i"),
-        transitional: new RegExp(`^((?:${ipv6Part})|(?:::)(?:${ipv6Part})?)${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}\\.${ipv4Part}(${zoneIndex})?$`, "i")
-      };
-      function expandIPv6(string, parts) {
-        if (string.indexOf("::") !== string.lastIndexOf("::")) {
-          return null;
-        }
-        let colonCount = 0;
-        let lastColon = -1;
-        let zoneId = (string.match(ipv6Regexes.zoneIndex) || [])[0];
-        let replacement, replacementCount;
-        if (zoneId) {
-          zoneId = zoneId.substring(1);
-          string = string.replace(/%.+$/, "");
-        }
-        while ((lastColon = string.indexOf(":", lastColon + 1)) >= 0) {
-          colonCount++;
-        }
-        if (string.substr(0, 2) === "::") {
-          colonCount--;
-        }
-        if (string.substr(-2, 2) === "::") {
-          colonCount--;
-        }
-        if (colonCount > parts) {
-          return null;
-        }
-        replacementCount = parts - colonCount;
-        replacement = ":";
-        while (replacementCount--) {
-          replacement += "0:";
-        }
-        string = string.replace("::", replacement);
-        if (string[0] === ":") {
-          string = string.slice(1);
-        }
-        if (string[string.length - 1] === ":") {
-          string = string.slice(0, -1);
-        }
-        parts = function() {
-          const ref = string.split(":");
-          const results = [];
-          for (let i = 0; i < ref.length; i++) {
-            results.push(parseInt(ref[i], 16));
-          }
-          return results;
-        }();
-        return {
-          parts,
-          zoneId
-        };
-      }
-      function matchCIDR(first, second, partSize, cidrBits) {
-        if (first.length !== second.length) {
-          throw new Error("ipaddr: cannot match CIDR for objects with different lengths");
-        }
-        let part = 0;
-        let shift;
-        while (cidrBits > 0) {
-          shift = partSize - cidrBits;
-          if (shift < 0) {
-            shift = 0;
-          }
-          if (first[part] >> shift !== second[part] >> shift) {
-            return false;
-          }
-          cidrBits -= partSize;
-          part += 1;
-        }
-        return true;
-      }
-      function parseIntAuto(string) {
-        if (hexRegex.test(string)) {
-          return parseInt(string, 16);
-        }
-        if (string[0] === "0" && !isNaN(parseInt(string[1], 10))) {
-          if (octalRegex.test(string)) {
-            return parseInt(string, 8);
-          }
-          throw new Error(`ipaddr: cannot parse ${string} as octal`);
-        }
-        return parseInt(string, 10);
-      }
-      function padPart(part, length2) {
-        while (part.length < length2) {
-          part = `0${part}`;
-        }
-        return part;
-      }
-      const ipaddr = {};
-      ipaddr.IPv4 = function() {
-        function IPv4(octets) {
-          if (octets.length !== 4) {
-            throw new Error("ipaddr: ipv4 octet count should be 4");
-          }
-          let i, octet;
-          for (i = 0; i < octets.length; i++) {
-            octet = octets[i];
-            if (!(0 <= octet && octet <= 255)) {
-              throw new Error("ipaddr: ipv4 octet should fit in 8 bits");
-            }
-          }
-          this.octets = octets;
-        }
-        IPv4.prototype.SpecialRanges = {
-          unspecified: [[new IPv4([0, 0, 0, 0]), 8]],
-          broadcast: [[new IPv4([255, 255, 255, 255]), 32]],
-          // RFC3171
-          multicast: [[new IPv4([224, 0, 0, 0]), 4]],
-          // RFC3927
-          linkLocal: [[new IPv4([169, 254, 0, 0]), 16]],
-          // RFC5735
-          loopback: [[new IPv4([127, 0, 0, 0]), 8]],
-          // RFC6598
-          carrierGradeNat: [[new IPv4([100, 64, 0, 0]), 10]],
-          // RFC1918
-          "private": [
-            [new IPv4([10, 0, 0, 0]), 8],
-            [new IPv4([172, 16, 0, 0]), 12],
-            [new IPv4([192, 168, 0, 0]), 16]
-          ],
-          // Reserved and testing-only ranges; RFCs 5735, 5737, 2544, 1700
-          reserved: [
-            [new IPv4([192, 0, 0, 0]), 24],
-            [new IPv4([192, 0, 2, 0]), 24],
-            [new IPv4([192, 88, 99, 0]), 24],
-            [new IPv4([198, 18, 0, 0]), 15],
-            [new IPv4([198, 51, 100, 0]), 24],
-            [new IPv4([203, 0, 113, 0]), 24],
-            [new IPv4([240, 0, 0, 0]), 4]
-          ]
-        };
-        IPv4.prototype.kind = function() {
-          return "ipv4";
-        };
-        IPv4.prototype.match = function(other, cidrRange) {
-          let ref;
-          if (cidrRange === void 0) {
-            ref = other;
-            other = ref[0];
-            cidrRange = ref[1];
-          }
-          if (other.kind() !== "ipv4") {
-            throw new Error("ipaddr: cannot match ipv4 address with non-ipv4 one");
-          }
-          return matchCIDR(this.octets, other.octets, 8, cidrRange);
-        };
-        IPv4.prototype.prefixLengthFromSubnetMask = function() {
-          let cidr = 0;
-          let stop = false;
-          const zerotable = {
-            0: 8,
-            128: 7,
-            192: 6,
-            224: 5,
-            240: 4,
-            248: 3,
-            252: 2,
-            254: 1,
-            255: 0
-          };
-          let i, octet, zeros;
-          for (i = 3; i >= 0; i -= 1) {
-            octet = this.octets[i];
-            if (octet in zerotable) {
-              zeros = zerotable[octet];
-              if (stop && zeros !== 0) {
-                return null;
-              }
-              if (zeros !== 8) {
-                stop = true;
-              }
-              cidr += zeros;
-            } else {
-              return null;
-            }
-          }
-          return 32 - cidr;
-        };
-        IPv4.prototype.range = function() {
-          return ipaddr.subnetMatch(this, this.SpecialRanges);
-        };
-        IPv4.prototype.toByteArray = function() {
-          return this.octets.slice(0);
-        };
-        IPv4.prototype.toIPv4MappedAddress = function() {
-          return ipaddr.IPv6.parse(`::ffff:${this.toString()}`);
-        };
-        IPv4.prototype.toNormalizedString = function() {
-          return this.toString();
-        };
-        IPv4.prototype.toString = function() {
-          return this.octets.join(".");
-        };
-        return IPv4;
-      }();
-      ipaddr.IPv4.broadcastAddressFromCIDR = function(string) {
-        try {
-          const cidr = this.parseCIDR(string);
-          const ipInterfaceOctets = cidr[0].toByteArray();
-          const subnetMaskOctets = this.subnetMaskFromPrefixLength(cidr[1]).toByteArray();
-          const octets = [];
-          let i = 0;
-          while (i < 4) {
-            octets.push(parseInt(ipInterfaceOctets[i], 10) | parseInt(subnetMaskOctets[i], 10) ^ 255);
-            i++;
-          }
-          return new this(octets);
-        } catch (e) {
-          throw new Error("ipaddr: the address does not have IPv4 CIDR format");
-        }
-      };
-      ipaddr.IPv4.isIPv4 = function(string) {
-        return this.parser(string) !== null;
-      };
-      ipaddr.IPv4.isValid = function(string) {
-        try {
-          new this(this.parser(string));
-          return true;
-        } catch (e) {
-          return false;
-        }
-      };
-      ipaddr.IPv4.isValidFourPartDecimal = function(string) {
-        if (ipaddr.IPv4.isValid(string) && string.match(/^(0|[1-9]\d*)(\.(0|[1-9]\d*)){3}$/)) {
-          return true;
-        } else {
-          return false;
-        }
-      };
-      ipaddr.IPv4.networkAddressFromCIDR = function(string) {
-        let cidr, i, ipInterfaceOctets, octets, subnetMaskOctets;
-        try {
-          cidr = this.parseCIDR(string);
-          ipInterfaceOctets = cidr[0].toByteArray();
-          subnetMaskOctets = this.subnetMaskFromPrefixLength(cidr[1]).toByteArray();
-          octets = [];
-          i = 0;
-          while (i < 4) {
-            octets.push(parseInt(ipInterfaceOctets[i], 10) & parseInt(subnetMaskOctets[i], 10));
-            i++;
-          }
-          return new this(octets);
-        } catch (e) {
-          throw new Error("ipaddr: the address does not have IPv4 CIDR format");
-        }
-      };
-      ipaddr.IPv4.parse = function(string) {
-        const parts = this.parser(string);
-        if (parts === null) {
-          throw new Error("ipaddr: string is not formatted like an IPv4 Address");
-        }
-        return new this(parts);
-      };
-      ipaddr.IPv4.parseCIDR = function(string) {
-        let match;
-        if (match = string.match(/^(.+)\/(\d+)$/)) {
-          const maskLength = parseInt(match[2]);
-          if (maskLength >= 0 && maskLength <= 32) {
-            const parsed = [this.parse(match[1]), maskLength];
-            Object.defineProperty(parsed, "toString", {
-              value: function() {
-                return this.join("/");
-              }
-            });
-            return parsed;
-          }
-        }
-        throw new Error("ipaddr: string is not formatted like an IPv4 CIDR range");
-      };
-      ipaddr.IPv4.parser = function(string) {
-        let match, part, value;
-        if (match = string.match(ipv4Regexes.fourOctet)) {
-          return function() {
-            const ref = match.slice(1, 6);
-            const results = [];
-            for (let i = 0; i < ref.length; i++) {
-              part = ref[i];
-              results.push(parseIntAuto(part));
-            }
-            return results;
-          }();
-        } else if (match = string.match(ipv4Regexes.longValue)) {
-          value = parseIntAuto(match[1]);
-          if (value > 4294967295 || value < 0) {
-            throw new Error("ipaddr: address outside defined range");
-          }
-          return function() {
-            const results = [];
-            let shift;
-            for (shift = 0; shift <= 24; shift += 8) {
-              results.push(value >> shift & 255);
-            }
-            return results;
-          }().reverse();
-        } else if (match = string.match(ipv4Regexes.twoOctet)) {
-          return function() {
-            const ref = match.slice(1, 4);
-            const results = [];
-            value = parseIntAuto(ref[1]);
-            if (value > 16777215 || value < 0) {
-              throw new Error("ipaddr: address outside defined range");
-            }
-            results.push(parseIntAuto(ref[0]));
-            results.push(value >> 16 & 255);
-            results.push(value >> 8 & 255);
-            results.push(value & 255);
-            return results;
-          }();
-        } else if (match = string.match(ipv4Regexes.threeOctet)) {
-          return function() {
-            const ref = match.slice(1, 5);
-            const results = [];
-            value = parseIntAuto(ref[2]);
-            if (value > 65535 || value < 0) {
-              throw new Error("ipaddr: address outside defined range");
-            }
-            results.push(parseIntAuto(ref[0]));
-            results.push(parseIntAuto(ref[1]));
-            results.push(value >> 8 & 255);
-            results.push(value & 255);
-            return results;
-          }();
-        } else {
-          return null;
-        }
-      };
-      ipaddr.IPv4.subnetMaskFromPrefixLength = function(prefix) {
-        prefix = parseInt(prefix);
-        if (prefix < 0 || prefix > 32) {
-          throw new Error("ipaddr: invalid IPv4 prefix length");
-        }
-        const octets = [0, 0, 0, 0];
-        let j = 0;
-        const filledOctetCount = Math.floor(prefix / 8);
-        while (j < filledOctetCount) {
-          octets[j] = 255;
-          j++;
-        }
-        if (filledOctetCount < 4) {
-          octets[filledOctetCount] = Math.pow(2, prefix % 8) - 1 << 8 - prefix % 8;
-        }
-        return new this(octets);
-      };
-      ipaddr.IPv6 = function() {
-        function IPv6(parts, zoneId) {
-          let i, part;
-          if (parts.length === 16) {
-            this.parts = [];
-            for (i = 0; i <= 14; i += 2) {
-              this.parts.push(parts[i] << 8 | parts[i + 1]);
-            }
-          } else if (parts.length === 8) {
-            this.parts = parts;
-          } else {
-            throw new Error("ipaddr: ipv6 part count should be 8 or 16");
-          }
-          for (i = 0; i < this.parts.length; i++) {
-            part = this.parts[i];
-            if (!(0 <= part && part <= 65535)) {
-              throw new Error("ipaddr: ipv6 part should fit in 16 bits");
-            }
-          }
-          if (zoneId) {
-            this.zoneId = zoneId;
-          }
-        }
-        IPv6.prototype.SpecialRanges = {
-          // RFC4291, here and after
-          unspecified: [new IPv6([0, 0, 0, 0, 0, 0, 0, 0]), 128],
-          linkLocal: [new IPv6([65152, 0, 0, 0, 0, 0, 0, 0]), 10],
-          multicast: [new IPv6([65280, 0, 0, 0, 0, 0, 0, 0]), 8],
-          loopback: [new IPv6([0, 0, 0, 0, 0, 0, 0, 1]), 128],
-          uniqueLocal: [new IPv6([64512, 0, 0, 0, 0, 0, 0, 0]), 7],
-          ipv4Mapped: [new IPv6([0, 0, 0, 0, 0, 65535, 0, 0]), 96],
-          // RFC6145
-          rfc6145: [new IPv6([0, 0, 0, 0, 65535, 0, 0, 0]), 96],
-          // RFC6052
-          rfc6052: [new IPv6([100, 65435, 0, 0, 0, 0, 0, 0]), 96],
-          // RFC3056
-          "6to4": [new IPv6([8194, 0, 0, 0, 0, 0, 0, 0]), 16],
-          // RFC6052, RFC6146
-          teredo: [new IPv6([8193, 0, 0, 0, 0, 0, 0, 0]), 32],
-          // RFC4291
-          reserved: [[new IPv6([8193, 3512, 0, 0, 0, 0, 0, 0]), 32]],
-          benchmarking: [new IPv6([8193, 2, 0, 0, 0, 0, 0, 0]), 48],
-          amt: [new IPv6([8193, 3, 0, 0, 0, 0, 0, 0]), 32],
-          as112v6: [new IPv6([8193, 4, 274, 0, 0, 0, 0, 0]), 48],
-          deprecated: [new IPv6([8193, 16, 0, 0, 0, 0, 0, 0]), 28],
-          orchid2: [new IPv6([8193, 32, 0, 0, 0, 0, 0, 0]), 28]
-        };
-        IPv6.prototype.isIPv4MappedAddress = function() {
-          return this.range() === "ipv4Mapped";
-        };
-        IPv6.prototype.kind = function() {
-          return "ipv6";
-        };
-        IPv6.prototype.match = function(other, cidrRange) {
-          let ref;
-          if (cidrRange === void 0) {
-            ref = other;
-            other = ref[0];
-            cidrRange = ref[1];
-          }
-          if (other.kind() !== "ipv6") {
-            throw new Error("ipaddr: cannot match ipv6 address with non-ipv6 one");
-          }
-          return matchCIDR(this.parts, other.parts, 16, cidrRange);
-        };
-        IPv6.prototype.prefixLengthFromSubnetMask = function() {
-          let cidr = 0;
-          let stop = false;
-          const zerotable = {
-            0: 16,
-            32768: 15,
-            49152: 14,
-            57344: 13,
-            61440: 12,
-            63488: 11,
-            64512: 10,
-            65024: 9,
-            65280: 8,
-            65408: 7,
-            65472: 6,
-            65504: 5,
-            65520: 4,
-            65528: 3,
-            65532: 2,
-            65534: 1,
-            65535: 0
-          };
-          let part, zeros;
-          for (let i = 7; i >= 0; i -= 1) {
-            part = this.parts[i];
-            if (part in zerotable) {
-              zeros = zerotable[part];
-              if (stop && zeros !== 0) {
-                return null;
-              }
-              if (zeros !== 16) {
-                stop = true;
-              }
-              cidr += zeros;
-            } else {
-              return null;
-            }
-          }
-          return 128 - cidr;
-        };
-        IPv6.prototype.range = function() {
-          return ipaddr.subnetMatch(this, this.SpecialRanges);
-        };
-        IPv6.prototype.toByteArray = function() {
-          let part;
-          const bytes = [];
-          const ref = this.parts;
-          for (let i = 0; i < ref.length; i++) {
-            part = ref[i];
-            bytes.push(part >> 8);
-            bytes.push(part & 255);
-          }
-          return bytes;
-        };
-        IPv6.prototype.toFixedLengthString = function() {
-          const addr = function() {
-            const results = [];
-            for (let i = 0; i < this.parts.length; i++) {
-              results.push(padPart(this.parts[i].toString(16), 4));
-            }
-            return results;
-          }.call(this).join(":");
-          let suffix = "";
-          if (this.zoneId) {
-            suffix = `%${this.zoneId}`;
-          }
-          return addr + suffix;
-        };
-        IPv6.prototype.toIPv4Address = function() {
-          if (!this.isIPv4MappedAddress()) {
-            throw new Error("ipaddr: trying to convert a generic ipv6 address to ipv4");
-          }
-          const ref = this.parts.slice(-2);
-          const high = ref[0];
-          const low = ref[1];
-          return new ipaddr.IPv4([high >> 8, high & 255, low >> 8, low & 255]);
-        };
-        IPv6.prototype.toNormalizedString = function() {
-          const addr = function() {
-            const results = [];
-            for (let i = 0; i < this.parts.length; i++) {
-              results.push(this.parts[i].toString(16));
-            }
-            return results;
-          }.call(this).join(":");
-          let suffix = "";
-          if (this.zoneId) {
-            suffix = `%${this.zoneId}`;
-          }
-          return addr + suffix;
-        };
-        IPv6.prototype.toRFC5952String = function() {
-          const regex = /((^|:)(0(:|$)){2,})/g;
-          const string = this.toNormalizedString();
-          let bestMatchIndex = 0;
-          let bestMatchLength = -1;
-          let match;
-          while (match = regex.exec(string)) {
-            if (match[0].length > bestMatchLength) {
-              bestMatchIndex = match.index;
-              bestMatchLength = match[0].length;
-            }
-          }
-          if (bestMatchLength < 0) {
-            return string;
-          }
-          return `${string.substring(0, bestMatchIndex)}::${string.substring(bestMatchIndex + bestMatchLength)}`;
-        };
-        IPv6.prototype.toString = function() {
-          return this.toRFC5952String();
-        };
-        return IPv6;
-      }();
-      ipaddr.IPv6.broadcastAddressFromCIDR = function(string) {
-        try {
-          const cidr = this.parseCIDR(string);
-          const ipInterfaceOctets = cidr[0].toByteArray();
-          const subnetMaskOctets = this.subnetMaskFromPrefixLength(cidr[1]).toByteArray();
-          const octets = [];
-          let i = 0;
-          while (i < 16) {
-            octets.push(parseInt(ipInterfaceOctets[i], 10) | parseInt(subnetMaskOctets[i], 10) ^ 255);
-            i++;
-          }
-          return new this(octets);
-        } catch (e) {
-          throw new Error(`ipaddr: the address does not have IPv6 CIDR format (${e})`);
-        }
-      };
-      ipaddr.IPv6.isIPv6 = function(string) {
-        return this.parser(string) !== null;
-      };
-      ipaddr.IPv6.isValid = function(string) {
-        if (typeof string === "string" && string.indexOf(":") === -1) {
-          return false;
-        }
-        try {
-          const addr = this.parser(string);
-          new this(addr.parts, addr.zoneId);
-          return true;
-        } catch (e) {
-          return false;
-        }
-      };
-      ipaddr.IPv6.networkAddressFromCIDR = function(string) {
-        let cidr, i, ipInterfaceOctets, octets, subnetMaskOctets;
-        try {
-          cidr = this.parseCIDR(string);
-          ipInterfaceOctets = cidr[0].toByteArray();
-          subnetMaskOctets = this.subnetMaskFromPrefixLength(cidr[1]).toByteArray();
-          octets = [];
-          i = 0;
-          while (i < 16) {
-            octets.push(parseInt(ipInterfaceOctets[i], 10) & parseInt(subnetMaskOctets[i], 10));
-            i++;
-          }
-          return new this(octets);
-        } catch (e) {
-          throw new Error(`ipaddr: the address does not have IPv6 CIDR format (${e})`);
-        }
-      };
-      ipaddr.IPv6.parse = function(string) {
-        const addr = this.parser(string);
-        if (addr.parts === null) {
-          throw new Error("ipaddr: string is not formatted like an IPv6 Address");
-        }
-        return new this(addr.parts, addr.zoneId);
-      };
-      ipaddr.IPv6.parseCIDR = function(string) {
-        let maskLength, match, parsed;
-        if (match = string.match(/^(.+)\/(\d+)$/)) {
-          maskLength = parseInt(match[2]);
-          if (maskLength >= 0 && maskLength <= 128) {
-            parsed = [this.parse(match[1]), maskLength];
-            Object.defineProperty(parsed, "toString", {
-              value: function() {
-                return this.join("/");
-              }
-            });
-            return parsed;
-          }
-        }
-        throw new Error("ipaddr: string is not formatted like an IPv6 CIDR range");
-      };
-      ipaddr.IPv6.parser = function(string) {
-        let addr, i, match, octet, octets, zoneId;
-        if (match = string.match(ipv6Regexes.deprecatedTransitional)) {
-          return this.parser(`::ffff:${match[1]}`);
-        }
-        if (ipv6Regexes.native.test(string)) {
-          return expandIPv6(string, 8);
-        }
-        if (match = string.match(ipv6Regexes.transitional)) {
-          zoneId = match[6] || "";
-          addr = expandIPv6(match[1].slice(0, -1) + zoneId, 6);
-          if (addr.parts) {
-            octets = [
-              parseInt(match[2]),
-              parseInt(match[3]),
-              parseInt(match[4]),
-              parseInt(match[5])
-            ];
-            for (i = 0; i < octets.length; i++) {
-              octet = octets[i];
-              if (!(0 <= octet && octet <= 255)) {
-                return null;
-              }
-            }
-            addr.parts.push(octets[0] << 8 | octets[1]);
-            addr.parts.push(octets[2] << 8 | octets[3]);
-            return {
-              parts: addr.parts,
-              zoneId: addr.zoneId
-            };
-          }
-        }
-        return null;
-      };
-      ipaddr.IPv6.subnetMaskFromPrefixLength = function(prefix) {
-        prefix = parseInt(prefix);
-        if (prefix < 0 || prefix > 128) {
-          throw new Error("ipaddr: invalid IPv6 prefix length");
-        }
-        const octets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let j = 0;
-        const filledOctetCount = Math.floor(prefix / 8);
-        while (j < filledOctetCount) {
-          octets[j] = 255;
-          j++;
-        }
-        if (filledOctetCount < 16) {
-          octets[filledOctetCount] = Math.pow(2, prefix % 8) - 1 << 8 - prefix % 8;
-        }
-        return new this(octets);
-      };
-      ipaddr.fromByteArray = function(bytes) {
-        const length2 = bytes.length;
-        if (length2 === 4) {
-          return new ipaddr.IPv4(bytes);
-        } else if (length2 === 16) {
-          return new ipaddr.IPv6(bytes);
-        } else {
-          throw new Error("ipaddr: the binary input is neither an IPv6 nor IPv4 address");
-        }
-      };
-      ipaddr.isValid = function(string) {
-        return ipaddr.IPv6.isValid(string) || ipaddr.IPv4.isValid(string);
-      };
-      ipaddr.parse = function(string) {
-        if (ipaddr.IPv6.isValid(string)) {
-          return ipaddr.IPv6.parse(string);
-        } else if (ipaddr.IPv4.isValid(string)) {
-          return ipaddr.IPv4.parse(string);
-        } else {
-          throw new Error("ipaddr: the address has neither IPv6 nor IPv4 format");
-        }
-      };
-      ipaddr.parseCIDR = function(string) {
-        try {
-          return ipaddr.IPv6.parseCIDR(string);
-        } catch (e) {
-          try {
-            return ipaddr.IPv4.parseCIDR(string);
-          } catch (e2) {
-            throw new Error("ipaddr: the address has neither IPv6 nor IPv4 CIDR format");
-          }
-        }
-      };
-      ipaddr.process = function(string) {
-        const addr = this.parse(string);
-        if (addr.kind() === "ipv6" && addr.isIPv4MappedAddress()) {
-          return addr.toIPv4Address();
-        } else {
-          return addr;
-        }
-      };
-      ipaddr.subnetMatch = function(address, rangeList, defaultName) {
-        let i, rangeName, rangeSubnets, subnet;
-        if (defaultName === void 0 || defaultName === null) {
-          defaultName = "unicast";
-        }
-        for (rangeName in rangeList) {
-          if (Object.prototype.hasOwnProperty.call(rangeList, rangeName)) {
-            rangeSubnets = rangeList[rangeName];
-            if (rangeSubnets[0] && !(rangeSubnets[0] instanceof Array)) {
-              rangeSubnets = [rangeSubnets];
-            }
-            for (i = 0; i < rangeSubnets.length; i++) {
-              subnet = rangeSubnets[i];
-              if (address.kind() === subnet[0].kind() && address.match.apply(address, subnet)) {
-                return rangeName;
-              }
-            }
-          }
-        }
-        return defaultName;
-      };
-      if (typeof module !== "undefined" && module.exports) {
-        module.exports = ipaddr;
-      } else {
-        root.ipaddr = ipaddr;
-      }
-    })(exports);
   }
 });
 
@@ -1353,10 +1704,10 @@ var DID_LD_JSON = "application/did+ld+json";
 
 // front/node_modules/@cef-ebsi/key-did-resolver/dist/errors/DidResolutionError.js
 var DidResolutionError = class extends Error {
-  constructor(code2, message) {
+  constructor(code3, message) {
     super(message);
     this.name = "DIDResolutionError";
-    this.code = code2;
+    this.code = code3;
   }
 };
 
@@ -1369,10 +1720,94 @@ var InvalidDidError = class _InvalidDidError extends DidResolutionError {
 };
 InvalidDidError.code = "invalidDid";
 
-// front/node_modules/multiformats/src/bytes.js
+// front/node_modules/multiformats/esm/src/varint.js
+var varint_exports = {};
+__export(varint_exports, {
+  decode: () => decode2,
+  encodeTo: () => encodeTo,
+  encodingLength: () => encodingLength
+});
+
+// front/node_modules/multiformats/esm/vendor/varint.js
+var encode_1 = encode;
+var MSB = 128;
+var REST = 127;
+var MSBALL = ~REST;
+var INT = Math.pow(2, 31);
+function encode(num, out, offset) {
+  out = out || [];
+  offset = offset || 0;
+  var oldOffset = offset;
+  while (num >= INT) {
+    out[offset++] = num & 255 | MSB;
+    num /= 128;
+  }
+  while (num & MSBALL) {
+    out[offset++] = num & 255 | MSB;
+    num >>>= 7;
+  }
+  out[offset] = num | 0;
+  encode.bytes = offset - oldOffset + 1;
+  return out;
+}
+var decode = read;
+var MSB$1 = 128;
+var REST$1 = 127;
+function read(buf, offset) {
+  var res = 0, offset = offset || 0, shift = 0, counter = offset, b, l = buf.length;
+  do {
+    if (counter >= l) {
+      read.bytes = 0;
+      throw new RangeError("Could not decode varint");
+    }
+    b = buf[counter++];
+    res += shift < 28 ? (b & REST$1) << shift : (b & REST$1) * Math.pow(2, shift);
+    shift += 7;
+  } while (b >= MSB$1);
+  read.bytes = counter - offset;
+  return res;
+}
+var N1 = Math.pow(2, 7);
+var N2 = Math.pow(2, 14);
+var N3 = Math.pow(2, 21);
+var N4 = Math.pow(2, 28);
+var N5 = Math.pow(2, 35);
+var N6 = Math.pow(2, 42);
+var N7 = Math.pow(2, 49);
+var N8 = Math.pow(2, 56);
+var N9 = Math.pow(2, 63);
+var length = function(value) {
+  return value < N1 ? 1 : value < N2 ? 2 : value < N3 ? 3 : value < N4 ? 4 : value < N5 ? 5 : value < N6 ? 6 : value < N7 ? 7 : value < N8 ? 8 : value < N9 ? 9 : 10;
+};
+var varint = {
+  encode: encode_1,
+  decode,
+  encodingLength: length
+};
+var _brrp_varint = varint;
+var varint_default = _brrp_varint;
+
+// front/node_modules/multiformats/esm/src/varint.js
+var decode2 = (data, offset = 0) => {
+  const code3 = varint_default.decode(data, offset);
+  return [
+    code3,
+    varint_default.decode.bytes
+  ];
+};
+var encodeTo = (int, target, offset = 0) => {
+  varint_default.encode(int, target, offset);
+  return target;
+};
+var encodingLength = (int) => {
+  return varint_default.encodingLength(int);
+};
+
+// front/node_modules/multiformats/esm/src/bytes.js
 var empty = new Uint8Array(0);
 var equals = (aa, bb) => {
-  if (aa === bb) return true;
+  if (aa === bb)
+    return true;
   if (aa.byteLength !== bb.byteLength) {
     return false;
   }
@@ -1384,16 +1819,64 @@ var equals = (aa, bb) => {
   return true;
 };
 var coerce = (o) => {
-  if (o instanceof Uint8Array && o.constructor.name === "Uint8Array") return o;
-  if (o instanceof ArrayBuffer) return new Uint8Array(o);
+  if (o instanceof Uint8Array && o.constructor.name === "Uint8Array")
+    return o;
+  if (o instanceof ArrayBuffer)
+    return new Uint8Array(o);
   if (ArrayBuffer.isView(o)) {
     return new Uint8Array(o.buffer, o.byteOffset, o.byteLength);
   }
   throw new Error("Unknown type, must be binary type");
 };
+var fromString = (str) => new TextEncoder().encode(str);
+var toString = (b) => new TextDecoder().decode(b);
 
-// front/node_modules/multiformats/vendor/base-x.js
-function base(ALPHABET, name) {
+// front/node_modules/multiformats/esm/src/hashes/digest.js
+var create = (code3, digest2) => {
+  const size = digest2.byteLength;
+  const sizeOffset = encodingLength(code3);
+  const digestOffset = sizeOffset + encodingLength(size);
+  const bytes = new Uint8Array(digestOffset + size);
+  encodeTo(code3, bytes, 0);
+  encodeTo(size, bytes, sizeOffset);
+  bytes.set(digest2, digestOffset);
+  return new Digest(code3, size, digest2, bytes);
+};
+var decode3 = (multihash) => {
+  const bytes = coerce(multihash);
+  const [code3, sizeOffset] = decode2(bytes);
+  const [size, digestOffset] = decode2(bytes.subarray(sizeOffset));
+  const digest2 = bytes.subarray(sizeOffset + digestOffset);
+  if (digest2.byteLength !== size) {
+    throw new Error("Incorrect length");
+  }
+  return new Digest(code3, size, digest2, bytes);
+};
+var equals2 = (a, b) => {
+  if (a === b) {
+    return true;
+  } else {
+    return a.code === b.code && a.size === b.size && equals(a.bytes, b.bytes);
+  }
+};
+var Digest = class {
+  constructor(code3, size, digest2, bytes) {
+    this.code = code3;
+    this.size = size;
+    this.digest = digest2;
+    this.bytes = bytes;
+  }
+};
+
+// front/node_modules/multiformats/esm/src/bases/base58.js
+var base58_exports = {};
+__export(base58_exports, {
+  base58btc: () => base58btc,
+  base58flickr: () => base58flickr
+});
+
+// front/node_modules/multiformats/esm/vendor/base-x.js
+function base(ALPHABET, name3) {
   if (ALPHABET.length >= 255) {
     throw new TypeError("Alphabet too long");
   }
@@ -1413,7 +1896,7 @@ function base(ALPHABET, name) {
   var LEADER = ALPHABET.charAt(0);
   var FACTOR = Math.log(BASE) / Math.log(256);
   var iFACTOR = Math.log(256) / Math.log(BASE);
-  function encode4(source) {
+  function encode6(source) {
     if (source instanceof Uint8Array) ;
     else if (ArrayBuffer.isView(source)) {
       source = new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
@@ -1510,39 +1993,30 @@ function base(ALPHABET, name) {
     }
     return vch;
   }
-  function decode6(string) {
-    var buffer = decodeUnsafe(string);
+  function decode7(string2) {
+    var buffer = decodeUnsafe(string2);
     if (buffer) {
       return buffer;
     }
-    throw new Error(`Non-${name} character`);
+    throw new Error(`Non-${name3} character`);
   }
   return {
-    encode: encode4,
+    encode: encode6,
     decodeUnsafe,
-    decode: decode6
+    decode: decode7
   };
 }
 var src = base;
 var _brrp__multiformats_scope_baseX = src;
 var base_x_default = _brrp__multiformats_scope_baseX;
 
-// front/node_modules/multiformats/src/bases/base.js
+// front/node_modules/multiformats/esm/src/bases/base.js
 var Encoder = class {
-  /**
-   * @param {Base} name
-   * @param {Prefix} prefix
-   * @param {(bytes:Uint8Array) => string} baseEncode
-   */
-  constructor(name, prefix, baseEncode) {
-    this.name = name;
+  constructor(name3, prefix, baseEncode) {
+    this.name = name3;
     this.prefix = prefix;
     this.baseEncode = baseEncode;
   }
-  /**
-   * @param {Uint8Array} bytes
-   * @returns {API.Multibase<Prefix>}
-   */
   encode(bytes) {
     if (bytes instanceof Uint8Array) {
       return `${this.prefix}${this.baseEncode(bytes)}`;
@@ -1552,24 +2026,15 @@ var Encoder = class {
   }
 };
 var Decoder = class {
-  /**
-   * @param {Base} name
-   * @param {Prefix} prefix
-   * @param {(text:string) => Uint8Array} baseDecode
-   */
-  constructor(name, prefix, baseDecode) {
-    this.name = name;
+  constructor(name3, prefix, baseDecode) {
+    this.name = name3;
     this.prefix = prefix;
     if (prefix.codePointAt(0) === void 0) {
       throw new Error("Invalid prefix character");
     }
-    this.prefixCodePoint = /** @type {number} */
-    prefix.codePointAt(0);
+    this.prefixCodePoint = prefix.codePointAt(0);
     this.baseDecode = baseDecode;
   }
-  /**
-   * @param {string} text
-   */
   decode(text) {
     if (typeof text === "string") {
       if (text.codePointAt(0) !== this.prefixCodePoint) {
@@ -1580,39 +2045,19 @@ var Decoder = class {
       throw Error("Can only multibase decode strings");
     }
   }
-  /**
-   * @template {string} OtherPrefix
-   * @param {API.UnibaseDecoder<OtherPrefix>|ComposedDecoder<OtherPrefix>} decoder
-   * @returns {ComposedDecoder<Prefix|OtherPrefix>}
-   */
   or(decoder) {
     return or(this, decoder);
   }
 };
 var ComposedDecoder = class {
-  /**
-   * @param {Decoders<Prefix>} decoders
-   */
   constructor(decoders) {
     this.decoders = decoders;
   }
-  /**
-   * @template {string} OtherPrefix
-   * @param {API.UnibaseDecoder<OtherPrefix>|ComposedDecoder<OtherPrefix>} decoder
-   * @returns {ComposedDecoder<Prefix|OtherPrefix>}
-   */
   or(decoder) {
     return or(this, decoder);
   }
-  /**
-   * @param {string} input
-   * @returns {Uint8Array}
-   */
   decode(input) {
-    const prefix = (
-      /** @type {Prefix} */
-      input[0]
-    );
+    const prefix = input[0];
     const decoder = this.decoders[prefix];
     if (decoder) {
       return decoder.decode(input);
@@ -1621,67 +2066,43 @@ var ComposedDecoder = class {
     }
   }
 };
-var or = (left, right) => new ComposedDecoder(
-  /** @type {Decoders<L|R>} */
-  {
-    ...left.decoders || { [
-      /** @type API.UnibaseDecoder<L> */
-      left.prefix
-    ]: left },
-    ...right.decoders || { [
-      /** @type API.UnibaseDecoder<R> */
-      right.prefix
-    ]: right }
-  }
-);
+var or = (left, right) => new ComposedDecoder({
+  ...left.decoders || { [left.prefix]: left },
+  ...right.decoders || { [right.prefix]: right }
+});
 var Codec = class {
-  /**
-   * @param {Base} name
-   * @param {Prefix} prefix
-   * @param {(bytes:Uint8Array) => string} baseEncode
-   * @param {(text:string) => Uint8Array} baseDecode
-   */
-  constructor(name, prefix, baseEncode, baseDecode) {
-    this.name = name;
+  constructor(name3, prefix, baseEncode, baseDecode) {
+    this.name = name3;
     this.prefix = prefix;
     this.baseEncode = baseEncode;
     this.baseDecode = baseDecode;
-    this.encoder = new Encoder(name, prefix, baseEncode);
-    this.decoder = new Decoder(name, prefix, baseDecode);
+    this.encoder = new Encoder(name3, prefix, baseEncode);
+    this.decoder = new Decoder(name3, prefix, baseDecode);
   }
-  /**
-   * @param {Uint8Array} input
-   */
   encode(input) {
     return this.encoder.encode(input);
   }
-  /**
-   * @param {string} input
-   */
   decode(input) {
     return this.decoder.decode(input);
   }
 };
-var from = ({ name, prefix, encode: encode4, decode: decode6 }) => new Codec(name, prefix, encode4, decode6);
-var baseX = ({ prefix, name, alphabet }) => {
-  const { encode: encode4, decode: decode6 } = base_x_default(alphabet, name);
+var from = ({ name: name3, prefix, encode: encode6, decode: decode7 }) => new Codec(name3, prefix, encode6, decode7);
+var baseX = ({ prefix, name: name3, alphabet: alphabet2 }) => {
+  const { encode: encode6, decode: decode7 } = base_x_default(alphabet2, name3);
   return from({
     prefix,
-    name,
-    encode: encode4,
-    /**
-     * @param {string} text
-     */
-    decode: (text) => coerce(decode6(text))
+    name: name3,
+    encode: encode6,
+    decode: (text) => coerce(decode7(text))
   });
 };
-var decode = (string, alphabet, bitsPerChar, name) => {
+var decode4 = (string2, alphabet2, bitsPerChar, name3) => {
   const codes = {};
-  for (let i = 0; i < alphabet.length; ++i) {
-    codes[alphabet[i]] = i;
+  for (let i = 0; i < alphabet2.length; ++i) {
+    codes[alphabet2[i]] = i;
   }
-  let end = string.length;
-  while (string[end - 1] === "=") {
+  let end = string2.length;
+  while (string2[end - 1] === "=") {
     --end;
   }
   const out = new Uint8Array(end * bitsPerChar / 8 | 0);
@@ -1689,9 +2110,9 @@ var decode = (string, alphabet, bitsPerChar, name) => {
   let buffer = 0;
   let written = 0;
   for (let i = 0; i < end; ++i) {
-    const value = codes[string[i]];
+    const value = codes[string2[i]];
     if (value === void 0) {
-      throw new SyntaxError(`Non-${name} character`);
+      throw new SyntaxError(`Non-${name3} character`);
     }
     buffer = buffer << bitsPerChar | value;
     bits += bitsPerChar;
@@ -1705,8 +2126,8 @@ var decode = (string, alphabet, bitsPerChar, name) => {
   }
   return out;
 };
-var encode = (data, alphabet, bitsPerChar) => {
-  const pad = alphabet[alphabet.length - 1] === "=";
+var encode2 = (data, alphabet2, bitsPerChar) => {
+  const pad = alphabet2[alphabet2.length - 1] === "=";
   const mask = (1 << bitsPerChar) - 1;
   let out = "";
   let bits = 0;
@@ -1716,11 +2137,11 @@ var encode = (data, alphabet, bitsPerChar) => {
     bits += 8;
     while (bits > bitsPerChar) {
       bits -= bitsPerChar;
-      out += alphabet[mask & buffer >> bits];
+      out += alphabet2[mask & buffer >> bits];
     }
   }
   if (bits) {
-    out += alphabet[mask & buffer << bitsPerChar - bits];
+    out += alphabet2[mask & buffer << bitsPerChar - bits];
   }
   if (pad) {
     while (out.length * bitsPerChar & 7) {
@@ -1729,20 +2150,44 @@ var encode = (data, alphabet, bitsPerChar) => {
   }
   return out;
 };
-var rfc4648 = ({ name, prefix, bitsPerChar, alphabet }) => {
+var rfc4648 = ({ name: name3, prefix, bitsPerChar, alphabet: alphabet2 }) => {
   return from({
     prefix,
-    name,
+    name: name3,
     encode(input) {
-      return encode(input, alphabet, bitsPerChar);
+      return encode2(input, alphabet2, bitsPerChar);
     },
     decode(input) {
-      return decode(input, alphabet, bitsPerChar, name);
+      return decode4(input, alphabet2, bitsPerChar, name3);
     }
   });
 };
 
-// front/node_modules/multiformats/src/bases/base32.js
+// front/node_modules/multiformats/esm/src/bases/base58.js
+var base58btc = baseX({
+  name: "base58btc",
+  prefix: "z",
+  alphabet: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+});
+var base58flickr = baseX({
+  name: "base58flickr",
+  prefix: "Z",
+  alphabet: "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+});
+
+// front/node_modules/multiformats/esm/src/bases/base32.js
+var base32_exports = {};
+__export(base32_exports, {
+  base32: () => base32,
+  base32hex: () => base32hex,
+  base32hexpad: () => base32hexpad,
+  base32hexpadupper: () => base32hexpadupper,
+  base32hexupper: () => base32hexupper,
+  base32pad: () => base32pad,
+  base32padupper: () => base32padupper,
+  base32upper: () => base32upper,
+  base32z: () => base32z
+});
 var base32 = rfc4648({
   prefix: "b",
   name: "base32",
@@ -1798,436 +2243,145 @@ var base32z = rfc4648({
   bitsPerChar: 5
 });
 
-// front/node_modules/multiformats/src/bases/base58.js
-var base58btc = baseX({
-  name: "base58btc",
-  prefix: "z",
-  alphabet: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-});
-var base58flickr = baseX({
-  name: "base58flickr",
-  prefix: "Z",
-  alphabet: "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
-});
-
-// front/node_modules/multiformats/src/varint.js
-var varint_exports = {};
-__export(varint_exports, {
-  decode: () => decode3,
-  encodeTo: () => encodeTo,
-  encodingLength: () => encodingLength
-});
-
-// front/node_modules/multiformats/vendor/varint.js
-var encode_1 = encode2;
-var MSB = 128;
-var REST = 127;
-var MSBALL = ~REST;
-var INT = Math.pow(2, 31);
-function encode2(num, out, offset) {
-  out = out || [];
-  offset = offset || 0;
-  var oldOffset = offset;
-  while (num >= INT) {
-    out[offset++] = num & 255 | MSB;
-    num /= 128;
-  }
-  while (num & MSBALL) {
-    out[offset++] = num & 255 | MSB;
-    num >>>= 7;
-  }
-  out[offset] = num | 0;
-  encode2.bytes = offset - oldOffset + 1;
-  return out;
-}
-var decode2 = read;
-var MSB$1 = 128;
-var REST$1 = 127;
-function read(buf, offset) {
-  var res = 0, offset = offset || 0, shift = 0, counter = offset, b, l = buf.length;
-  do {
-    if (counter >= l) {
-      read.bytes = 0;
-      throw new RangeError("Could not decode varint");
-    }
-    b = buf[counter++];
-    res += shift < 28 ? (b & REST$1) << shift : (b & REST$1) * Math.pow(2, shift);
-    shift += 7;
-  } while (b >= MSB$1);
-  read.bytes = counter - offset;
-  return res;
-}
-var N1 = Math.pow(2, 7);
-var N2 = Math.pow(2, 14);
-var N3 = Math.pow(2, 21);
-var N4 = Math.pow(2, 28);
-var N5 = Math.pow(2, 35);
-var N6 = Math.pow(2, 42);
-var N7 = Math.pow(2, 49);
-var N8 = Math.pow(2, 56);
-var N9 = Math.pow(2, 63);
-var length = function(value) {
-  return value < N1 ? 1 : value < N2 ? 2 : value < N3 ? 3 : value < N4 ? 4 : value < N5 ? 5 : value < N6 ? 6 : value < N7 ? 7 : value < N8 ? 8 : value < N9 ? 9 : 10;
-};
-var varint = {
-  encode: encode_1,
-  decode: decode2,
-  encodingLength: length
-};
-var _brrp_varint = varint;
-var varint_default = _brrp_varint;
-
-// front/node_modules/multiformats/src/varint.js
-var decode3 = (data, offset = 0) => {
-  const code2 = varint_default.decode(data, offset);
-  return [code2, varint_default.decode.bytes];
-};
-var encodeTo = (int, target, offset = 0) => {
-  varint_default.encode(int, target, offset);
-  return target;
-};
-var encodingLength = (int) => {
-  return varint_default.encodingLength(int);
-};
-
-// front/node_modules/multiformats/src/hashes/digest.js
-var create = (code2, digest) => {
-  const size = digest.byteLength;
-  const sizeOffset = encodingLength(code2);
-  const digestOffset = sizeOffset + encodingLength(size);
-  const bytes = new Uint8Array(digestOffset + size);
-  encodeTo(code2, bytes, 0);
-  encodeTo(size, bytes, sizeOffset);
-  bytes.set(digest, digestOffset);
-  return new Digest(code2, size, digest, bytes);
-};
-var decode4 = (multihash) => {
-  const bytes = coerce(multihash);
-  const [code2, sizeOffset] = decode3(bytes);
-  const [size, digestOffset] = decode3(bytes.subarray(sizeOffset));
-  const digest = bytes.subarray(sizeOffset + digestOffset);
-  if (digest.byteLength !== size) {
-    throw new Error("Incorrect length");
-  }
-  return new Digest(code2, size, digest, bytes);
-};
-var equals2 = (a, b) => {
-  if (a === b) {
-    return true;
-  } else {
-    const data = (
-      /** @type {{code?:unknown, size?:unknown, bytes?:unknown}} */
-      b
-    );
-    return a.code === data.code && a.size === data.size && data.bytes instanceof Uint8Array && equals(a.bytes, data.bytes);
-  }
-};
-var Digest = class {
-  /**
-   * Creates a multihash digest.
-   *
-   * @param {Code} code
-   * @param {Size} size
-   * @param {Uint8Array} digest
-   * @param {Uint8Array} bytes
-   */
-  constructor(code2, size, digest, bytes) {
-    this.code = code2;
-    this.size = size;
-    this.digest = digest;
-    this.bytes = bytes;
-  }
-};
-
-// front/node_modules/multiformats/src/cid.js
-var format = (link, base2) => {
-  const { bytes, version } = link;
-  switch (version) {
-    case 0:
-      return toStringV0(
-        bytes,
-        baseCache(link),
-        /** @type {API.MultibaseEncoder<"z">} */
-        base2 || base58btc.encoder
-      );
-    default:
-      return toStringV1(
-        bytes,
-        baseCache(link),
-        /** @type {API.MultibaseEncoder<Prefix>} */
-        base2 || base32.encoder
-      );
-  }
-};
-var cache = /* @__PURE__ */ new WeakMap();
-var baseCache = (cid) => {
-  const baseCache2 = cache.get(cid);
-  if (baseCache2 == null) {
-    const baseCache3 = /* @__PURE__ */ new Map();
-    cache.set(cid, baseCache3);
-    return baseCache3;
-  }
-  return baseCache2;
-};
+// front/node_modules/multiformats/esm/src/cid.js
 var CID = class _CID {
-  /**
-   * @param {Version} version - Version of the CID
-   * @param {Format} code - Code of the codec content is encoded in, see https://github.com/multiformats/multicodec/blob/master/table.csv
-   * @param {API.MultihashDigest<Alg>} multihash - (Multi)hash of the of the content.
-   * @param {Uint8Array} bytes
-   */
-  constructor(version, code2, multihash, bytes) {
-    this.code = code2;
-    this.version = version;
+  constructor(version2, code3, multihash, bytes) {
+    this.code = code3;
+    this.version = version2;
     this.multihash = multihash;
     this.bytes = bytes;
-    this["/"] = bytes;
+    this.byteOffset = bytes.byteOffset;
+    this.byteLength = bytes.byteLength;
+    this.asCID = this;
+    this._baseCache = /* @__PURE__ */ new Map();
+    Object.defineProperties(this, {
+      byteOffset: hidden,
+      byteLength: hidden,
+      code: readonly,
+      version: readonly,
+      multihash: readonly,
+      bytes: readonly,
+      _baseCache: hidden,
+      asCID: hidden
+    });
   }
-  /**
-   * Signalling `cid.asCID === cid` has been replaced with `cid['/'] === cid.bytes`
-   * please either use `CID.asCID(cid)` or switch to new signalling mechanism
-   *
-   * @deprecated
-   */
-  get asCID() {
-    return this;
-  }
-  // ArrayBufferView
-  get byteOffset() {
-    return this.bytes.byteOffset;
-  }
-  // ArrayBufferView
-  get byteLength() {
-    return this.bytes.byteLength;
-  }
-  /**
-   * @returns {CID<Data, API.DAG_PB, API.SHA_256, 0>}
-   */
   toV0() {
     switch (this.version) {
       case 0: {
-        return (
-          /** @type {CID<Data, API.DAG_PB, API.SHA_256, 0>} */
-          this
-        );
+        return this;
       }
-      case 1: {
-        const { code: code2, multihash } = this;
-        if (code2 !== DAG_PB_CODE) {
+      default: {
+        const { code: code3, multihash } = this;
+        if (code3 !== DAG_PB_CODE) {
           throw new Error("Cannot convert a non dag-pb CID to CIDv0");
         }
         if (multihash.code !== SHA_256_CODE) {
           throw new Error("Cannot convert non sha2-256 multihash CID to CIDv0");
         }
-        return (
-          /** @type {CID<Data, API.DAG_PB, API.SHA_256, 0>} */
-          _CID.createV0(
-            /** @type {API.MultihashDigest<API.SHA_256>} */
-            multihash
-          )
-        );
-      }
-      default: {
-        throw Error(
-          `Can not convert CID version ${this.version} to version 0. This is a bug please report`
-        );
+        return _CID.createV0(multihash);
       }
     }
   }
-  /**
-   * @returns {CID<Data, Format, Alg, 1>}
-   */
   toV1() {
     switch (this.version) {
       case 0: {
-        const { code: code2, digest } = this.multihash;
-        const multihash = create(code2, digest);
-        return (
-          /** @type {CID<Data, Format, Alg, 1>} */
-          _CID.createV1(this.code, multihash)
-        );
+        const { code: code3, digest: digest2 } = this.multihash;
+        const multihash = create(code3, digest2);
+        return _CID.createV1(this.code, multihash);
       }
       case 1: {
-        return (
-          /** @type {CID<Data, Format, Alg, 1>} */
-          this
-        );
+        return this;
       }
       default: {
-        throw Error(
-          `Can not convert CID version ${this.version} to version 1. This is a bug please report`
-        );
+        throw Error(`Can not convert CID version ${this.version} to version 0. This is a bug please report`);
       }
     }
   }
-  /**
-   * @param {unknown} other
-   * @returns {other is CID<Data, Format, Alg, Version>}
-   */
   equals(other) {
-    return _CID.equals(this, other);
+    return other && this.code === other.code && this.version === other.version && equals2(this.multihash, other.multihash);
   }
-  /**
-   * @template {unknown} Data
-   * @template {number} Format
-   * @template {number} Alg
-   * @template {API.Version} Version
-   * @param {API.Link<Data, Format, Alg, Version>} self
-   * @param {unknown} other
-   * @returns {other is CID}
-   */
-  static equals(self2, other) {
-    const unknown = (
-      /** @type {{code?:unknown, version?:unknown, multihash?:unknown}} */
-      other
-    );
-    return unknown && self2.code === unknown.code && self2.version === unknown.version && equals2(self2.multihash, unknown.multihash);
+  toString(base3) {
+    const { bytes, version: version2, _baseCache } = this;
+    switch (version2) {
+      case 0:
+        return toStringV0(bytes, _baseCache, base3 || base58btc.encoder);
+      default:
+        return toStringV1(bytes, _baseCache, base3 || base32.encoder);
+    }
   }
-  /**
-   * @param {API.MultibaseEncoder<string>} [base]
-   * @returns {string}
-   */
-  toString(base2) {
-    return format(this, base2);
-  }
-  /**
-   * @returns {API.LinkJSON<this>}
-   */
   toJSON() {
-    return { "/": format(this) };
-  }
-  link() {
-    return this;
+    return {
+      code: this.code,
+      version: this.version,
+      hash: this.multihash.bytes
+    };
   }
   get [Symbol.toStringTag]() {
     return "CID";
   }
-  // Legacy
   [Symbol.for("nodejs.util.inspect.custom")]() {
-    return `CID(${this.toString()})`;
+    return "CID(" + this.toString() + ")";
   }
-  /**
-   * Takes any input `value` and returns a `CID` instance if it was
-   * a `CID` otherwise returns `null`. If `value` is instanceof `CID`
-   * it will return value back. If `value` is not instance of this CID
-   * class, but is compatible CID it will return new instance of this
-   * `CID` class. Otherwise returns null.
-   *
-   * This allows two different incompatible versions of CID library to
-   * co-exist and interop as long as binary interface is compatible.
-   *
-   * @template {unknown} Data
-   * @template {number} Format
-   * @template {number} Alg
-   * @template {API.Version} Version
-   * @template {unknown} U
-   * @param {API.Link<Data, Format, Alg, Version>|U} input
-   * @returns {CID<Data, Format, Alg, Version>|null}
-   */
-  static asCID(input) {
-    if (input == null) {
-      return null;
-    }
-    const value = (
-      /** @type {any} */
-      input
-    );
+  static isCID(value) {
+    deprecate(/^0\.0/, IS_CID_DEPRECATION);
+    return !!(value && (value[cidSymbol] || value.asCID === value));
+  }
+  get toBaseEncodedString() {
+    throw new Error("Deprecated, use .toString()");
+  }
+  get codec() {
+    throw new Error('"codec" property is deprecated, use integer "code" property instead');
+  }
+  get buffer() {
+    throw new Error("Deprecated .buffer property, use .bytes to get Uint8Array instead");
+  }
+  get multibaseName() {
+    throw new Error('"multibaseName" property is deprecated');
+  }
+  get prefix() {
+    throw new Error('"prefix" property is deprecated');
+  }
+  static asCID(value) {
     if (value instanceof _CID) {
       return value;
-    } else if (value["/"] != null && value["/"] === value.bytes || value.asCID === value) {
-      const { version, code: code2, multihash, bytes } = value;
-      return new _CID(
-        version,
-        code2,
-        /** @type {API.MultihashDigest<Alg>} */
-        multihash,
-        bytes || encodeCID(version, code2, multihash.bytes)
-      );
-    } else if (value[cidSymbol] === true) {
-      const { version, multihash, code: code2 } = value;
-      const digest = (
-        /** @type {API.MultihashDigest<Alg>} */
-        decode4(multihash)
-      );
-      return _CID.create(version, code2, digest);
+    } else if (value != null && value.asCID === value) {
+      const { version: version2, code: code3, multihash, bytes } = value;
+      return new _CID(version2, code3, multihash, bytes || encodeCID(version2, code3, multihash.bytes));
+    } else if (value != null && value[cidSymbol] === true) {
+      const { version: version2, multihash, code: code3 } = value;
+      const digest2 = decode3(multihash);
+      return _CID.create(version2, code3, digest2);
     } else {
       return null;
     }
   }
-  /**
-   *
-   * @template {unknown} Data
-   * @template {number} Format
-   * @template {number} Alg
-   * @template {API.Version} Version
-   * @param {Version} version - Version of the CID
-   * @param {Format} code - Code of the codec content is encoded in, see https://github.com/multiformats/multicodec/blob/master/table.csv
-   * @param {API.MultihashDigest<Alg>} digest - (Multi)hash of the of the content.
-   * @returns {CID<Data, Format, Alg, Version>}
-   */
-  static create(version, code2, digest) {
-    if (typeof code2 !== "number") {
+  static create(version2, code3, digest2) {
+    if (typeof code3 !== "number") {
       throw new Error("String codecs are no longer supported");
     }
-    if (!(digest.bytes instanceof Uint8Array)) {
-      throw new Error("Invalid digest");
-    }
-    switch (version) {
+    switch (version2) {
       case 0: {
-        if (code2 !== DAG_PB_CODE) {
-          throw new Error(
-            `Version 0 CID must use dag-pb (code: ${DAG_PB_CODE}) block encoding`
-          );
+        if (code3 !== DAG_PB_CODE) {
+          throw new Error(`Version 0 CID must use dag-pb (code: ${DAG_PB_CODE}) block encoding`);
         } else {
-          return new _CID(version, code2, digest, digest.bytes);
+          return new _CID(version2, code3, digest2, digest2.bytes);
         }
       }
       case 1: {
-        const bytes = encodeCID(version, code2, digest.bytes);
-        return new _CID(version, code2, digest, bytes);
+        const bytes = encodeCID(version2, code3, digest2.bytes);
+        return new _CID(version2, code3, digest2, bytes);
       }
       default: {
         throw new Error("Invalid version");
       }
     }
   }
-  /**
-   * Simplified version of `create` for CIDv0.
-   *
-   * @template {unknown} [T=unknown]
-   * @param {API.MultihashDigest<typeof SHA_256_CODE>} digest - Multihash.
-   * @returns {CID<T, typeof DAG_PB_CODE, typeof SHA_256_CODE, 0>}
-   */
-  static createV0(digest) {
-    return _CID.create(0, DAG_PB_CODE, digest);
+  static createV0(digest2) {
+    return _CID.create(0, DAG_PB_CODE, digest2);
   }
-  /**
-   * Simplified version of `create` for CIDv1.
-   *
-   * @template {unknown} Data
-   * @template {number} Code
-   * @template {number} Alg
-   * @param {Code} code - Content encoding format code.
-   * @param {API.MultihashDigest<Alg>} digest - Miltihash of the content.
-   * @returns {CID<Data, Code, Alg, 1>}
-   */
-  static createV1(code2, digest) {
-    return _CID.create(1, code2, digest);
+  static createV1(code3, digest2) {
+    return _CID.create(1, code3, digest2);
   }
-  /**
-   * Decoded a CID from its binary representation. The byte array must contain
-   * only the CID with no additional bytes.
-   *
-   * An error will be thrown if the bytes provided do not contain a valid
-   * binary representation of a CID.
-   *
-   * @template {unknown} Data
-   * @template {number} Code
-   * @template {number} Alg
-   * @template {API.Version} Ver
-   * @param {API.ByteView<API.Link<Data, Code, Alg, Ver>>} bytes
-   * @returns {CID<Data, Code, Alg, Ver>}
-   */
   static decode(bytes) {
     const [cid, remainder] = _CID.decodeFirst(bytes);
     if (remainder.length) {
@@ -2235,191 +2389,114 @@ var CID = class _CID {
     }
     return cid;
   }
-  /**
-   * Decoded a CID from its binary representation at the beginning of a byte
-   * array.
-   *
-   * Returns an array with the first element containing the CID and the second
-   * element containing the remainder of the original byte array. The remainder
-   * will be a zero-length byte array if the provided bytes only contained a
-   * binary CID representation.
-   *
-   * @template {unknown} T
-   * @template {number} C
-   * @template {number} A
-   * @template {API.Version} V
-   * @param {API.ByteView<API.Link<T, C, A, V>>} bytes
-   * @returns {[CID<T, C, A, V>, Uint8Array]}
-   */
   static decodeFirst(bytes) {
     const specs = _CID.inspectBytes(bytes);
     const prefixSize = specs.size - specs.multihashSize;
-    const multihashBytes = coerce(
-      bytes.subarray(prefixSize, prefixSize + specs.multihashSize)
-    );
+    const multihashBytes = coerce(bytes.subarray(prefixSize, prefixSize + specs.multihashSize));
     if (multihashBytes.byteLength !== specs.multihashSize) {
       throw new Error("Incorrect length");
     }
-    const digestBytes = multihashBytes.subarray(
-      specs.multihashSize - specs.digestSize
-    );
-    const digest = new Digest(
-      specs.multihashCode,
-      specs.digestSize,
-      digestBytes,
-      multihashBytes
-    );
-    const cid = specs.version === 0 ? _CID.createV0(
-      /** @type {API.MultihashDigest<API.SHA_256>} */
-      digest
-    ) : _CID.createV1(specs.codec, digest);
+    const digestBytes = multihashBytes.subarray(specs.multihashSize - specs.digestSize);
+    const digest2 = new Digest(specs.multihashCode, specs.digestSize, digestBytes, multihashBytes);
+    const cid = specs.version === 0 ? _CID.createV0(digest2) : _CID.createV1(specs.codec, digest2);
     return [
-      /** @type {CID<T, C, A, V>} */
       cid,
       bytes.subarray(specs.size)
     ];
   }
-  /**
-   * Inspect the initial bytes of a CID to determine its properties.
-   *
-   * Involves decoding up to 4 varints. Typically this will require only 4 to 6
-   * bytes but for larger multicodec code values and larger multihash digest
-   * lengths these varints can be quite large. It is recommended that at least
-   * 10 bytes be made available in the `initialBytes` argument for a complete
-   * inspection.
-   *
-   * @template {unknown} T
-   * @template {number} C
-   * @template {number} A
-   * @template {API.Version} V
-   * @param {API.ByteView<API.Link<T, C, A, V>>} initialBytes
-   * @returns {{ version:V, codec:C, multihashCode:A, digestSize:number, multihashSize:number, size:number }}
-   */
   static inspectBytes(initialBytes) {
     let offset = 0;
     const next = () => {
-      const [i, length2] = decode3(initialBytes.subarray(offset));
+      const [i, length2] = decode2(initialBytes.subarray(offset));
       offset += length2;
       return i;
     };
-    let version = (
-      /** @type {V} */
-      next()
-    );
-    let codec = (
-      /** @type {C} */
-      DAG_PB_CODE
-    );
-    if (
-      /** @type {number} */
-      version === 18
-    ) {
-      version = /** @type {V} */
-      0;
+    let version2 = next();
+    let codec = DAG_PB_CODE;
+    if (version2 === 18) {
+      version2 = 0;
       offset = 0;
-    } else {
-      codec = /** @type {C} */
-      next();
+    } else if (version2 === 1) {
+      codec = next();
     }
-    if (version !== 0 && version !== 1) {
-      throw new RangeError(`Invalid CID version ${version}`);
+    if (version2 !== 0 && version2 !== 1) {
+      throw new RangeError(`Invalid CID version ${version2}`);
     }
     const prefixSize = offset;
-    const multihashCode = (
-      /** @type {A} */
-      next()
-    );
+    const multihashCode = next();
     const digestSize = next();
     const size = offset + digestSize;
     const multihashSize = size - prefixSize;
-    return { version, codec, multihashCode, digestSize, multihashSize, size };
+    return {
+      version: version2,
+      codec,
+      multihashCode,
+      digestSize,
+      multihashSize,
+      size
+    };
   }
-  /**
-   * Takes cid in a string representation and creates an instance. If `base`
-   * decoder is not provided will use a default from the configuration. It will
-   * throw an error if encoding of the CID is not compatible with supplied (or
-   * a default decoder).
-   *
-   * @template {string} Prefix
-   * @template {unknown} Data
-   * @template {number} Code
-   * @template {number} Alg
-   * @template {API.Version} Ver
-   * @param {API.ToString<API.Link<Data, Code, Alg, Ver>, Prefix>} source
-   * @param {API.MultibaseDecoder<Prefix>} [base]
-   * @returns {CID<Data, Code, Alg, Ver>}
-   */
-  static parse(source, base2) {
-    const [prefix, bytes] = parseCIDtoBytes(source, base2);
+  static parse(source, base3) {
+    const [prefix, bytes] = parseCIDtoBytes(source, base3);
     const cid = _CID.decode(bytes);
-    if (cid.version === 0 && source[0] !== "Q") {
-      throw Error("Version 0 CID string must not include multibase prefix");
-    }
-    baseCache(cid).set(prefix, source);
+    cid._baseCache.set(prefix, source);
     return cid;
   }
 };
-var parseCIDtoBytes = (source, base2) => {
+var parseCIDtoBytes = (source, base3) => {
   switch (source[0]) {
-    // CIDv0 is parsed differently
     case "Q": {
-      const decoder = base2 || base58btc;
+      const decoder = base3 || base58btc;
       return [
-        /** @type {Prefix} */
         base58btc.prefix,
         decoder.decode(`${base58btc.prefix}${source}`)
       ];
     }
     case base58btc.prefix: {
-      const decoder = base2 || base58btc;
+      const decoder = base3 || base58btc;
       return [
-        /** @type {Prefix} */
         base58btc.prefix,
         decoder.decode(source)
       ];
     }
     case base32.prefix: {
-      const decoder = base2 || base32;
+      const decoder = base3 || base32;
       return [
-        /** @type {Prefix} */
         base32.prefix,
         decoder.decode(source)
       ];
     }
     default: {
-      if (base2 == null) {
-        throw Error(
-          "To parse non base32 or base58btc encoded CID multibase decoder must be provided"
-        );
+      if (base3 == null) {
+        throw Error("To parse non base32 or base58btc encoded CID multibase decoder must be provided");
       }
       return [
-        /** @type {Prefix} */
         source[0],
-        base2.decode(source)
+        base3.decode(source)
       ];
     }
   }
 };
-var toStringV0 = (bytes, cache2, base2) => {
-  const { prefix } = base2;
+var toStringV0 = (bytes, cache, base3) => {
+  const { prefix } = base3;
   if (prefix !== base58btc.prefix) {
-    throw Error(`Cannot string encode V0 in ${base2.name} encoding`);
+    throw Error(`Cannot string encode V0 in ${base3.name} encoding`);
   }
-  const cid = cache2.get(prefix);
+  const cid = cache.get(prefix);
   if (cid == null) {
-    const cid2 = base2.encode(bytes).slice(1);
-    cache2.set(prefix, cid2);
+    const cid2 = base3.encode(bytes).slice(1);
+    cache.set(prefix, cid2);
     return cid2;
   } else {
     return cid;
   }
 };
-var toStringV1 = (bytes, cache2, base2) => {
-  const { prefix } = base2;
-  const cid = cache2.get(prefix);
+var toStringV1 = (bytes, cache, base3) => {
+  const { prefix } = base3;
+  const cid = cache.get(prefix);
   if (cid == null) {
-    const cid2 = base2.encode(bytes);
-    cache2.set(prefix, cid2);
+    const cid2 = base3.encode(bytes);
+    cache.set(prefix, cid2);
     return cid2;
   } else {
     return cid;
@@ -2427,22 +2504,432 @@ var toStringV1 = (bytes, cache2, base2) => {
 };
 var DAG_PB_CODE = 112;
 var SHA_256_CODE = 18;
-var encodeCID = (version, code2, multihash) => {
-  const codeOffset = encodingLength(version);
-  const hashOffset = codeOffset + encodingLength(code2);
+var encodeCID = (version2, code3, multihash) => {
+  const codeOffset = encodingLength(version2);
+  const hashOffset = codeOffset + encodingLength(code3);
   const bytes = new Uint8Array(hashOffset + multihash.byteLength);
-  encodeTo(version, bytes, 0);
-  encodeTo(code2, bytes, codeOffset);
+  encodeTo(version2, bytes, 0);
+  encodeTo(code3, bytes, codeOffset);
   bytes.set(multihash, hashOffset);
   return bytes;
 };
 var cidSymbol = Symbol.for("@ipld/js-cid/CID");
+var readonly = {
+  writable: false,
+  configurable: false,
+  enumerable: true
+};
+var hidden = {
+  writable: false,
+  enumerable: false,
+  configurable: false
+};
+var version = "0.0.0-dev";
+var deprecate = (range, message) => {
+  if (range.test(version)) {
+    console.warn(message);
+  } else {
+    throw new Error(message);
+  }
+};
+var IS_CID_DEPRECATION = `CID.isCID(v) is deprecated and will be removed in the next major release.
+Following code pattern:
+
+if (CID.isCID(value)) {
+  doSomethingWithCID(value)
+}
+
+Is replaced with:
+
+const cid = CID.asCID(value)
+if (cid) {
+  // Make sure to use cid instead of value
+  doSomethingWithCID(cid)
+}
+`;
+
+// front/node_modules/multiformats/esm/src/hashes/hasher.js
+var from2 = ({ name: name3, code: code3, encode: encode6 }) => new Hasher(name3, code3, encode6);
+var Hasher = class {
+  constructor(name3, code3, encode6) {
+    this.name = name3;
+    this.code = code3;
+    this.encode = encode6;
+  }
+  digest(input) {
+    if (input instanceof Uint8Array) {
+      const result = this.encode(input);
+      return result instanceof Uint8Array ? create(this.code, result) : result.then((digest2) => create(this.code, digest2));
+    } else {
+      throw Error("Unknown type, must be binary type");
+    }
+  }
+};
 
 // front/node_modules/@cef-ebsi/key-did-resolver/dist/codecs/jwk_jcs-pub.js
+var jwk_jcs_pub_exports = {};
+__export(jwk_jcs_pub_exports, {
+  code: () => code2,
+  decode: () => decode6,
+  encode: () => encode5,
+  name: () => name2,
+  validateJwk: () => validateJwk
+});
 var import_lodash = __toESM(require_lodash(), 1);
-var code = 60241;
+
+// front/node_modules/uint8arrays/esm/src/util/as-uint8array.js
+function asUint8Array(buf) {
+  if (globalThis.Buffer != null) {
+    return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+  }
+  return buf;
+}
+
+// front/node_modules/uint8arrays/esm/src/alloc.js
+function allocUnsafe(size = 0) {
+  if (globalThis.Buffer != null && globalThis.Buffer.allocUnsafe != null) {
+    return asUint8Array(globalThis.Buffer.allocUnsafe(size));
+  }
+  return new Uint8Array(size);
+}
+
+// front/node_modules/multiformats/esm/src/bases/identity.js
+var identity_exports = {};
+__export(identity_exports, {
+  identity: () => identity
+});
+var identity = from({
+  prefix: "\0",
+  name: "identity",
+  encode: (buf) => toString(buf),
+  decode: (str) => fromString(str)
+});
+
+// front/node_modules/multiformats/esm/src/bases/base2.js
+var base2_exports = {};
+__export(base2_exports, {
+  base2: () => base2
+});
+var base2 = rfc4648({
+  prefix: "0",
+  name: "base2",
+  alphabet: "01",
+  bitsPerChar: 1
+});
+
+// front/node_modules/multiformats/esm/src/bases/base8.js
+var base8_exports = {};
+__export(base8_exports, {
+  base8: () => base8
+});
+var base8 = rfc4648({
+  prefix: "7",
+  name: "base8",
+  alphabet: "01234567",
+  bitsPerChar: 3
+});
+
+// front/node_modules/multiformats/esm/src/bases/base10.js
+var base10_exports = {};
+__export(base10_exports, {
+  base10: () => base10
+});
+var base10 = baseX({
+  prefix: "9",
+  name: "base10",
+  alphabet: "0123456789"
+});
+
+// front/node_modules/multiformats/esm/src/bases/base16.js
+var base16_exports = {};
+__export(base16_exports, {
+  base16: () => base16,
+  base16upper: () => base16upper
+});
+var base16 = rfc4648({
+  prefix: "f",
+  name: "base16",
+  alphabet: "0123456789abcdef",
+  bitsPerChar: 4
+});
+var base16upper = rfc4648({
+  prefix: "F",
+  name: "base16upper",
+  alphabet: "0123456789ABCDEF",
+  bitsPerChar: 4
+});
+
+// front/node_modules/multiformats/esm/src/bases/base36.js
+var base36_exports = {};
+__export(base36_exports, {
+  base36: () => base36,
+  base36upper: () => base36upper
+});
+var base36 = baseX({
+  prefix: "k",
+  name: "base36",
+  alphabet: "0123456789abcdefghijklmnopqrstuvwxyz"
+});
+var base36upper = baseX({
+  prefix: "K",
+  name: "base36upper",
+  alphabet: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+});
+
+// front/node_modules/multiformats/esm/src/bases/base64.js
+var base64_exports = {};
+__export(base64_exports, {
+  base64: () => base64,
+  base64pad: () => base64pad,
+  base64url: () => base64url,
+  base64urlpad: () => base64urlpad
+});
+var base64 = rfc4648({
+  prefix: "m",
+  name: "base64",
+  alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+  bitsPerChar: 6
+});
+var base64pad = rfc4648({
+  prefix: "M",
+  name: "base64pad",
+  alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+  bitsPerChar: 6
+});
+var base64url = rfc4648({
+  prefix: "u",
+  name: "base64url",
+  alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",
+  bitsPerChar: 6
+});
+var base64urlpad = rfc4648({
+  prefix: "U",
+  name: "base64urlpad",
+  alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=",
+  bitsPerChar: 6
+});
+
+// front/node_modules/multiformats/esm/src/bases/base256emoji.js
+var base256emoji_exports = {};
+__export(base256emoji_exports, {
+  base256emoji: () => base256emoji
+});
+var alphabet = Array.from("🚀🪐☄🛰🌌🌑🌒🌓🌔🌕🌖🌗🌘🌍🌏🌎🐉☀💻🖥💾💿😂❤😍🤣😊🙏💕😭😘👍😅👏😁🔥🥰💔💖💙😢🤔😆🙄💪😉☺👌🤗💜😔😎😇🌹🤦🎉💞✌✨🤷😱😌🌸🙌😋💗💚😏💛🙂💓🤩😄😀🖤😃💯🙈👇🎶😒🤭❣😜💋👀😪😑💥🙋😞😩😡🤪👊🥳😥🤤👉💃😳✋😚😝😴🌟😬🙃🍀🌷😻😓⭐✅🥺🌈😈🤘💦✔😣🏃💐☹🎊💘😠☝😕🌺🎂🌻😐🖕💝🙊😹🗣💫💀👑🎵🤞😛🔴😤🌼😫⚽🤙☕🏆🤫👈😮🙆🍻🍃🐶💁😲🌿🧡🎁⚡🌞🎈❌✊👋😰🤨😶🤝🚶💰🍓💢🤟🙁🚨💨🤬✈🎀🍺🤓😙💟🌱😖👶🥴▶➡❓💎💸⬇😨🌚🦋😷🕺⚠🙅😟😵👎🤲🤠🤧📌🔵💅🧐🐾🍒😗🤑🌊🤯🐷☎💧😯💆👆🎤🙇🍑❄🌴💣🐸💌📍🥀🤢👅💡💩👐📸👻🤐🤮🎼🥵🚩🍎🍊👼💍📣🥂");
+var alphabetBytesToChars = alphabet.reduce((p, c, i) => {
+  p[i] = c;
+  return p;
+}, []);
+var alphabetCharsToBytes = alphabet.reduce((p, c, i) => {
+  p[c.codePointAt(0)] = i;
+  return p;
+}, []);
+function encode3(data) {
+  return data.reduce((p, c) => {
+    p += alphabetBytesToChars[c];
+    return p;
+  }, "");
+}
+function decode5(str) {
+  const byts = [];
+  for (const char of str) {
+    const byt = alphabetCharsToBytes[char.codePointAt(0)];
+    if (byt === void 0) {
+      throw new Error(`Non-base256emoji character: ${char}`);
+    }
+    byts.push(byt);
+  }
+  return new Uint8Array(byts);
+}
+var base256emoji = from({
+  prefix: "🚀",
+  name: "base256emoji",
+  encode: encode3,
+  decode: decode5
+});
+
+// front/node_modules/multiformats/esm/src/hashes/sha2-browser.js
+var sha2_browser_exports = {};
+__export(sha2_browser_exports, {
+  sha256: () => sha256,
+  sha512: () => sha512
+});
+var sha = (name3) => async (data) => new Uint8Array(await crypto.subtle.digest(name3, data));
+var sha256 = from2({
+  name: "sha2-256",
+  code: 18,
+  encode: sha("SHA-256")
+});
+var sha512 = from2({
+  name: "sha2-512",
+  code: 19,
+  encode: sha("SHA-512")
+});
+
+// front/node_modules/multiformats/esm/src/hashes/identity.js
+var identity_exports2 = {};
+__export(identity_exports2, {
+  identity: () => identity2
+});
+var code = 0;
+var name = "identity";
+var encode4 = coerce;
+var digest = (input) => create(code, encode4(input));
+var identity2 = {
+  code,
+  name,
+  encode: encode4,
+  digest
+};
+
+// front/node_modules/multiformats/esm/src/codecs/json.js
 var textEncoder = new TextEncoder();
 var textDecoder = new TextDecoder();
+
+// front/node_modules/multiformats/esm/src/basics.js
+var bases = {
+  ...identity_exports,
+  ...base2_exports,
+  ...base8_exports,
+  ...base10_exports,
+  ...base16_exports,
+  ...base32_exports,
+  ...base36_exports,
+  ...base58_exports,
+  ...base64_exports,
+  ...base256emoji_exports
+};
+var hashes = {
+  ...sha2_browser_exports,
+  ...identity_exports2
+};
+
+// front/node_modules/uint8arrays/esm/src/util/bases.js
+function createCodec(name3, prefix, encode6, decode7) {
+  return {
+    name: name3,
+    prefix,
+    encoder: {
+      name: name3,
+      prefix,
+      encode: encode6
+    },
+    decoder: { decode: decode7 }
+  };
+}
+var string = createCodec("utf8", "u", (buf) => {
+  const decoder = new TextDecoder("utf8");
+  return "u" + decoder.decode(buf);
+}, (str) => {
+  const encoder = new TextEncoder();
+  return encoder.encode(str.substring(1));
+});
+var ascii = createCodec("ascii", "a", (buf) => {
+  let string2 = "a";
+  for (let i = 0; i < buf.length; i++) {
+    string2 += String.fromCharCode(buf[i]);
+  }
+  return string2;
+}, (str) => {
+  str = str.substring(1);
+  const buf = allocUnsafe(str.length);
+  for (let i = 0; i < str.length; i++) {
+    buf[i] = str.charCodeAt(i);
+  }
+  return buf;
+});
+var BASES = {
+  utf8: string,
+  "utf-8": string,
+  hex: bases.base16,
+  latin1: ascii,
+  ascii,
+  binary: ascii,
+  ...bases
+};
+var bases_default = BASES;
+
+// front/node_modules/uint8arrays/esm/src/from-string.js
+function fromString2(string2, encoding = "utf8") {
+  const base3 = bases_default[encoding];
+  if (!base3) {
+    throw new Error(`Unsupported encoding "${encoding}"`);
+  }
+  if ((encoding === "utf8" || encoding === "utf-8") && globalThis.Buffer != null && globalThis.Buffer.from != null) {
+    return asUint8Array(globalThis.Buffer.from(string2, "utf-8"));
+  }
+  return base3.decoder.decode(`${base3.prefix}${string2}`);
+}
+
+// front/node_modules/uint8arrays/esm/src/to-string.js
+function toString2(array, encoding = "utf8") {
+  const base3 = bases_default[encoding];
+  if (!base3) {
+    throw new Error(`Unsupported encoding "${encoding}"`);
+  }
+  if ((encoding === "utf8" || encoding === "utf-8") && globalThis.Buffer != null && globalThis.Buffer.from != null) {
+    return globalThis.Buffer.from(array.buffer, array.byteOffset, array.byteLength).toString("utf8");
+  }
+  return base3.encoder.encode(array).substring(1);
+}
+
+// front/node_modules/@cef-ebsi/key-did-resolver/dist/codecs/jwk_jcs-pub.js
+var name2 = "jwk_jcs-pub";
+var code2 = 60241;
+function decode6(bytes) {
+  const jwk = JSON.parse(toString2(bytes));
+  validateJwk(jwk);
+  if (JSON.stringify(jwk) !== JSON.stringify(canonicaliseJwk(jwk))) {
+    throw new Error("The JWK embedded in the DID is not correctly formatted");
+  }
+  return jwk;
+}
+function encode5(jwk) {
+  validateJwk(jwk);
+  const components = canonicaliseJwk(jwk);
+  return fromString2(JSON.stringify(components), "utf8");
+}
+function validateJwk(jwk) {
+  validatePlainObject(jwk);
+  switch (jwk["kty"]) {
+    case "EC": {
+      check(jwk["crv"], '"crv" (Curve) Parameter');
+      check(jwk["x"], '"x" (X Coordinate) Parameter');
+      check(jwk["y"], '"y" (Y Coordinate) Parameter');
+      break;
+    }
+    case "OKP": {
+      check(jwk["crv"], '"crv" (Subtype of Key Pair) Parameter');
+      check(jwk["x"], '"x" (Public Key) Parameter');
+      break;
+    }
+    case "RSA": {
+      check(jwk["e"], '"e" (Exponent) Parameter');
+      check(jwk["n"], '"n" (Modulus) Parameter');
+      break;
+    }
+    default: {
+      throw new Error('"kty" (Key Type) Parameter missing or unsupported');
+    }
+  }
+}
+function canonicaliseJwk(jwk) {
+  let components;
+  switch (jwk.kty) {
+    case "EC": {
+      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y };
+      break;
+    }
+    case "OKP": {
+      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x };
+      break;
+    }
+    case "RSA": {
+      components = { e: jwk.e, kty: jwk.kty, n: jwk.n };
+      break;
+    }
+  }
+  return components;
+}
 function check(value, description) {
   if (typeof value !== "string" || !value) {
     throw new Error(`${description} missing or invalid`);
@@ -2453,58 +2940,10 @@ function validatePlainObject(value) {
     throw new Error("JWK must be an object");
   }
 }
-function validateJwk(jwk) {
-  validatePlainObject(jwk);
-  switch (jwk["kty"]) {
-    case "EC":
-      check(jwk["crv"], '"crv" (Curve) Parameter');
-      check(jwk["x"], '"x" (X Coordinate) Parameter');
-      check(jwk["y"], '"y" (Y Coordinate) Parameter');
-      break;
-    case "OKP":
-      check(jwk["crv"], '"crv" (Subtype of Key Pair) Parameter');
-      check(jwk["x"], '"x" (Public Key) Parameter');
-      break;
-    case "RSA":
-      check(jwk["e"], '"e" (Exponent) Parameter');
-      check(jwk["n"], '"n" (Modulus) Parameter');
-      break;
-    default:
-      throw new Error('"kty" (Key Type) Parameter missing or unsupported');
-  }
-}
-function canonicaliseJwk(jwk) {
-  let components;
-  switch (jwk.kty) {
-    case "EC":
-      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y };
-      break;
-    case "OKP":
-      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x };
-      break;
-    case "RSA":
-      components = { e: jwk.e, kty: jwk.kty, n: jwk.n };
-      break;
-  }
-  return components;
-}
-function encode3(jwk) {
-  validateJwk(jwk);
-  const components = canonicaliseJwk(jwk);
-  return textEncoder.encode(JSON.stringify(components));
-}
-function decode5(bytes) {
-  const jwk = JSON.parse(textDecoder.decode(bytes));
-  validateJwk(jwk);
-  if (JSON.stringify(jwk) !== JSON.stringify(canonicaliseJwk(jwk))) {
-    throw new Error("The JWK embedded in the DID is not correctly formatted");
-  }
-  return jwk;
-}
 
 // front/node_modules/@cef-ebsi/key-did-resolver/dist/drivers/jwk_jcs-pub.js
-var jwk_jcs_pub_exports = {};
-__export(jwk_jcs_pub_exports, {
+var jwk_jcs_pub_exports2 = {};
+__export(jwk_jcs_pub_exports2, {
   pubKeyBytesToDidDoc: () => pubKeyBytesToDidDoc
 });
 function pubKeyBytesToDidDoc(pubKeyBytes, identifier, contentType) {
@@ -2512,9 +2951,9 @@ function pubKeyBytesToDidDoc(pubKeyBytes, identifier, contentType) {
   const keyId = `${did}#${identifier}`;
   let publicKeyJwk;
   try {
-    publicKeyJwk = decode5(pubKeyBytes);
-  } catch (e) {
-    throw new InvalidDidError(e instanceof Error ? e.message : "Unknown error");
+    publicKeyJwk = decode6(pubKeyBytes);
+  } catch (error) {
+    throw new InvalidDidError(error instanceof Error ? error.message : "Unknown error");
   }
   return {
     ...contentType === DID_LD_JSON && {
@@ -2523,67 +2962,67 @@ function pubKeyBytesToDidDoc(pubKeyBytes, identifier, contentType) {
         "https://w3id.org/security/suites/jws-2020/v1"
       ]
     },
+    assertionMethod: [keyId],
+    authentication: [keyId],
+    capabilityDelegation: [keyId],
+    capabilityInvocation: [keyId],
     id: did,
     verificationMethod: [
       {
-        id: keyId,
-        type: "JsonWebKey2020",
         controller: did,
-        publicKeyJwk
+        id: keyId,
+        publicKeyJwk,
+        type: "JsonWebKey2020"
       }
-    ],
-    authentication: [keyId],
-    assertionMethod: [keyId],
-    capabilityInvocation: [keyId],
-    capabilityDelegation: [keyId]
+    ]
   };
 }
 
 // front/node_modules/@cef-ebsi/key-did-resolver/dist/internals.js
 var codecToDriver = {
-  [code]: jwk_jcs_pub_exports
+  [code2]: jwk_jcs_pub_exports2
 };
-var encodePublicKey = (pubKeyBytes, code2) => {
+var encodePublicKey = (pubKeyBytes, code3) => {
   const size = pubKeyBytes.byteLength;
-  const sizeOffset = varint_exports.encodingLength(code2);
+  const sizeOffset = varint_exports.encodingLength(code3);
   const messageOffset = sizeOffset;
   const bytes = new Uint8Array(messageOffset + size);
-  varint_exports.encodeTo(code2, bytes, 0);
+  varint_exports.encodeTo(code3, bytes, 0);
   bytes.set(pubKeyBytes, messageOffset);
   return base58btc.encode(bytes);
 };
 var decodePublicKey = (publicKey) => {
   const multicodecPubKey = base58btc.decode(publicKey);
-  const [code2, sizeOffset] = varint_exports.decode(multicodecPubKey);
+  const [code3, sizeOffset] = varint_exports.decode(multicodecPubKey);
   const pubKeyBytes = multicodecPubKey.slice(sizeOffset);
   return {
-    pubKeyBytes,
-    code: code2
+    code: code3,
+    pubKeyBytes
   };
 };
 function resolveDidDoc(did, contentType) {
   let pubKeyBytes;
-  let code2;
+  let code3;
   if (!did || typeof did !== "string") {
     throw new InvalidDidError("The DID must be a string");
   }
   if (!did.startsWith(KEY_DID_METHOD_PREFIX)) {
     throw new InvalidDidError(`The DID must start with "${KEY_DID_METHOD_PREFIX}"`);
   }
-  const methodSpecificIdentifier = did.substring(KEY_DID_METHOD_PREFIX.length);
+  const methodSpecificIdentifier = did.slice(KEY_DID_METHOD_PREFIX.length);
   if (!methodSpecificIdentifier.startsWith(base58btc.prefix)) {
     throw new InvalidDidError(`The method-specific identifier must start with "${base58btc.prefix}" (multibase base58btc-encoded)`);
   }
   try {
     const decodedResult = decodePublicKey(methodSpecificIdentifier);
     pubKeyBytes = decodedResult.pubKeyBytes;
-    code2 = decodedResult.code;
-  } catch (e) {
+    code3 = decodedResult.code;
+  } catch {
     throw new InvalidDidError("The method-specific identifier is not a valid multibase base58btc-encoded string");
   }
-  const driver = codecToDriver[code2];
+  const driver = codecToDriver[code3];
   if (!driver) {
-    throw new InvalidDidError(`Unsupported codec ${code2}`);
+    throw new InvalidDidError(`Unsupported codec ${code3.toString()}`);
   }
   const didDocument = driver.pubKeyBytesToDidDoc(pubKeyBytes, methodSpecificIdentifier, contentType);
   return didDocument;
@@ -2593,814 +3032,23 @@ function resolveDidDoc(did, contentType) {
 var util_exports = {};
 __export(util_exports, {
   createDid: () => createDid,
-  validateDid: () => validateDid
+  validateDid: () => validateDid,
+  validateJwk: () => validateJwk2
 });
 function createDid(publicKey) {
   try {
-    return `${KEY_DID_METHOD_PREFIX}${encodePublicKey(encode3(publicKey), code)}`;
-  } catch (e) {
-    throw new Error(e instanceof Error ? e.message : "Unknown error");
+    return `${KEY_DID_METHOD_PREFIX}${encodePublicKey(encode5(publicKey), code2)}`;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
   }
 }
 function validateDid(did) {
   resolveDidDoc(did);
 }
+var { validateJwk: validateJwk2 } = jwk_jcs_pub_exports;
 
-// front/node_modules/reflect-metadata/Reflect.js
-var Reflect2;
-(function(Reflect3) {
-  (function(factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : Function("return this;")();
-    var exporter = makeExporter(Reflect3);
-    if (typeof root.Reflect === "undefined") {
-      root.Reflect = Reflect3;
-    } else {
-      exporter = makeExporter(root.Reflect, exporter);
-    }
-    factory(exporter);
-    function makeExporter(target, previous) {
-      return function(key, value) {
-        if (typeof target[key] !== "function") {
-          Object.defineProperty(target, key, { configurable: true, writable: true, value });
-        }
-        if (previous)
-          previous(key, value);
-      };
-    }
-  })(function(exporter) {
-    var hasOwn = Object.prototype.hasOwnProperty;
-    var supportsSymbol = typeof Symbol === "function";
-    var toPrimitiveSymbol = supportsSymbol && typeof Symbol.toPrimitive !== "undefined" ? Symbol.toPrimitive : "@@toPrimitive";
-    var iteratorSymbol = supportsSymbol && typeof Symbol.iterator !== "undefined" ? Symbol.iterator : "@@iterator";
-    var supportsCreate = typeof Object.create === "function";
-    var supportsProto = { __proto__: [] } instanceof Array;
-    var downLevel = !supportsCreate && !supportsProto;
-    var HashMap = {
-      // create an object in dictionary mode (a.k.a. "slow" mode in v8)
-      create: supportsCreate ? function() {
-        return MakeDictionary(/* @__PURE__ */ Object.create(null));
-      } : supportsProto ? function() {
-        return MakeDictionary({ __proto__: null });
-      } : function() {
-        return MakeDictionary({});
-      },
-      has: downLevel ? function(map, key) {
-        return hasOwn.call(map, key);
-      } : function(map, key) {
-        return key in map;
-      },
-      get: downLevel ? function(map, key) {
-        return hasOwn.call(map, key) ? map[key] : void 0;
-      } : function(map, key) {
-        return map[key];
-      }
-    };
-    var functionPrototype = Object.getPrototypeOf(Function);
-    var usePolyfill = typeof process === "object" && process.env && process.env["REFLECT_METADATA_USE_MAP_POLYFILL"] === "true";
-    var _Map = !usePolyfill && typeof Map === "function" && typeof Map.prototype.entries === "function" ? Map : CreateMapPolyfill();
-    var _Set = !usePolyfill && typeof Set === "function" && typeof Set.prototype.entries === "function" ? Set : CreateSetPolyfill();
-    var _WeakMap = !usePolyfill && typeof WeakMap === "function" ? WeakMap : CreateWeakMapPolyfill();
-    var Metadata = new _WeakMap();
-    function decorate(decorators, target, propertyKey, attributes) {
-      if (!IsUndefined(propertyKey)) {
-        if (!IsArray(decorators))
-          throw new TypeError();
-        if (!IsObject(target))
-          throw new TypeError();
-        if (!IsObject(attributes) && !IsUndefined(attributes) && !IsNull(attributes))
-          throw new TypeError();
-        if (IsNull(attributes))
-          attributes = void 0;
-        propertyKey = ToPropertyKey(propertyKey);
-        return DecorateProperty(decorators, target, propertyKey, attributes);
-      } else {
-        if (!IsArray(decorators))
-          throw new TypeError();
-        if (!IsConstructor(target))
-          throw new TypeError();
-        return DecorateConstructor(decorators, target);
-      }
-    }
-    exporter("decorate", decorate);
-    function metadata(metadataKey, metadataValue) {
-      function decorator(target, propertyKey) {
-        if (!IsObject(target))
-          throw new TypeError();
-        if (!IsUndefined(propertyKey) && !IsPropertyKey(propertyKey))
-          throw new TypeError();
-        OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
-      }
-      return decorator;
-    }
-    exporter("metadata", metadata);
-    function defineMetadata(metadataKey, metadataValue, target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
-    }
-    exporter("defineMetadata", defineMetadata);
-    function hasMetadata(metadataKey, target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryHasMetadata(metadataKey, target, propertyKey);
-    }
-    exporter("hasMetadata", hasMetadata);
-    function hasOwnMetadata(metadataKey, target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryHasOwnMetadata(metadataKey, target, propertyKey);
-    }
-    exporter("hasOwnMetadata", hasOwnMetadata);
-    function getMetadata(metadataKey, target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryGetMetadata(metadataKey, target, propertyKey);
-    }
-    exporter("getMetadata", getMetadata);
-    function getOwnMetadata(metadataKey, target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryGetOwnMetadata(metadataKey, target, propertyKey);
-    }
-    exporter("getOwnMetadata", getOwnMetadata);
-    function getMetadataKeys(target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryMetadataKeys(target, propertyKey);
-    }
-    exporter("getMetadataKeys", getMetadataKeys);
-    function getOwnMetadataKeys(target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      return OrdinaryOwnMetadataKeys(target, propertyKey);
-    }
-    exporter("getOwnMetadataKeys", getOwnMetadataKeys);
-    function deleteMetadata(metadataKey, target, propertyKey) {
-      if (!IsObject(target))
-        throw new TypeError();
-      if (!IsUndefined(propertyKey))
-        propertyKey = ToPropertyKey(propertyKey);
-      var metadataMap = GetOrCreateMetadataMap(
-        target,
-        propertyKey,
-        /*Create*/
-        false
-      );
-      if (IsUndefined(metadataMap))
-        return false;
-      if (!metadataMap.delete(metadataKey))
-        return false;
-      if (metadataMap.size > 0)
-        return true;
-      var targetMetadata = Metadata.get(target);
-      targetMetadata.delete(propertyKey);
-      if (targetMetadata.size > 0)
-        return true;
-      Metadata.delete(target);
-      return true;
-    }
-    exporter("deleteMetadata", deleteMetadata);
-    function DecorateConstructor(decorators, target) {
-      for (var i = decorators.length - 1; i >= 0; --i) {
-        var decorator = decorators[i];
-        var decorated = decorator(target);
-        if (!IsUndefined(decorated) && !IsNull(decorated)) {
-          if (!IsConstructor(decorated))
-            throw new TypeError();
-          target = decorated;
-        }
-      }
-      return target;
-    }
-    function DecorateProperty(decorators, target, propertyKey, descriptor) {
-      for (var i = decorators.length - 1; i >= 0; --i) {
-        var decorator = decorators[i];
-        var decorated = decorator(target, propertyKey, descriptor);
-        if (!IsUndefined(decorated) && !IsNull(decorated)) {
-          if (!IsObject(decorated))
-            throw new TypeError();
-          descriptor = decorated;
-        }
-      }
-      return descriptor;
-    }
-    function GetOrCreateMetadataMap(O, P, Create) {
-      var targetMetadata = Metadata.get(O);
-      if (IsUndefined(targetMetadata)) {
-        if (!Create)
-          return void 0;
-        targetMetadata = new _Map();
-        Metadata.set(O, targetMetadata);
-      }
-      var metadataMap = targetMetadata.get(P);
-      if (IsUndefined(metadataMap)) {
-        if (!Create)
-          return void 0;
-        metadataMap = new _Map();
-        targetMetadata.set(P, metadataMap);
-      }
-      return metadataMap;
-    }
-    function OrdinaryHasMetadata(MetadataKey, O, P) {
-      var hasOwn2 = OrdinaryHasOwnMetadata(MetadataKey, O, P);
-      if (hasOwn2)
-        return true;
-      var parent = OrdinaryGetPrototypeOf(O);
-      if (!IsNull(parent))
-        return OrdinaryHasMetadata(MetadataKey, parent, P);
-      return false;
-    }
-    function OrdinaryHasOwnMetadata(MetadataKey, O, P) {
-      var metadataMap = GetOrCreateMetadataMap(
-        O,
-        P,
-        /*Create*/
-        false
-      );
-      if (IsUndefined(metadataMap))
-        return false;
-      return ToBoolean(metadataMap.has(MetadataKey));
-    }
-    function OrdinaryGetMetadata(MetadataKey, O, P) {
-      var hasOwn2 = OrdinaryHasOwnMetadata(MetadataKey, O, P);
-      if (hasOwn2)
-        return OrdinaryGetOwnMetadata(MetadataKey, O, P);
-      var parent = OrdinaryGetPrototypeOf(O);
-      if (!IsNull(parent))
-        return OrdinaryGetMetadata(MetadataKey, parent, P);
-      return void 0;
-    }
-    function OrdinaryGetOwnMetadata(MetadataKey, O, P) {
-      var metadataMap = GetOrCreateMetadataMap(
-        O,
-        P,
-        /*Create*/
-        false
-      );
-      if (IsUndefined(metadataMap))
-        return void 0;
-      return metadataMap.get(MetadataKey);
-    }
-    function OrdinaryDefineOwnMetadata(MetadataKey, MetadataValue, O, P) {
-      var metadataMap = GetOrCreateMetadataMap(
-        O,
-        P,
-        /*Create*/
-        true
-      );
-      metadataMap.set(MetadataKey, MetadataValue);
-    }
-    function OrdinaryMetadataKeys(O, P) {
-      var ownKeys = OrdinaryOwnMetadataKeys(O, P);
-      var parent = OrdinaryGetPrototypeOf(O);
-      if (parent === null)
-        return ownKeys;
-      var parentKeys = OrdinaryMetadataKeys(parent, P);
-      if (parentKeys.length <= 0)
-        return ownKeys;
-      if (ownKeys.length <= 0)
-        return parentKeys;
-      var set = new _Set();
-      var keys = [];
-      for (var _i = 0, ownKeys_1 = ownKeys; _i < ownKeys_1.length; _i++) {
-        var key = ownKeys_1[_i];
-        var hasKey = set.has(key);
-        if (!hasKey) {
-          set.add(key);
-          keys.push(key);
-        }
-      }
-      for (var _a3 = 0, parentKeys_1 = parentKeys; _a3 < parentKeys_1.length; _a3++) {
-        var key = parentKeys_1[_a3];
-        var hasKey = set.has(key);
-        if (!hasKey) {
-          set.add(key);
-          keys.push(key);
-        }
-      }
-      return keys;
-    }
-    function OrdinaryOwnMetadataKeys(O, P) {
-      var keys = [];
-      var metadataMap = GetOrCreateMetadataMap(
-        O,
-        P,
-        /*Create*/
-        false
-      );
-      if (IsUndefined(metadataMap))
-        return keys;
-      var keysObj = metadataMap.keys();
-      var iterator = GetIterator(keysObj);
-      var k = 0;
-      while (true) {
-        var next = IteratorStep(iterator);
-        if (!next) {
-          keys.length = k;
-          return keys;
-        }
-        var nextValue = IteratorValue(next);
-        try {
-          keys[k] = nextValue;
-        } catch (e) {
-          try {
-            IteratorClose(iterator);
-          } finally {
-            throw e;
-          }
-        }
-        k++;
-      }
-    }
-    function Type(x) {
-      if (x === null)
-        return 1;
-      switch (typeof x) {
-        case "undefined":
-          return 0;
-        case "boolean":
-          return 2;
-        case "string":
-          return 3;
-        case "symbol":
-          return 4;
-        case "number":
-          return 5;
-        case "object":
-          return x === null ? 1 : 6;
-        default:
-          return 6;
-      }
-    }
-    function IsUndefined(x) {
-      return x === void 0;
-    }
-    function IsNull(x) {
-      return x === null;
-    }
-    function IsSymbol(x) {
-      return typeof x === "symbol";
-    }
-    function IsObject(x) {
-      return typeof x === "object" ? x !== null : typeof x === "function";
-    }
-    function ToPrimitive(input, PreferredType) {
-      switch (Type(input)) {
-        case 0:
-          return input;
-        case 1:
-          return input;
-        case 2:
-          return input;
-        case 3:
-          return input;
-        case 4:
-          return input;
-        case 5:
-          return input;
-      }
-      var hint = PreferredType === 3 ? "string" : PreferredType === 5 ? "number" : "default";
-      var exoticToPrim = GetMethod(input, toPrimitiveSymbol);
-      if (exoticToPrim !== void 0) {
-        var result = exoticToPrim.call(input, hint);
-        if (IsObject(result))
-          throw new TypeError();
-        return result;
-      }
-      return OrdinaryToPrimitive(input, hint === "default" ? "number" : hint);
-    }
-    function OrdinaryToPrimitive(O, hint) {
-      if (hint === "string") {
-        var toString_1 = O.toString;
-        if (IsCallable(toString_1)) {
-          var result = toString_1.call(O);
-          if (!IsObject(result))
-            return result;
-        }
-        var valueOf = O.valueOf;
-        if (IsCallable(valueOf)) {
-          var result = valueOf.call(O);
-          if (!IsObject(result))
-            return result;
-        }
-      } else {
-        var valueOf = O.valueOf;
-        if (IsCallable(valueOf)) {
-          var result = valueOf.call(O);
-          if (!IsObject(result))
-            return result;
-        }
-        var toString_2 = O.toString;
-        if (IsCallable(toString_2)) {
-          var result = toString_2.call(O);
-          if (!IsObject(result))
-            return result;
-        }
-      }
-      throw new TypeError();
-    }
-    function ToBoolean(argument) {
-      return !!argument;
-    }
-    function ToString(argument) {
-      return "" + argument;
-    }
-    function ToPropertyKey(argument) {
-      var key = ToPrimitive(
-        argument,
-        3
-        /* String */
-      );
-      if (IsSymbol(key))
-        return key;
-      return ToString(key);
-    }
-    function IsArray(argument) {
-      return Array.isArray ? Array.isArray(argument) : argument instanceof Object ? argument instanceof Array : Object.prototype.toString.call(argument) === "[object Array]";
-    }
-    function IsCallable(argument) {
-      return typeof argument === "function";
-    }
-    function IsConstructor(argument) {
-      return typeof argument === "function";
-    }
-    function IsPropertyKey(argument) {
-      switch (Type(argument)) {
-        case 3:
-          return true;
-        case 4:
-          return true;
-        default:
-          return false;
-      }
-    }
-    function GetMethod(V, P) {
-      var func = V[P];
-      if (func === void 0 || func === null)
-        return void 0;
-      if (!IsCallable(func))
-        throw new TypeError();
-      return func;
-    }
-    function GetIterator(obj) {
-      var method = GetMethod(obj, iteratorSymbol);
-      if (!IsCallable(method))
-        throw new TypeError();
-      var iterator = method.call(obj);
-      if (!IsObject(iterator))
-        throw new TypeError();
-      return iterator;
-    }
-    function IteratorValue(iterResult) {
-      return iterResult.value;
-    }
-    function IteratorStep(iterator) {
-      var result = iterator.next();
-      return result.done ? false : result;
-    }
-    function IteratorClose(iterator) {
-      var f = iterator["return"];
-      if (f)
-        f.call(iterator);
-    }
-    function OrdinaryGetPrototypeOf(O) {
-      var proto = Object.getPrototypeOf(O);
-      if (typeof O !== "function" || O === functionPrototype)
-        return proto;
-      if (proto !== functionPrototype)
-        return proto;
-      var prototype = O.prototype;
-      var prototypeProto = prototype && Object.getPrototypeOf(prototype);
-      if (prototypeProto == null || prototypeProto === Object.prototype)
-        return proto;
-      var constructor = prototypeProto.constructor;
-      if (typeof constructor !== "function")
-        return proto;
-      if (constructor === O)
-        return proto;
-      return constructor;
-    }
-    function CreateMapPolyfill() {
-      var cacheSentinel = {};
-      var arraySentinel = [];
-      var MapIterator = (
-        /** @class */
-        function() {
-          function MapIterator2(keys, values, selector) {
-            this._index = 0;
-            this._keys = keys;
-            this._values = values;
-            this._selector = selector;
-          }
-          MapIterator2.prototype["@@iterator"] = function() {
-            return this;
-          };
-          MapIterator2.prototype[iteratorSymbol] = function() {
-            return this;
-          };
-          MapIterator2.prototype.next = function() {
-            var index = this._index;
-            if (index >= 0 && index < this._keys.length) {
-              var result = this._selector(this._keys[index], this._values[index]);
-              if (index + 1 >= this._keys.length) {
-                this._index = -1;
-                this._keys = arraySentinel;
-                this._values = arraySentinel;
-              } else {
-                this._index++;
-              }
-              return { value: result, done: false };
-            }
-            return { value: void 0, done: true };
-          };
-          MapIterator2.prototype.throw = function(error) {
-            if (this._index >= 0) {
-              this._index = -1;
-              this._keys = arraySentinel;
-              this._values = arraySentinel;
-            }
-            throw error;
-          };
-          MapIterator2.prototype.return = function(value) {
-            if (this._index >= 0) {
-              this._index = -1;
-              this._keys = arraySentinel;
-              this._values = arraySentinel;
-            }
-            return { value, done: true };
-          };
-          return MapIterator2;
-        }()
-      );
-      return (
-        /** @class */
-        function() {
-          function Map2() {
-            this._keys = [];
-            this._values = [];
-            this._cacheKey = cacheSentinel;
-            this._cacheIndex = -2;
-          }
-          Object.defineProperty(Map2.prototype, "size", {
-            get: function() {
-              return this._keys.length;
-            },
-            enumerable: true,
-            configurable: true
-          });
-          Map2.prototype.has = function(key) {
-            return this._find(
-              key,
-              /*insert*/
-              false
-            ) >= 0;
-          };
-          Map2.prototype.get = function(key) {
-            var index = this._find(
-              key,
-              /*insert*/
-              false
-            );
-            return index >= 0 ? this._values[index] : void 0;
-          };
-          Map2.prototype.set = function(key, value) {
-            var index = this._find(
-              key,
-              /*insert*/
-              true
-            );
-            this._values[index] = value;
-            return this;
-          };
-          Map2.prototype.delete = function(key) {
-            var index = this._find(
-              key,
-              /*insert*/
-              false
-            );
-            if (index >= 0) {
-              var size = this._keys.length;
-              for (var i = index + 1; i < size; i++) {
-                this._keys[i - 1] = this._keys[i];
-                this._values[i - 1] = this._values[i];
-              }
-              this._keys.length--;
-              this._values.length--;
-              if (key === this._cacheKey) {
-                this._cacheKey = cacheSentinel;
-                this._cacheIndex = -2;
-              }
-              return true;
-            }
-            return false;
-          };
-          Map2.prototype.clear = function() {
-            this._keys.length = 0;
-            this._values.length = 0;
-            this._cacheKey = cacheSentinel;
-            this._cacheIndex = -2;
-          };
-          Map2.prototype.keys = function() {
-            return new MapIterator(this._keys, this._values, getKey);
-          };
-          Map2.prototype.values = function() {
-            return new MapIterator(this._keys, this._values, getValue);
-          };
-          Map2.prototype.entries = function() {
-            return new MapIterator(this._keys, this._values, getEntry);
-          };
-          Map2.prototype["@@iterator"] = function() {
-            return this.entries();
-          };
-          Map2.prototype[iteratorSymbol] = function() {
-            return this.entries();
-          };
-          Map2.prototype._find = function(key, insert) {
-            if (this._cacheKey !== key) {
-              this._cacheIndex = this._keys.indexOf(this._cacheKey = key);
-            }
-            if (this._cacheIndex < 0 && insert) {
-              this._cacheIndex = this._keys.length;
-              this._keys.push(key);
-              this._values.push(void 0);
-            }
-            return this._cacheIndex;
-          };
-          return Map2;
-        }()
-      );
-      function getKey(key, _) {
-        return key;
-      }
-      function getValue(_, value) {
-        return value;
-      }
-      function getEntry(key, value) {
-        return [key, value];
-      }
-    }
-    function CreateSetPolyfill() {
-      return (
-        /** @class */
-        function() {
-          function Set3() {
-            this._map = new _Map();
-          }
-          Object.defineProperty(Set3.prototype, "size", {
-            get: function() {
-              return this._map.size;
-            },
-            enumerable: true,
-            configurable: true
-          });
-          Set3.prototype.has = function(value) {
-            return this._map.has(value);
-          };
-          Set3.prototype.add = function(value) {
-            return this._map.set(value, value), this;
-          };
-          Set3.prototype.delete = function(value) {
-            return this._map.delete(value);
-          };
-          Set3.prototype.clear = function() {
-            this._map.clear();
-          };
-          Set3.prototype.keys = function() {
-            return this._map.keys();
-          };
-          Set3.prototype.values = function() {
-            return this._map.values();
-          };
-          Set3.prototype.entries = function() {
-            return this._map.entries();
-          };
-          Set3.prototype["@@iterator"] = function() {
-            return this.keys();
-          };
-          Set3.prototype[iteratorSymbol] = function() {
-            return this.keys();
-          };
-          return Set3;
-        }()
-      );
-    }
-    function CreateWeakMapPolyfill() {
-      var UUID_SIZE = 16;
-      var keys = HashMap.create();
-      var rootKey = CreateUniqueKey();
-      return (
-        /** @class */
-        function() {
-          function WeakMap2() {
-            this._key = CreateUniqueKey();
-          }
-          WeakMap2.prototype.has = function(target) {
-            var table = GetOrCreateWeakMapTable(
-              target,
-              /*create*/
-              false
-            );
-            return table !== void 0 ? HashMap.has(table, this._key) : false;
-          };
-          WeakMap2.prototype.get = function(target) {
-            var table = GetOrCreateWeakMapTable(
-              target,
-              /*create*/
-              false
-            );
-            return table !== void 0 ? HashMap.get(table, this._key) : void 0;
-          };
-          WeakMap2.prototype.set = function(target, value) {
-            var table = GetOrCreateWeakMapTable(
-              target,
-              /*create*/
-              true
-            );
-            table[this._key] = value;
-            return this;
-          };
-          WeakMap2.prototype.delete = function(target) {
-            var table = GetOrCreateWeakMapTable(
-              target,
-              /*create*/
-              false
-            );
-            return table !== void 0 ? delete table[this._key] : false;
-          };
-          WeakMap2.prototype.clear = function() {
-            this._key = CreateUniqueKey();
-          };
-          return WeakMap2;
-        }()
-      );
-      function CreateUniqueKey() {
-        var key;
-        do
-          key = "@@WeakMap@@" + CreateUUID();
-        while (HashMap.has(keys, key));
-        keys[key] = true;
-        return key;
-      }
-      function GetOrCreateWeakMapTable(target, create4) {
-        if (!hasOwn.call(target, rootKey)) {
-          if (!create4)
-            return void 0;
-          Object.defineProperty(target, rootKey, { value: HashMap.create() });
-        }
-        return target[rootKey];
-      }
-      function FillRandomBytes(buffer, size) {
-        for (var i = 0; i < size; ++i)
-          buffer[i] = Math.random() * 255 | 0;
-        return buffer;
-      }
-      function GenRandomBytes(size) {
-        if (typeof Uint8Array === "function") {
-          if (typeof crypto !== "undefined")
-            return crypto.getRandomValues(new Uint8Array(size));
-          if (typeof msCrypto !== "undefined")
-            return msCrypto.getRandomValues(new Uint8Array(size));
-          return FillRandomBytes(new Uint8Array(size), size);
-        }
-        return FillRandomBytes(new Array(size), size);
-      }
-      function CreateUUID() {
-        var data = GenRandomBytes(UUID_SIZE);
-        data[6] = data[6] & 79 | 64;
-        data[8] = data[8] & 191 | 128;
-        var result = "";
-        for (var offset = 0; offset < UUID_SIZE; ++offset) {
-          var byte = data[offset];
-          if (offset === 4 || offset === 6 || offset === 8)
-            result += "-";
-          if (byte < 16)
-            result += "0";
-          result += byte.toString(16).toLowerCase();
-        }
-        return result;
-      }
-    }
-    function MakeDictionary(obj) {
-      obj.__ = void 0;
-      delete obj.__;
-      return obj;
-    }
-  });
-})(Reflect2 || (Reflect2 = {}));
+// front/node_modules/@peculiar/x509/build/x509.es.js
+var import_reflect_metadata = __toESM(require_Reflect());
 
 // front/node_modules/asn1js/build/index.es.js
 var index_es_exports = {};
@@ -3463,11 +3111,11 @@ function utilFromBase(inputBuffer, inputBase) {
   }
   return result;
 }
-function utilToBase(value, base2, reserved = -1) {
+function utilToBase(value, base3, reserved = -1) {
   const internalReserved = reserved;
   let internalValue = value;
   let result = 0;
-  let biggest = Math.pow(2, base2);
+  let biggest = Math.pow(2, base3);
   for (let i = 1; i < 8; i++) {
     if (value < biggest) {
       let retBuf;
@@ -3483,13 +3131,13 @@ function utilToBase(value, base2, reserved = -1) {
       }
       const retView = new Uint8Array(retBuf);
       for (let j = i - 1; j >= 0; j--) {
-        const basis = Math.pow(2, j * base2);
+        const basis = Math.pow(2, j * base3);
         retView[result - j - 1] = Math.floor(internalValue / basis);
         internalValue -= retView[result - j - 1] * basis;
       }
       return retBuf;
     }
-    biggest *= Math.pow(2, base2);
+    biggest *= Math.pow(2, base3);
   }
   return new ArrayBuffer(0);
 }
@@ -3596,7 +3244,7 @@ function assertBigInt() {
     throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.");
   }
 }
-function concat(buffers) {
+function concat2(buffers) {
   let outputLength = 0;
   let prevLength = 0;
   for (let i = 0; i < buffers.length; i++) {
@@ -3642,7 +3290,7 @@ var ViewWriter = class {
     this.items.push(buf);
   }
   final() {
-    return concat(this.items);
+    return concat2(this.items);
   }
 };
 var powers2 = [new Uint8Array([1])];
@@ -3666,18 +3314,18 @@ var BIT_STRING_NAME = "BIT STRING";
 function HexBlock(BaseClass) {
   var _a3;
   return _a3 = class Some extends BaseClass {
-    constructor(...args) {
-      var _a4;
-      super(...args);
-      const params = args[0] || {};
-      this.isHexOnly = (_a4 = params.isHexOnly) !== null && _a4 !== void 0 ? _a4 : false;
-      this.valueHexView = params.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(params.valueHex) : EMPTY_VIEW;
-    }
     get valueHex() {
       return this.valueHexView.slice().buffer;
     }
     set valueHex(value) {
       this.valueHexView = new Uint8Array(value);
+    }
+    constructor(...args) {
+      var _b;
+      super(...args);
+      const params = args[0] || {};
+      this.isHexOnly = (_b = params.isHexOnly) !== null && _b !== void 0 ? _b : false;
+      this.valueHexView = params.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(params.valueHex) : EMPTY_VIEW;
     }
     fromBER(inputBuffer, inputOffset, inputLength) {
       const view = inputBuffer instanceof ArrayBuffer ? new Uint8Array(inputBuffer) : inputBuffer;
@@ -3713,12 +3361,6 @@ function HexBlock(BaseClass) {
   }, _a3.NAME = "hexBlock", _a3;
 }
 var LocalBaseBlock = class {
-  constructor({ blockLength = 0, error = EMPTY_STRING, warnings = [], valueBeforeDecode = EMPTY_VIEW } = {}) {
-    this.blockLength = blockLength;
-    this.error = error;
-    this.warnings = warnings;
-    this.valueBeforeDecodeView = pvtsutils.BufferSourceConverter.toUint8Array(valueBeforeDecode);
-  }
   static blockName() {
     return this.NAME;
   }
@@ -3727,6 +3369,12 @@ var LocalBaseBlock = class {
   }
   set valueBeforeDecode(value) {
     this.valueBeforeDecodeView = new Uint8Array(value);
+  }
+  constructor({ blockLength = 0, error = EMPTY_STRING, warnings = [], valueBeforeDecode = EMPTY_VIEW } = {}) {
+    this.blockLength = blockLength;
+    this.error = error;
+    this.warnings = warnings;
+    this.valueBeforeDecodeView = pvtsutils.BufferSourceConverter.toUint8Array(valueBeforeDecode);
   }
   toJSON() {
     return {
@@ -3740,10 +3388,10 @@ var LocalBaseBlock = class {
 };
 LocalBaseBlock.NAME = "baseBlock";
 var ValueBlock = class extends LocalBaseBlock {
-  fromBER(inputBuffer, inputOffset, inputLength) {
+  fromBER(_inputBuffer, _inputOffset, _inputLength) {
     throw TypeError("User need to make a specific function in a class which extends 'ValueBlock'");
   }
-  toBER(sizeOnly, writer) {
+  toBER(_sizeOnly, _writer) {
     throw TypeError("User need to make a specific function in a class which extends 'ValueBlock'");
   }
 };
@@ -4016,9 +3664,9 @@ var LocalLengthBlock = class extends LocalBaseBlock {
 LocalLengthBlock.NAME = "lengthBlock";
 var typeStore = {};
 var BaseBlock = class extends LocalBaseBlock {
-  constructor({ name = EMPTY_STRING, optional = false, primitiveSchema, ...parameters } = {}, valueBlockType) {
+  constructor({ name: name3 = EMPTY_STRING, optional = false, primitiveSchema, ...parameters } = {}, valueBlockType) {
     super(parameters);
-    this.name = name;
+    this.name = name3;
     this.optional = optional;
     if (primitiveSchema) {
       this.primitiveSchema = primitiveSchema;
@@ -4084,7 +3732,9 @@ var BaseBlock = class extends LocalBaseBlock {
     return pvtsutils.Convert.ToHex(this.toBER());
   }
   onAsciiEncoding() {
-    return `${this.constructor.NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView)}`;
+    const name3 = this.constructor.NAME;
+    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView);
+    return `${name3} : ${value}`;
   }
   isEqual(other) {
     if (this === other) {
@@ -4100,6 +3750,7 @@ var BaseBlock = class extends LocalBaseBlock {
 };
 BaseBlock.NAME = "BaseBlock";
 function prepareIndefiniteForm(baseBlock) {
+  var _a3;
   if (baseBlock instanceof typeStore.Constructed) {
     for (const value of baseBlock.valueBlock.value) {
       if (prepareIndefiniteForm(value)) {
@@ -4107,20 +3758,20 @@ function prepareIndefiniteForm(baseBlock) {
       }
     }
   }
-  return !!baseBlock.lenBlock.isIndefiniteForm;
+  return !!((_a3 = baseBlock.lenBlock) === null || _a3 === void 0 ? void 0 : _a3.isIndefiniteForm);
 }
 var BaseStringBlock = class extends BaseBlock {
-  constructor({ value = EMPTY_STRING, ...parameters } = {}, stringValueBlockType) {
-    super(parameters, stringValueBlockType);
-    if (value) {
-      this.fromString(value);
-    }
-  }
   getValue() {
     return this.valueBlock.value;
   }
   setValue(value) {
     this.valueBlock.value = value;
+  }
+  constructor({ value = EMPTY_STRING, ...parameters } = {}, stringValueBlockType) {
+    super(parameters, stringValueBlockType);
+    if (value) {
+      this.fromString(value);
+    }
   }
   fromBER(inputBuffer, inputOffset, inputLength) {
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length);
@@ -4480,10 +4131,10 @@ _a$v = Constructed;
 })();
 Constructed.NAME = "CONSTRUCTED";
 var LocalEndOfContentValueBlock = class extends ValueBlock {
-  fromBER(inputBuffer, inputOffset, inputLength) {
+  fromBER(inputBuffer, inputOffset, _inputLength) {
     return inputOffset;
   }
-  toBER(sizeOnly) {
+  toBER(_sizeOnly) {
     return EMPTY_BUFFER;
   }
 };
@@ -4544,17 +4195,6 @@ _a$t = Null;
 })();
 Null.NAME = "NULL";
 var LocalBooleanValueBlock = class extends HexBlock(ValueBlock) {
-  constructor({ value, ...parameters } = {}) {
-    super(parameters);
-    if (parameters.valueHex) {
-      this.valueHexView = pvtsutils.BufferSourceConverter.toUint8Array(parameters.valueHex);
-    } else {
-      this.valueHexView = new Uint8Array(1);
-    }
-    if (value) {
-      this.value = value;
-    }
-  }
   get value() {
     for (const octet of this.valueHexView) {
       if (octet > 0) {
@@ -4565,6 +4205,17 @@ var LocalBooleanValueBlock = class extends HexBlock(ValueBlock) {
   }
   set value(value) {
     this.valueHexView[0] = value ? 255 : 0;
+  }
+  constructor({ value, ...parameters } = {}) {
+    super(parameters);
+    if (parameters.valueHex) {
+      this.valueHexView = pvtsutils.BufferSourceConverter.toUint8Array(parameters.valueHex);
+    } else {
+      this.valueHexView = new Uint8Array(1);
+    }
+    if (value) {
+      this.value = value;
+    }
   }
   fromBER(inputBuffer, inputOffset, inputLength) {
     const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
@@ -4592,16 +4243,16 @@ var LocalBooleanValueBlock = class extends HexBlock(ValueBlock) {
 LocalBooleanValueBlock.NAME = "BooleanValueBlock";
 var _a$s;
 var Boolean = class extends BaseBlock {
-  constructor(parameters = {}) {
-    super(parameters, LocalBooleanValueBlock);
-    this.idBlock.tagClass = 1;
-    this.idBlock.tagNumber = 1;
-  }
   getValue() {
     return this.valueBlock.value;
   }
   setValue(value) {
     this.valueBlock.value = value;
+  }
+  constructor(parameters = {}) {
+    super(parameters, LocalBooleanValueBlock);
+    this.idBlock.tagClass = 1;
+    this.idBlock.tagNumber = 1;
   }
   onAsciiEncoding() {
     return `${this.constructor.NAME} : ${this.getValue}`;
@@ -4660,7 +4311,7 @@ var LocalOctetStringValueBlock = class extends HexBlock(LocalConstructedValueBlo
 };
 LocalOctetStringValueBlock.NAME = "OctetStringValueBlock";
 var _a$r;
-var OctetString = class _OctetString extends BaseBlock {
+var OctetString = class extends BaseBlock {
   constructor({ idBlock = {}, lenBlock = {}, ...parameters } = {}) {
     var _b, _c;
     (_b = parameters.isConstructed) !== null && _b !== void 0 ? _b : parameters.isConstructed = !!((_c = parameters.value) === null || _c === void 0 ? void 0 : _c.length);
@@ -4698,7 +4349,7 @@ var OctetString = class _OctetString extends BaseBlock {
             this.valueBlock.value = [asn.result];
           }
         }
-      } catch (e) {
+      } catch {
       }
     }
     return super.fromBER(inputBuffer, inputOffset, inputLength);
@@ -4707,7 +4358,9 @@ var OctetString = class _OctetString extends BaseBlock {
     if (this.valueBlock.isConstructed || this.valueBlock.value && this.valueBlock.value.length) {
       return Constructed.prototype.onAsciiEncoding.call(this);
     }
-    return `${this.constructor.NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueHexView)}`;
+    const name3 = this.constructor.NAME;
+    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueHexView);
+    return `${name3} : ${value}`;
   }
   getValue() {
     if (!this.idBlock.isConstructed) {
@@ -4715,7 +4368,7 @@ var OctetString = class _OctetString extends BaseBlock {
     }
     const array = [];
     for (const content of this.valueBlock.value) {
-      if (content instanceof _OctetString) {
+      if (content instanceof _a$r) {
         array.push(content.valueBlock.valueHexView);
       }
     }
@@ -4785,7 +4438,7 @@ var LocalBitStringValueBlock = class extends HexBlock(LocalConstructedValueBlock
             this.value = [asn.result];
           }
         }
-      } catch (e) {
+      } catch {
       }
     }
     this.valueHexView = intBuffer.subarray(1);
@@ -4850,7 +4503,9 @@ var BitString = class extends BaseBlock {
         bits.push(byte.toString(2).padStart(8, "0"));
       }
       const bitsStr = bits.join("");
-      return `${this.constructor.NAME} : ${bitsStr.substring(0, bitsStr.length - this.valueBlock.unusedBits)}`;
+      const name3 = this.constructor.NAME;
+      const value = bitsStr.substring(0, bitsStr.length - this.valueBlock.unusedBits);
+      return `${name3} : ${value}`;
     }
   }
 };
@@ -4947,16 +4602,6 @@ function viewSub(first, second) {
   return firstViewCopy.slice();
 }
 var LocalIntegerValueBlock = class extends HexBlock(ValueBlock) {
-  constructor({ value, ...parameters } = {}) {
-    super(parameters);
-    this._valueDec = 0;
-    if (parameters.valueHex) {
-      this.setValueHex();
-    }
-    if (value !== void 0) {
-      this.valueDec = value;
-    }
-  }
   setValueHex() {
     if (this.valueHexView.length >= 4) {
       this.warnings.push("Too big Integer for decoding, hex only");
@@ -4967,6 +4612,16 @@ var LocalIntegerValueBlock = class extends HexBlock(ValueBlock) {
       if (this.valueHexView.length > 0) {
         this._valueDec = utilDecodeTC.call(this);
       }
+    }
+  }
+  constructor({ value, ...parameters } = {}) {
+    super(parameters);
+    this._valueDec = 0;
+    if (parameters.valueHex) {
+      this.setValueHex();
+    }
+    if (value !== void 0) {
+      this.valueDec = value;
     }
   }
   set valueDec(v) {
@@ -5081,7 +4736,7 @@ LocalIntegerValueBlock.NAME = "IntegerValueBlock";
   });
 })();
 var _a$o;
-var Integer = class _Integer extends BaseBlock {
+var Integer = class extends BaseBlock {
   constructor(parameters = {}) {
     super(parameters, LocalIntegerValueBlock);
     this.idBlock.tagClass = 1;
@@ -5111,18 +4766,16 @@ var Integer = class _Integer extends BaseBlock {
       }
       writer.write(view);
     }
-    const res = new _Integer({
-      valueHex: writer.final()
-    });
+    const res = new _a$o({ valueHex: writer.final() });
     return res;
   }
   convertToDER() {
-    const integer = new _Integer({ valueHex: this.valueBlock.valueHexView });
+    const integer = new _a$o({ valueHex: this.valueBlock.valueHexView });
     integer.valueBlock.toDER();
     return integer;
   }
   convertFromDER() {
-    return new _Integer({
+    return new _a$o({
       valueHex: this.valueBlock.valueHexView[0] === 0 ? this.valueBlock.valueHexView.subarray(1) : this.valueBlock.valueHexView
     });
   }
@@ -5296,20 +4949,20 @@ var LocalObjectIdentifierValueBlock = class extends ValueBlock {
       }
       retBuffers.push(valueBuf);
     }
-    return concat(retBuffers);
+    return concat2(retBuffers);
   }
-  fromString(string) {
+  fromString(string2) {
     this.value = [];
     let pos1 = 0;
     let pos2 = 0;
     let sid = "";
     let flag = false;
     do {
-      pos2 = string.indexOf(".", pos1);
+      pos2 = string2.indexOf(".", pos1);
       if (pos2 === -1)
-        sid = string.substring(pos1);
+        sid = string2.substring(pos1);
       else
-        sid = string.substring(pos1, pos2);
+        sid = string2.substring(pos1, pos2);
       pos1 = pos2 + 1;
       if (flag) {
         const sidBlock = this.value[0];
@@ -5385,16 +5038,16 @@ var LocalObjectIdentifierValueBlock = class extends ValueBlock {
 LocalObjectIdentifierValueBlock.NAME = "ObjectIdentifierValueBlock";
 var _a$m;
 var ObjectIdentifier = class extends BaseBlock {
-  constructor(parameters = {}) {
-    super(parameters, LocalObjectIdentifierValueBlock);
-    this.idBlock.tagClass = 1;
-    this.idBlock.tagNumber = 6;
-  }
   getValue() {
     return this.valueBlock.toString();
   }
   setValue(value) {
     this.valueBlock.fromString(value);
+  }
+  constructor(parameters = {}) {
+    super(parameters, LocalObjectIdentifierValueBlock);
+    this.idBlock.tagClass = 1;
+    this.idBlock.tagNumber = 6;
   }
   onAsciiEncoding() {
     return `${this.constructor.NAME} : ${this.valueBlock.toString() || "empty"}`;
@@ -5515,7 +5168,7 @@ var LocalRelativeObjectIdentifierValueBlock = class extends ValueBlock {
     }
     return resultOffset;
   }
-  toBER(sizeOnly, writer) {
+  toBER(sizeOnly, _writer) {
     const retBuffers = [];
     for (let i = 0; i < this.value.length; i++) {
       const valueBuf = this.value[i].toBER(sizeOnly);
@@ -5525,19 +5178,19 @@ var LocalRelativeObjectIdentifierValueBlock = class extends ValueBlock {
       }
       retBuffers.push(valueBuf);
     }
-    return concat(retBuffers);
+    return concat2(retBuffers);
   }
-  fromString(string) {
+  fromString(string2) {
     this.value = [];
     let pos1 = 0;
     let pos2 = 0;
     let sid = "";
     do {
-      pos2 = string.indexOf(".", pos1);
+      pos2 = string2.indexOf(".", pos1);
       if (pos2 === -1)
-        sid = string.substring(pos1);
+        sid = string2.substring(pos1);
       else
-        sid = string.substring(pos1, pos2);
+        sid = string2.substring(pos1, pos2);
       pos1 = pos2 + 1;
       const sidBlock = new LocalRelativeSidValueBlock();
       sidBlock.valueDec = parseInt(sid, 10);
@@ -5577,16 +5230,16 @@ var LocalRelativeObjectIdentifierValueBlock = class extends ValueBlock {
 LocalRelativeObjectIdentifierValueBlock.NAME = "RelativeObjectIdentifierValueBlock";
 var _a$l;
 var RelativeObjectIdentifier = class extends BaseBlock {
-  constructor(parameters = {}) {
-    super(parameters, LocalRelativeObjectIdentifierValueBlock);
-    this.idBlock.tagClass = 1;
-    this.idBlock.tagNumber = 13;
-  }
   getValue() {
     return this.valueBlock.toString();
   }
   setValue(value) {
     this.valueBlock.fromString(value);
+  }
+  constructor(parameters = {}) {
+    super(parameters, LocalRelativeObjectIdentifierValueBlock);
+    this.idBlock.tagClass = 1;
+    this.idBlock.tagNumber = 13;
   }
   onAsciiEncoding() {
     return `${this.constructor.NAME} : ${this.valueBlock.toString() || "empty"}`;
@@ -5984,7 +5637,8 @@ var GeneralizedTime = class extends UTCTime {
     this.millisecond = inputDate.getUTCMilliseconds();
   }
   toDate() {
-    return new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond));
+    const utcDate = Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond);
+    return new Date(utcDate);
   }
   fromString(inputString) {
     let isUTC = false;
@@ -6214,8 +5868,8 @@ _a = TIME;
 })();
 TIME.NAME = "TIME";
 var Any = class {
-  constructor({ name = EMPTY_STRING, optional = false } = {}) {
-    this.name = name;
+  constructor({ name: name3 = EMPTY_STRING, optional = false } = {}) {
+    this.name = name3;
     this.optional = optional;
   }
 };
@@ -6233,28 +5887,28 @@ var Repeated = class extends Any {
   }
 };
 var RawData = class {
-  constructor({ data = EMPTY_VIEW } = {}) {
-    this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(data);
-  }
   get data() {
     return this.dataView.slice().buffer;
   }
   set data(value) {
     this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(value);
   }
+  constructor({ data = EMPTY_VIEW } = {}) {
+    this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(data);
+  }
   fromBER(inputBuffer, inputOffset, inputLength) {
     const endLength = inputOffset + inputLength;
     this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).subarray(inputOffset, endLength);
     return endLength;
   }
-  toBER(sizeOnly) {
+  toBER(_sizeOnly) {
     return this.dataView.slice().buffer;
   }
 };
 function compareSchema(root, inputData, inputSchema) {
   if (inputSchema instanceof Choice) {
-    for (let j = 0; j < inputSchema.value.length; j++) {
-      const result = compareSchema(root, inputData, inputSchema.value[j]);
+    for (const element of inputSchema.value) {
+      const result = compareSchema(root, inputData, element);
       if (result.verified) {
         return {
           verified: true,
@@ -6265,9 +5919,7 @@ function compareSchema(root, inputData, inputSchema) {
     {
       const _result = {
         verified: false,
-        result: {
-          error: "Wrong values for Choice type"
-        }
+        result: { error: "Wrong values for Choice type" }
       };
       if (inputSchema.hasOwnProperty(NAME))
         _result.name = inputSchema.name;
@@ -6413,9 +6065,7 @@ function compareSchema(root, inputData, inputSchema) {
     let admission = 0;
     let result = {
       verified: false,
-      result: {
-        error: "Unknown error"
-      }
+      result: { error: "Unknown error" }
     };
     let maxLength = inputSchema.valueBlock.value.length;
     if (maxLength > 0) {
@@ -6634,8 +6284,8 @@ var BitString2 = class {
   toASN() {
     return new BitString({ unusedBits: this.unusedBits, valueHex: this.value });
   }
-  toSchema(name) {
-    return new BitString({ name });
+  toSchema(name3) {
+    return new BitString({ name: name3 });
   }
   toNumber() {
     let res = "";
@@ -6667,6 +6317,12 @@ var BitString2 = class {
 // front/node_modules/@peculiar/asn1-schema/build/es2015/types/octet_string.js
 var import_pvtsutils2 = __toESM(require_build());
 var OctetString2 = class {
+  get byteLength() {
+    return this.buffer.byteLength;
+  }
+  get byteOffset() {
+    return 0;
+  }
   constructor(param) {
     if (typeof param === "number") {
       this.buffer = new ArrayBuffer(param);
@@ -6680,12 +6336,6 @@ var OctetString2 = class {
       }
     }
   }
-  get byteLength() {
-    return this.buffer.byteLength;
-  }
-  get byteOffset() {
-    return 0;
-  }
   fromASN(asn) {
     if (!(asn instanceof OctetString)) {
       throw new TypeError("Argument 'asn' is not instance of ASN.1 OctetString");
@@ -6696,8 +6346,8 @@ var OctetString2 = class {
   toASN() {
     return new OctetString({ valueHex: this.buffer });
   }
-  toSchema(name) {
-    return new OctetString({ name });
+  toSchema(name3) {
+    return new OctetString({ name: name3 });
   }
 };
 
@@ -6911,7 +6561,7 @@ var AsnSchemaStorage = class {
     const asn1Value = [];
     for (const key in schema.items) {
       const item = schema.items[key];
-      const name = useNames ? key : "";
+      const name3 = useNames ? key : "";
       let asn1Item;
       if (typeof item.type === "number") {
         const Asn1TypeName = AsnPropTypes[item.type];
@@ -6919,20 +6569,20 @@ var AsnSchemaStorage = class {
         if (!Asn1Type) {
           throw new Error(`Cannot get ASN1 class by name '${Asn1TypeName}'`);
         }
-        asn1Item = new Asn1Type({ name });
+        asn1Item = new Asn1Type({ name: name3 });
       } else if (isConvertible(item.type)) {
         const instance2 = new item.type();
-        asn1Item = instance2.toSchema(name);
+        asn1Item = instance2.toSchema(name3);
       } else if (item.optional) {
         const itemSchema = this.get(item.type);
         if (itemSchema.type === AsnTypeTypes.Choice) {
-          asn1Item = new Any({ name });
+          asn1Item = new Any({ name: name3 });
         } else {
           asn1Item = this.create(item.type, false);
-          asn1Item.name = name;
+          asn1Item.name = name3;
         }
       } else {
-        asn1Item = new Any({ name });
+        asn1Item = new Any({ name: name3 });
       }
       const optional = !!item.optional || item.defaultValue !== void 0;
       if (item.repeated) {
@@ -6942,7 +6592,7 @@ var AsnSchemaStorage = class {
           name: "",
           value: [
             new Repeated({
-              name,
+              name: name3,
               value: asn1Item
             })
           ]
@@ -6953,7 +6603,7 @@ var AsnSchemaStorage = class {
           if (typeof item.type === "number" || isConvertible(item.type)) {
             const Container = item.repeated ? Constructed : Primitive;
             asn1Value.push(new Container({
-              name,
+              name: name3,
               optional,
               idBlock: {
                 tagClass: 3,
@@ -6966,7 +6616,7 @@ var AsnSchemaStorage = class {
             let value = !isRepeated ? this.get(item.type, true).schema : asn1Item;
             value = "valueBlock" in value ? value.valueBlock.value : value.value;
             asn1Value.push(new Constructed({
-              name: !isRepeated ? name : "",
+              name: !isRepeated ? name3 : "",
               optional,
               idBlock: {
                 tagClass: 3,
@@ -7353,9 +7003,110 @@ function __decorate(decorators, target, key, desc) {
 }
 
 // front/node_modules/@peculiar/asn1-x509/build/es2015/ip_converter.js
-var ip = __toESM(require_ipaddr());
 var import_pvtsutils4 = __toESM(require_build());
 var IpConverter = class {
+  static isIPv4(ip) {
+    return /^(\d{1,3}\.){3}\d{1,3}$/.test(ip);
+  }
+  static parseIPv4(ip) {
+    const parts = ip.split(".");
+    if (parts.length !== 4) {
+      throw new Error("Invalid IPv4 address");
+    }
+    return parts.map((part) => {
+      const num = parseInt(part, 10);
+      if (isNaN(num) || num < 0 || num > 255) {
+        throw new Error("Invalid IPv4 address part");
+      }
+      return num;
+    });
+  }
+  static parseIPv6(ip) {
+    const expandedIP = this.expandIPv6(ip);
+    const parts = expandedIP.split(":");
+    if (parts.length !== 8) {
+      throw new Error("Invalid IPv6 address");
+    }
+    return parts.reduce((bytes, part) => {
+      const num = parseInt(part, 16);
+      if (isNaN(num) || num < 0 || num > 65535) {
+        throw new Error("Invalid IPv6 address part");
+      }
+      bytes.push(num >> 8 & 255);
+      bytes.push(num & 255);
+      return bytes;
+    }, []);
+  }
+  static expandIPv6(ip) {
+    if (!ip.includes("::")) {
+      return ip;
+    }
+    const parts = ip.split("::");
+    if (parts.length > 2) {
+      throw new Error("Invalid IPv6 address");
+    }
+    const left = parts[0] ? parts[0].split(":") : [];
+    const right = parts[1] ? parts[1].split(":") : [];
+    const missing = 8 - (left.length + right.length);
+    if (missing < 0) {
+      throw new Error("Invalid IPv6 address");
+    }
+    return [...left, ...Array(missing).fill("0"), ...right].join(":");
+  }
+  static formatIPv6(bytes) {
+    const parts = [];
+    for (let i = 0; i < 16; i += 2) {
+      parts.push((bytes[i] << 8 | bytes[i + 1]).toString(16));
+    }
+    return this.compressIPv6(parts.join(":"));
+  }
+  static compressIPv6(ip) {
+    const parts = ip.split(":");
+    let longestZeroStart = -1;
+    let longestZeroLength = 0;
+    let currentZeroStart = -1;
+    let currentZeroLength = 0;
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i] === "0") {
+        if (currentZeroStart === -1) {
+          currentZeroStart = i;
+        }
+        currentZeroLength++;
+      } else {
+        if (currentZeroLength > longestZeroLength) {
+          longestZeroStart = currentZeroStart;
+          longestZeroLength = currentZeroLength;
+        }
+        currentZeroStart = -1;
+        currentZeroLength = 0;
+      }
+    }
+    if (currentZeroLength > longestZeroLength) {
+      longestZeroStart = currentZeroStart;
+      longestZeroLength = currentZeroLength;
+    }
+    if (longestZeroLength > 1) {
+      const before = parts.slice(0, longestZeroStart).join(":");
+      const after = parts.slice(longestZeroStart + longestZeroLength).join(":");
+      return `${before}::${after}`;
+    }
+    return ip;
+  }
+  static parseCIDR(text) {
+    const [addr, prefixStr] = text.split("/");
+    const prefix = parseInt(prefixStr, 10);
+    if (this.isIPv4(addr)) {
+      if (prefix < 0 || prefix > 32) {
+        throw new Error("Invalid IPv4 prefix length");
+      }
+      return [this.parseIPv4(addr), prefix];
+    } else {
+      if (prefix < 0 || prefix > 128) {
+        throw new Error("Invalid IPv6 prefix length");
+      }
+      return [this.parseIPv6(addr), prefix];
+    }
+  }
   static decodeIP(value) {
     if (value.length === 64 && parseInt(value, 16) === 0) {
       return "::/0";
@@ -7364,21 +7115,58 @@ var IpConverter = class {
       return value;
     }
     const mask = parseInt(value.slice(8), 16).toString(2).split("").reduce((a, k) => a + +k, 0);
-    let ip2 = value.slice(0, 8).replace(/(.{2})/g, (match) => `${parseInt(match, 16)}.`);
-    ip2 = ip2.slice(0, -1);
-    return `${ip2}/${mask}`;
+    let ip = value.slice(0, 8).replace(/(.{2})/g, (match) => `${parseInt(match, 16)}.`);
+    ip = ip.slice(0, -1);
+    return `${ip}/${mask}`;
   }
   static toString(buf) {
-    if (buf.byteLength === 4 || buf.byteLength === 16) {
-      const uint8 = new Uint8Array(buf);
-      const addr = ip.fromByteArray(Array.from(uint8));
-      return addr.toString();
+    const uint8 = new Uint8Array(buf);
+    if (uint8.length === 4) {
+      return Array.from(uint8).join(".");
+    }
+    if (uint8.length === 16) {
+      return this.formatIPv6(uint8);
+    }
+    if (uint8.length === 8 || uint8.length === 32) {
+      const half = uint8.length / 2;
+      const addrBytes = uint8.slice(0, half);
+      const maskBytes = uint8.slice(half);
+      const isAllZeros = uint8.every((byte) => byte === 0);
+      if (isAllZeros) {
+        return uint8.length === 8 ? "0.0.0.0/0" : "::/0";
+      }
+      const prefixLen = maskBytes.reduce((a, b) => a + (b.toString(2).match(/1/g) || []).length, 0);
+      if (uint8.length === 8) {
+        const addrStr = Array.from(addrBytes).join(".");
+        return `${addrStr}/${prefixLen}`;
+      } else {
+        const addrStr = this.formatIPv6(addrBytes);
+        return `${addrStr}/${prefixLen}`;
+      }
     }
     return this.decodeIP(import_pvtsutils4.Convert.ToHex(buf));
   }
   static fromString(text) {
-    const addr = ip.parse(text);
-    return new Uint8Array(addr.toByteArray()).buffer;
+    if (text.includes("/")) {
+      const [addr, prefix] = this.parseCIDR(text);
+      const maskBytes = new Uint8Array(addr.length);
+      let bitsLeft = prefix;
+      for (let i = 0; i < maskBytes.length; i++) {
+        if (bitsLeft >= 8) {
+          maskBytes[i] = 255;
+          bitsLeft -= 8;
+        } else if (bitsLeft > 0) {
+          maskBytes[i] = 255 << 8 - bitsLeft;
+          bitsLeft = 0;
+        }
+      }
+      const out = new Uint8Array(addr.length * 2);
+      out.set(addr, 0);
+      out.set(maskBytes, addr.length);
+      return out.buffer;
+    }
+    const bytes = this.isIPv4(text) ? this.parseIPv4(text) : this.parseIPv6(text);
+    return new Uint8Array(bytes).buffer;
   }
 };
 
@@ -7529,7 +7317,12 @@ __decorate([
   AsnProp({ type: AsnPropTypes.IA5String, context: 6, implicit: true })
 ], GeneralName.prototype, "uniformResourceIdentifier", void 0);
 __decorate([
-  AsnProp({ type: AsnPropTypes.OctetString, context: 7, implicit: true, converter: AsnIpConverter })
+  AsnProp({
+    type: AsnPropTypes.OctetString,
+    context: 7,
+    implicit: true,
+    converter: AsnIpConverter
+  })
 ], GeneralName.prototype, "iPAddress", void 0);
 __decorate([
   AsnProp({ type: AsnPropTypes.ObjectIdentifier, context: 8, implicit: true })
@@ -7886,19 +7679,39 @@ __decorate([
   AsnProp({ type: DistributionPointName, context: 0, optional: true })
 ], IssuingDistributionPoint.prototype, "distributionPoint", void 0);
 __decorate([
-  AsnProp({ type: AsnPropTypes.Boolean, context: 1, defaultValue: IssuingDistributionPoint.ONLY, implicit: true })
+  AsnProp({
+    type: AsnPropTypes.Boolean,
+    context: 1,
+    defaultValue: IssuingDistributionPoint.ONLY,
+    implicit: true
+  })
 ], IssuingDistributionPoint.prototype, "onlyContainsUserCerts", void 0);
 __decorate([
-  AsnProp({ type: AsnPropTypes.Boolean, context: 2, defaultValue: IssuingDistributionPoint.ONLY, implicit: true })
+  AsnProp({
+    type: AsnPropTypes.Boolean,
+    context: 2,
+    defaultValue: IssuingDistributionPoint.ONLY,
+    implicit: true
+  })
 ], IssuingDistributionPoint.prototype, "onlyContainsCACerts", void 0);
 __decorate([
   AsnProp({ type: Reason, context: 3, optional: true, implicit: true })
 ], IssuingDistributionPoint.prototype, "onlySomeReasons", void 0);
 __decorate([
-  AsnProp({ type: AsnPropTypes.Boolean, context: 4, defaultValue: IssuingDistributionPoint.ONLY, implicit: true })
+  AsnProp({
+    type: AsnPropTypes.Boolean,
+    context: 4,
+    defaultValue: IssuingDistributionPoint.ONLY,
+    implicit: true
+  })
 ], IssuingDistributionPoint.prototype, "indirectCRL", void 0);
 __decorate([
-  AsnProp({ type: AsnPropTypes.Boolean, context: 5, defaultValue: IssuingDistributionPoint.ONLY, implicit: true })
+  AsnProp({
+    type: AsnPropTypes.Boolean,
+    context: 5,
+    defaultValue: IssuingDistributionPoint.ONLY,
+    implicit: true
+  })
 ], IssuingDistributionPoint.prototype, "onlyContainsAttributeCerts", void 0);
 
 // front/node_modules/@peculiar/asn1-x509/build/es2015/extensions/crl_reason.js
@@ -8535,6 +8348,78 @@ __decorate([
 // front/node_modules/@peculiar/x509/build/x509.es.js
 var import_pvtsutils6 = __toESM(require_build());
 
+// front/node_modules/@peculiar/asn1-cms/build/es2015/issuer_and_serial_number.js
+var IssuerAndSerialNumber = class {
+  constructor(params = {}) {
+    this.issuer = new Name();
+    this.serialNumber = new ArrayBuffer(0);
+    Object.assign(this, params);
+  }
+};
+__decorate([
+  AsnProp({ type: Name })
+], IssuerAndSerialNumber.prototype, "issuer", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.Integer, converter: AsnIntegerArrayBufferConverter })
+], IssuerAndSerialNumber.prototype, "serialNumber", void 0);
+
+// front/node_modules/@peculiar/asn1-cms/build/es2015/signer_identifier.js
+var SignerIdentifier = class SignerIdentifier2 {
+  constructor(params = {}) {
+    Object.assign(this, params);
+  }
+};
+__decorate([
+  AsnProp({ type: SubjectKeyIdentifier, context: 0, implicit: true })
+], SignerIdentifier.prototype, "subjectKeyIdentifier", void 0);
+__decorate([
+  AsnProp({ type: IssuerAndSerialNumber })
+], SignerIdentifier.prototype, "issuerAndSerialNumber", void 0);
+SignerIdentifier = __decorate([
+  AsnType({ type: AsnTypeTypes.Choice })
+], SignerIdentifier);
+
+// front/node_modules/@peculiar/asn1-cms/build/es2015/types.js
+var CMSVersion;
+(function(CMSVersion2) {
+  CMSVersion2[CMSVersion2["v0"] = 0] = "v0";
+  CMSVersion2[CMSVersion2["v1"] = 1] = "v1";
+  CMSVersion2[CMSVersion2["v2"] = 2] = "v2";
+  CMSVersion2[CMSVersion2["v3"] = 3] = "v3";
+  CMSVersion2[CMSVersion2["v4"] = 4] = "v4";
+  CMSVersion2[CMSVersion2["v5"] = 5] = "v5";
+})(CMSVersion || (CMSVersion = {}));
+var DigestAlgorithmIdentifier = class DigestAlgorithmIdentifier2 extends AlgorithmIdentifier {
+};
+DigestAlgorithmIdentifier = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], DigestAlgorithmIdentifier);
+var SignatureAlgorithmIdentifier = class SignatureAlgorithmIdentifier2 extends AlgorithmIdentifier {
+};
+SignatureAlgorithmIdentifier = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], SignatureAlgorithmIdentifier);
+var KeyEncryptionAlgorithmIdentifier = class KeyEncryptionAlgorithmIdentifier2 extends AlgorithmIdentifier {
+};
+KeyEncryptionAlgorithmIdentifier = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], KeyEncryptionAlgorithmIdentifier);
+var ContentEncryptionAlgorithmIdentifier = class ContentEncryptionAlgorithmIdentifier2 extends AlgorithmIdentifier {
+};
+ContentEncryptionAlgorithmIdentifier = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], ContentEncryptionAlgorithmIdentifier);
+var MessageAuthenticationCodeAlgorithm = class MessageAuthenticationCodeAlgorithm2 extends AlgorithmIdentifier {
+};
+MessageAuthenticationCodeAlgorithm = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], MessageAuthenticationCodeAlgorithm);
+var KeyDerivationAlgorithmIdentifier = class KeyDerivationAlgorithmIdentifier2 extends AlgorithmIdentifier {
+};
+KeyDerivationAlgorithmIdentifier = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], KeyDerivationAlgorithmIdentifier);
+
 // front/node_modules/@peculiar/asn1-cms/build/es2015/attribute.js
 var Attribute2 = class {
   constructor(params = {}) {
@@ -8549,6 +8434,61 @@ __decorate([
 __decorate([
   AsnProp({ type: AsnPropTypes.Any, repeated: "set" })
 ], Attribute2.prototype, "attrValues", void 0);
+
+// front/node_modules/@peculiar/asn1-cms/build/es2015/signer_info.js
+var SignerInfos_1;
+var SignerInfo = class {
+  constructor(params = {}) {
+    this.version = CMSVersion.v0;
+    this.sid = new SignerIdentifier();
+    this.digestAlgorithm = new DigestAlgorithmIdentifier();
+    this.signatureAlgorithm = new SignatureAlgorithmIdentifier();
+    this.signature = new OctetString2();
+    Object.assign(this, params);
+  }
+};
+__decorate([
+  AsnProp({ type: AsnPropTypes.Integer })
+], SignerInfo.prototype, "version", void 0);
+__decorate([
+  AsnProp({ type: SignerIdentifier })
+], SignerInfo.prototype, "sid", void 0);
+__decorate([
+  AsnProp({ type: DigestAlgorithmIdentifier })
+], SignerInfo.prototype, "digestAlgorithm", void 0);
+__decorate([
+  AsnProp({ type: Attribute2, repeated: "set", context: 0, implicit: true, optional: true })
+], SignerInfo.prototype, "signedAttrs", void 0);
+__decorate([
+  AsnProp({ type: SignatureAlgorithmIdentifier })
+], SignerInfo.prototype, "signatureAlgorithm", void 0);
+__decorate([
+  AsnProp({ type: OctetString2 })
+], SignerInfo.prototype, "signature", void 0);
+__decorate([
+  AsnProp({ type: Attribute2, repeated: "set", context: 1, implicit: true, optional: true })
+], SignerInfo.prototype, "unsignedAttrs", void 0);
+var SignerInfos = SignerInfos_1 = class SignerInfos2 extends AsnArray {
+  constructor(items) {
+    super(items);
+    Object.setPrototypeOf(this, SignerInfos_1.prototype);
+  }
+};
+SignerInfos = SignerInfos_1 = __decorate([
+  AsnType({ type: AsnTypeTypes.Set, itemType: SignerInfo })
+], SignerInfos);
+
+// front/node_modules/@peculiar/asn1-cms/build/es2015/attributes.js
+var SigningTime = class SigningTime2 extends Time {
+};
+SigningTime = __decorate([
+  AsnType({ type: AsnTypeTypes.Choice })
+], SigningTime);
+var CounterSignature = class CounterSignature2 extends SignerInfo {
+};
+CounterSignature = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], CounterSignature);
 
 // front/node_modules/@peculiar/asn1-x509-attr/build/es2015/aa_clear_attrs.js
 var ACClearAttrs = class {
@@ -9035,47 +8975,6 @@ __decorate([
   AsnProp({ type: EncapsulatedContent, context: 0, optional: true })
 ], EncapsulatedContentInfo.prototype, "eContent", void 0);
 
-// front/node_modules/@peculiar/asn1-cms/build/es2015/types.js
-var CMSVersion;
-(function(CMSVersion2) {
-  CMSVersion2[CMSVersion2["v0"] = 0] = "v0";
-  CMSVersion2[CMSVersion2["v1"] = 1] = "v1";
-  CMSVersion2[CMSVersion2["v2"] = 2] = "v2";
-  CMSVersion2[CMSVersion2["v3"] = 3] = "v3";
-  CMSVersion2[CMSVersion2["v4"] = 4] = "v4";
-  CMSVersion2[CMSVersion2["v5"] = 5] = "v5";
-})(CMSVersion || (CMSVersion = {}));
-var DigestAlgorithmIdentifier = class DigestAlgorithmIdentifier2 extends AlgorithmIdentifier {
-};
-DigestAlgorithmIdentifier = __decorate([
-  AsnType({ type: AsnTypeTypes.Sequence })
-], DigestAlgorithmIdentifier);
-var SignatureAlgorithmIdentifier = class SignatureAlgorithmIdentifier2 extends AlgorithmIdentifier {
-};
-SignatureAlgorithmIdentifier = __decorate([
-  AsnType({ type: AsnTypeTypes.Sequence })
-], SignatureAlgorithmIdentifier);
-var KeyEncryptionAlgorithmIdentifier = class KeyEncryptionAlgorithmIdentifier2 extends AlgorithmIdentifier {
-};
-KeyEncryptionAlgorithmIdentifier = __decorate([
-  AsnType({ type: AsnTypeTypes.Sequence })
-], KeyEncryptionAlgorithmIdentifier);
-var ContentEncryptionAlgorithmIdentifier = class ContentEncryptionAlgorithmIdentifier2 extends AlgorithmIdentifier {
-};
-ContentEncryptionAlgorithmIdentifier = __decorate([
-  AsnType({ type: AsnTypeTypes.Sequence })
-], ContentEncryptionAlgorithmIdentifier);
-var MessageAuthenticationCodeAlgorithm = class MessageAuthenticationCodeAlgorithm2 extends AlgorithmIdentifier {
-};
-MessageAuthenticationCodeAlgorithm = __decorate([
-  AsnType({ type: AsnTypeTypes.Sequence })
-], MessageAuthenticationCodeAlgorithm);
-var KeyDerivationAlgorithmIdentifier = class KeyDerivationAlgorithmIdentifier2 extends AlgorithmIdentifier {
-};
-KeyDerivationAlgorithmIdentifier = __decorate([
-  AsnType({ type: AsnTypeTypes.Sequence })
-], KeyDerivationAlgorithmIdentifier);
-
 // front/node_modules/@peculiar/asn1-cms/build/es2015/encrypted_content_info.js
 var EncryptedContent = class EncryptedContent2 {
   constructor(params = {}) {
@@ -9086,7 +8985,14 @@ __decorate([
   AsnProp({ type: OctetString2, context: 0, implicit: true, optional: true })
 ], EncryptedContent.prototype, "value", void 0);
 __decorate([
-  AsnProp({ type: OctetString2, converter: AsnConstructedOctetStringConverter, context: 0, implicit: true, optional: true, repeated: "sequence" })
+  AsnProp({
+    type: OctetString2,
+    converter: AsnConstructedOctetStringConverter,
+    context: 0,
+    implicit: true,
+    optional: true,
+    repeated: "sequence"
+  })
 ], EncryptedContent.prototype, "constructedValue", void 0);
 EncryptedContent = __decorate([
   AsnType({ type: AsnTypeTypes.Choice })
@@ -9107,21 +9013,6 @@ __decorate([
 __decorate([
   AsnProp({ type: EncryptedContent, optional: true })
 ], EncryptedContentInfo.prototype, "encryptedContent", void 0);
-
-// front/node_modules/@peculiar/asn1-cms/build/es2015/issuer_and_serial_number.js
-var IssuerAndSerialNumber = class {
-  constructor(params = {}) {
-    this.issuer = new Name();
-    this.serialNumber = new ArrayBuffer(0);
-    Object.assign(this, params);
-  }
-};
-__decorate([
-  AsnProp({ type: Name })
-], IssuerAndSerialNumber.prototype, "issuer", void 0);
-__decorate([
-  AsnProp({ type: AsnPropTypes.Integer, converter: AsnIntegerArrayBufferConverter })
-], IssuerAndSerialNumber.prototype, "serialNumber", void 0);
 
 // front/node_modules/@peculiar/asn1-cms/build/es2015/other_key_attribute.js
 var OtherKeyAttribute = class {
@@ -9483,65 +9374,6 @@ __decorate([
 // front/node_modules/@peculiar/asn1-cms/build/es2015/object_identifiers.js
 var id_signedData = "1.2.840.113549.1.7.2";
 
-// front/node_modules/@peculiar/asn1-cms/build/es2015/signer_identifier.js
-var SignerIdentifier = class SignerIdentifier2 {
-  constructor(params = {}) {
-    Object.assign(this, params);
-  }
-};
-__decorate([
-  AsnProp({ type: SubjectKeyIdentifier, context: 0, implicit: true })
-], SignerIdentifier.prototype, "subjectKeyIdentifier", void 0);
-__decorate([
-  AsnProp({ type: IssuerAndSerialNumber })
-], SignerIdentifier.prototype, "issuerAndSerialNumber", void 0);
-SignerIdentifier = __decorate([
-  AsnType({ type: AsnTypeTypes.Choice })
-], SignerIdentifier);
-
-// front/node_modules/@peculiar/asn1-cms/build/es2015/signer_info.js
-var SignerInfos_1;
-var SignerInfo = class {
-  constructor(params = {}) {
-    this.version = CMSVersion.v0;
-    this.sid = new SignerIdentifier();
-    this.digestAlgorithm = new DigestAlgorithmIdentifier();
-    this.signatureAlgorithm = new SignatureAlgorithmIdentifier();
-    this.signature = new OctetString2();
-    Object.assign(this, params);
-  }
-};
-__decorate([
-  AsnProp({ type: AsnPropTypes.Integer })
-], SignerInfo.prototype, "version", void 0);
-__decorate([
-  AsnProp({ type: SignerIdentifier })
-], SignerInfo.prototype, "sid", void 0);
-__decorate([
-  AsnProp({ type: DigestAlgorithmIdentifier })
-], SignerInfo.prototype, "digestAlgorithm", void 0);
-__decorate([
-  AsnProp({ type: Attribute2, repeated: "set", context: 0, implicit: true, optional: true })
-], SignerInfo.prototype, "signedAttrs", void 0);
-__decorate([
-  AsnProp({ type: SignatureAlgorithmIdentifier })
-], SignerInfo.prototype, "signatureAlgorithm", void 0);
-__decorate([
-  AsnProp({ type: OctetString2 })
-], SignerInfo.prototype, "signature", void 0);
-__decorate([
-  AsnProp({ type: Attribute2, repeated: "set", context: 1, implicit: true, optional: true })
-], SignerInfo.prototype, "unsignedAttrs", void 0);
-var SignerInfos = SignerInfos_1 = class SignerInfos2 extends AsnArray {
-  constructor(items) {
-    super(items);
-    Object.setPrototypeOf(this, SignerInfos_1.prototype);
-  }
-};
-SignerInfos = SignerInfos_1 = __decorate([
-  AsnType({ type: AsnTypeTypes.Set, itemType: SignerInfo })
-], SignerInfos);
-
 // front/node_modules/@peculiar/asn1-cms/build/es2015/signed_data.js
 var DigestAlgorithmIdentifiers_1;
 var DigestAlgorithmIdentifiers = DigestAlgorithmIdentifiers_1 = class DigestAlgorithmIdentifiers2 extends AsnArray {
@@ -9575,7 +9407,7 @@ __decorate([
   AsnProp({ type: CertificateSet, context: 0, implicit: true, optional: true })
 ], SignedData.prototype, "certificates", void 0);
 __decorate([
-  AsnProp({ type: RevocationInfoChoice, context: 1, implicit: true, optional: true })
+  AsnProp({ type: RevocationInfoChoices, context: 1, implicit: true, optional: true })
 ], SignedData.prototype, "crls", void 0);
 __decorate([
   AsnProp({ type: SignerInfos })
@@ -9602,6 +9434,72 @@ var ecdsaWithSHA256 = create2(id_ecdsaWithSHA256);
 var ecdsaWithSHA384 = create2(id_ecdsaWithSHA384);
 var ecdsaWithSHA512 = create2(id_ecdsaWithSHA512);
 
+// front/node_modules/@peculiar/asn1-ecc/build/es2015/rfc3279.js
+var FieldID = class FieldID2 {
+  constructor(params = {}) {
+    Object.assign(this, params);
+  }
+};
+__decorate([
+  AsnProp({ type: AsnPropTypes.ObjectIdentifier })
+], FieldID.prototype, "fieldType", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.Any })
+], FieldID.prototype, "parameters", void 0);
+FieldID = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], FieldID);
+var ECPoint = class extends OctetString2 {
+};
+var Curve = class Curve2 {
+  constructor(params = {}) {
+    Object.assign(this, params);
+  }
+};
+__decorate([
+  AsnProp({ type: AsnPropTypes.OctetString })
+], Curve.prototype, "a", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.OctetString })
+], Curve.prototype, "b", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.BitString, optional: true })
+], Curve.prototype, "seed", void 0);
+Curve = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], Curve);
+var ECPVer;
+(function(ECPVer2) {
+  ECPVer2[ECPVer2["ecpVer1"] = 1] = "ecpVer1";
+})(ECPVer || (ECPVer = {}));
+var SpecifiedECDomain = class SpecifiedECDomain2 {
+  constructor(params = {}) {
+    this.version = ECPVer.ecpVer1;
+    Object.assign(this, params);
+  }
+};
+__decorate([
+  AsnProp({ type: AsnPropTypes.Integer })
+], SpecifiedECDomain.prototype, "version", void 0);
+__decorate([
+  AsnProp({ type: FieldID })
+], SpecifiedECDomain.prototype, "fieldID", void 0);
+__decorate([
+  AsnProp({ type: Curve })
+], SpecifiedECDomain.prototype, "curve", void 0);
+__decorate([
+  AsnProp({ type: ECPoint })
+], SpecifiedECDomain.prototype, "base", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.Integer, converter: AsnIntegerArrayBufferConverter })
+], SpecifiedECDomain.prototype, "order", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.Integer, optional: true })
+], SpecifiedECDomain.prototype, "cofactor", void 0);
+SpecifiedECDomain = __decorate([
+  AsnType({ type: AsnTypeTypes.Sequence })
+], SpecifiedECDomain);
+
 // front/node_modules/@peculiar/asn1-ecc/build/es2015/ec_parameters.js
 var ECParameters = class ECParameters2 {
   constructor(params = {}) {
@@ -9611,6 +9509,12 @@ var ECParameters = class ECParameters2 {
 __decorate([
   AsnProp({ type: AsnPropTypes.ObjectIdentifier })
 ], ECParameters.prototype, "namedCurve", void 0);
+__decorate([
+  AsnProp({ type: AsnPropTypes.Null })
+], ECParameters.prototype, "implicitCurve", void 0);
+__decorate([
+  AsnProp({ type: SpecifiedECDomain })
+], ECParameters.prototype, "specifiedCurve", void 0);
 ECParameters = __decorate([
   AsnType({ type: AsnTypeTypes.Choice })
 ], ECParameters);
@@ -9685,9 +9589,9 @@ var md2 = create3(id_md2);
 var md4 = create3(id_md5);
 var sha1 = create3(id_sha1);
 var sha224 = create3(id_sha224);
-var sha256 = create3(id_sha256);
+var sha2562 = create3(id_sha256);
 var sha384 = create3(id_sha384);
-var sha512 = create3(id_sha512);
+var sha5122 = create3(id_sha512);
 var sha512_224 = create3(id_sha512_224);
 var sha512_256 = create3(id_sha512_256);
 var mgf1SHA1 = new AlgorithmIdentifier({
@@ -9696,7 +9600,28 @@ var mgf1SHA1 = new AlgorithmIdentifier({
 });
 var pSpecifiedEmpty = new AlgorithmIdentifier({
   algorithm: id_pSpecified,
-  parameters: AsnConvert.serialize(AsnOctetStringConverter.toASN(new Uint8Array([218, 57, 163, 238, 94, 107, 75, 13, 50, 85, 191, 239, 149, 96, 24, 144, 175, 216, 7, 9]).buffer))
+  parameters: AsnConvert.serialize(AsnOctetStringConverter.toASN(new Uint8Array([
+    218,
+    57,
+    163,
+    238,
+    94,
+    107,
+    75,
+    13,
+    50,
+    85,
+    191,
+    239,
+    149,
+    96,
+    24,
+    144,
+    175,
+    216,
+    7,
+    9
+  ]).buffer))
 });
 var rsaEncryption = create3(id_rsaEncryption);
 var md2WithRSAEncryption = create3(id_md2WithRSAEncryption);
@@ -10081,14 +10006,14 @@ var DelayedConstructor = function() {
   };
   DelayedConstructor2.prototype.createHandler = function(delayedObject) {
     var handler = {};
-    var install = function(name) {
-      handler[name] = function() {
+    var install = function(name3) {
+      handler[name3] = function() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
           args[_i] = arguments[_i];
         }
         args[0] = delayedObject();
-        var method = Reflect[name];
+        var method = Reflect[name3];
         return method.apply(void 0, __spread(args));
       };
     };
@@ -10289,14 +10214,14 @@ var InternalDependencyContainer = function() {
     this._registry.set(token, { provider, options });
     return this;
   };
-  InternalDependencyContainer2.prototype.registerType = function(from2, to) {
+  InternalDependencyContainer2.prototype.registerType = function(from3, to) {
     this.ensureNotDisposed();
     if (isNormalToken(to)) {
-      return this.register(from2, {
+      return this.register(from3, {
         useToken: to
       });
     }
-    return this.register(from2, {
+    return this.register(from3, {
       useClass: to
     });
   };
@@ -10306,35 +10231,41 @@ var InternalDependencyContainer = function() {
       useValue: instance2
     });
   };
-  InternalDependencyContainer2.prototype.registerSingleton = function(from2, to) {
+  InternalDependencyContainer2.prototype.registerSingleton = function(from3, to) {
     this.ensureNotDisposed();
-    if (isNormalToken(from2)) {
+    if (isNormalToken(from3)) {
       if (isNormalToken(to)) {
-        return this.register(from2, {
+        return this.register(from3, {
           useToken: to
         }, { lifecycle: lifecycle_default.Singleton });
       } else if (to) {
-        return this.register(from2, {
+        return this.register(from3, {
           useClass: to
         }, { lifecycle: lifecycle_default.Singleton });
       }
       throw new Error('Cannot register a type name as a singleton without a "to" token');
     }
-    var useClass = from2;
+    var useClass = from3;
     if (to && !isNormalToken(to)) {
       useClass = to;
     }
-    return this.register(from2, {
+    return this.register(from3, {
       useClass
     }, { lifecycle: lifecycle_default.Singleton });
   };
-  InternalDependencyContainer2.prototype.resolve = function(token, context) {
+  InternalDependencyContainer2.prototype.resolve = function(token, context, isOptional) {
     if (context === void 0) {
       context = new resolution_context_default();
+    }
+    if (isOptional === void 0) {
+      isOptional = false;
     }
     this.ensureNotDisposed();
     var registration = this.getRegistration(token);
     if (!registration && isNormalToken(token)) {
+      if (isOptional) {
+        return void 0;
+      }
       throw new Error('Attempted to resolve unregistered dependency token: "' + token.toString() + '"');
     }
     this.executePreResolutionInterceptor(token, "Single");
@@ -10423,14 +10354,20 @@ var InternalDependencyContainer = function() {
     }
     return resolved;
   };
-  InternalDependencyContainer2.prototype.resolveAll = function(token, context) {
+  InternalDependencyContainer2.prototype.resolveAll = function(token, context, isOptional) {
     var _this = this;
     if (context === void 0) {
       context = new resolution_context_default();
     }
+    if (isOptional === void 0) {
+      isOptional = false;
+    }
     this.ensureNotDisposed();
     var registrations = this.getAllRegistrations(token);
     if (!registrations && isNormalToken(token)) {
+      if (isOptional) {
+        return [];
+      }
       throw new Error('Attempted to resolve unregistered dependency token: "' + token.toString() + '"');
     }
     this.executePreResolutionInterceptor(token, "All");
@@ -10603,9 +10540,9 @@ var InternalDependencyContainer = function() {
       try {
         if (isTokenDescriptor(param)) {
           if (isTransformDescriptor(param)) {
-            return param.multiple ? (_a3 = _this.resolve(param.transform)).transform.apply(_a3, __spread([_this.resolveAll(param.token)], param.transformArgs)) : (_b = _this.resolve(param.transform)).transform.apply(_b, __spread([_this.resolve(param.token, context)], param.transformArgs));
+            return param.multiple ? (_a3 = _this.resolve(param.transform)).transform.apply(_a3, __spread([_this.resolveAll(param.token, new resolution_context_default(), param.isOptional)], param.transformArgs)) : (_b = _this.resolve(param.transform)).transform.apply(_b, __spread([_this.resolve(param.token, context, param.isOptional)], param.transformArgs));
           } else {
-            return param.multiple ? _this.resolveAll(param.token) : _this.resolve(param.token, context);
+            return param.multiple ? _this.resolveAll(param.token, new resolution_context_default(), param.isOptional) : _this.resolve(param.token, context, param.isOptional);
           }
         } else if (isTransformDescriptor(param)) {
           return (_c = _this.resolve(param.transform, context)).transform.apply(_c, __spread([_this.resolve(param.token, context)], param.transformArgs));
@@ -11050,11 +10987,11 @@ __decorate([
 ContentType = __decorate([
   AsnType({ type: AsnTypeTypes.Choice })
 ], ContentType);
-var SigningTime = class SigningTime2 extends Time {
+var SigningTime3 = class SigningTime4 extends Time {
 };
-SigningTime = __decorate([
+SigningTime3 = __decorate([
   AsnType({ type: AsnTypeTypes.Choice })
-], SigningTime);
+], SigningTime3);
 var SequenceNumber = class SequenceNumber2 {
   constructor(value = 0) {
     this.value = value;
@@ -11069,11 +11006,11 @@ __decorate([
 SequenceNumber = __decorate([
   AsnType({ type: AsnTypeTypes.Choice })
 ], SequenceNumber);
-var CounterSignature = class CounterSignature2 extends SignerInfo {
+var CounterSignature3 = class CounterSignature4 extends SignerInfo {
 };
-CounterSignature = __decorate([
+CounterSignature3 = __decorate([
   AsnType({ type: AsnTypeTypes.Sequence })
-], CounterSignature);
+], CounterSignature3);
 var ChallengePassword = class ChallengePassword2 extends DirectoryString {
 };
 ChallengePassword = __decorate([
@@ -11403,8 +11340,8 @@ instance.registerSingleton(diAlgorithm, EcAlgorithm);
 var NAME2 = Symbol("name");
 var VALUE = Symbol("value");
 var TextObject = class {
-  constructor(name, items = {}, value = "") {
-    this[NAME2] = name;
+  constructor(name3, items = {}, value = "") {
+    this[NAME2] = name3;
     this[VALUE] = value;
     for (const key in items) {
       this[key] = items[key];
@@ -11436,9 +11373,9 @@ var DefaultAlgorithmSerializer = class {
 };
 var OidSerializer = class {
   static toString(oid) {
-    const name = this.items[oid];
-    if (name) {
-      return name;
+    const name3 = this.items[oid];
+    if (name3) {
+      return name3;
     }
     return oid;
   }
@@ -11562,8 +11499,8 @@ var AsnData = class _AsnData {
     }
     return false;
   }
-  toString(format2 = "text") {
-    switch (format2) {
+  toString(format = "text") {
+    switch (format) {
       case "asn":
         return AsnConvert.toString(this.rawData);
       case "text":
@@ -11637,6 +11574,8 @@ var CryptoProvider = class _CryptoProvider {
     this[_a2] = "CryptoProvider";
     if (typeof self !== "undefined" && typeof crypto !== "undefined") {
       this.set(_CryptoProvider.DEFAULT, crypto);
+    } else if (typeof global !== "undefined" && global.crypto && global.crypto.subtle) {
+      this.set(_CryptoProvider.DEFAULT, global.crypto);
     }
   }
   clear() {
@@ -11708,9 +11647,9 @@ var NameIdentifier = class {
     }
     return idOrName;
   }
-  register(id, name) {
-    this.items[id] = name;
-    this.items[name] = id;
+  register(id, name3) {
+    this.items[id] = name3;
+    this.items[name3] = id;
   }
 };
 var names = new NameIdentifier();
@@ -11735,12 +11674,15 @@ function escape2(data) {
 var Name3 = class _Name {
   static isASCII(text) {
     for (let i = 0; i < text.length; i++) {
-      const code2 = text.charCodeAt(i);
-      if (code2 > 255) {
+      const code3 = text.charCodeAt(i);
+      if (code3 > 255) {
         return false;
       }
     }
     return true;
+  }
+  static isPrintableString(text) {
+    return /^[A-Za-z0-9 '()+,-./:=?]*$/g.test(text);
   }
   constructor(data, extraNames = {}) {
     this.extraNames = new NameIdentifier();
@@ -11764,8 +11706,8 @@ var Name3 = class _Name {
   getField(idOrName) {
     const id = this.extraNames.findId(idOrName) || names.findId(idOrName);
     const res = [];
-    for (const name of this.asn) {
-      for (const rdn of name) {
+    for (const name3 of this.asn) {
+      for (const rdn of name3) {
         if (rdn.type === id) {
           res.push(rdn.value.toString());
         }
@@ -11810,31 +11752,8 @@ var Name3 = class _Name {
         matches[3] = lastChar;
       }
       const next = matches[3];
-      if (!/[\d.]+/.test(type)) {
-        type = this.getName(type) || "";
-      }
-      if (!type) {
-        throw new Error(`Cannot get OID for name type '${type}'`);
-      }
-      const attr = new AttributeTypeAndValue({ type });
-      if (value.charAt(0) === "#") {
-        attr.value.anyValue = import_pvtsutils6.Convert.FromHex(value.slice(1));
-      } else {
-        const quotedMatches = /"(.*?[^\\])?"/.exec(value);
-        if (quotedMatches) {
-          value = quotedMatches[1];
-        }
-        value = value.replace(/\\0a/ig, "\n").replace(/\\0d/ig, "\r").replace(/\\0g/ig, "	").replace(/\\(.)/g, "$1");
-        if (type === this.getName("E") || type === this.getName("DC")) {
-          attr.value.ia5String = value;
-        } else {
-          if (_Name.isASCII(value)) {
-            attr.value.printableString = value;
-          } else {
-            attr.value.utf8String = value;
-          }
-        }
-      }
+      type = this.getTypeOid(type);
+      const attr = this.createAttribute(type, value);
       if (level === "+") {
         asn[asn.length - 1].push(attr);
       } else {
@@ -11849,51 +11768,70 @@ var Name3 = class _Name {
     for (const item of data) {
       const asnRdn = new RelativeDistinguishedName();
       for (const type in item) {
-        let typeId = type;
-        if (!/[\d.]+/.test(type)) {
-          typeId = this.getName(type) || "";
-        }
-        if (!typeId) {
-          throw new Error(`Cannot get OID for name type '${type}'`);
-        }
+        const typeId = this.getTypeOid(type);
         const values = item[type];
         for (const value of values) {
-          const asnAttr = new AttributeTypeAndValue({ type: typeId });
-          if (typeof value === "object") {
-            for (const key in value) {
-              switch (key) {
-                case "ia5String":
-                  asnAttr.value.ia5String = value[key];
-                  break;
-                case "utf8String":
-                  asnAttr.value.utf8String = value[key];
-                  break;
-                case "universalString":
-                  asnAttr.value.universalString = value[key];
-                  break;
-                case "bmpString":
-                  asnAttr.value.bmpString = value[key];
-                  break;
-                case "printableString":
-                  asnAttr.value.printableString = value[key];
-                  break;
-              }
-            }
-          } else if (value[0] === "#") {
-            asnAttr.value.anyValue = import_pvtsutils6.Convert.FromHex(value.slice(1));
-          } else {
-            if (typeId === this.getName("E") || typeId === this.getName("DC")) {
-              asnAttr.value.ia5String = value;
-            } else {
-              asnAttr.value.printableString = value;
-            }
-          }
+          const asnAttr = this.createAttribute(typeId, value);
           asnRdn.push(asnAttr);
         }
       }
       asn.push(asnRdn);
     }
     return asn;
+  }
+  getTypeOid(type) {
+    if (!/[\d.]+/.test(type)) {
+      type = this.getName(type) || "";
+    }
+    if (!type) {
+      throw new Error(`Cannot get OID for name type '${type}'`);
+    }
+    return type;
+  }
+  createAttribute(type, value) {
+    const attr = new AttributeTypeAndValue({ type });
+    if (typeof value === "object") {
+      for (const key in value) {
+        switch (key) {
+          case "ia5String":
+            attr.value.ia5String = value[key];
+            break;
+          case "utf8String":
+            attr.value.utf8String = value[key];
+            break;
+          case "universalString":
+            attr.value.universalString = value[key];
+            break;
+          case "bmpString":
+            attr.value.bmpString = value[key];
+            break;
+          case "printableString":
+            attr.value.printableString = value[key];
+            break;
+        }
+      }
+    } else if (value[0] === "#") {
+      attr.value.anyValue = import_pvtsutils6.Convert.FromHex(value.slice(1));
+    } else {
+      const processedValue = this.processStringValue(value);
+      if (type === this.getName("E") || type === this.getName("DC")) {
+        attr.value.ia5String = processedValue;
+      } else {
+        if (_Name.isPrintableString(processedValue)) {
+          attr.value.printableString = processedValue;
+        } else {
+          attr.value.utf8String = processedValue;
+        }
+      }
+    }
+    return attr;
+  }
+  processStringValue(value) {
+    const quotedMatches = /"(.*?[^\\])?"/.exec(value);
+    if (quotedMatches) {
+      value = quotedMatches[1];
+    }
+    return value.replace(/\\0a/ig, "\n").replace(/\\0d/ig, "\r").replace(/\\0g/ig, "	").replace(/\\(.)/g, "$1");
   }
   toArrayBuffer() {
     return AsnConvert.serialize(this.asn);
@@ -11927,20 +11865,20 @@ var UPN = "upn";
 var REGISTERED_ID = "id";
 var GeneralName3 = class extends AsnData {
   constructor(...args) {
-    let name;
+    let name3;
     if (args.length === 2) {
       switch (args[0]) {
         case DN: {
           const derName = new Name3(args[1]).toArrayBuffer();
           const asnName = AsnConvert.parse(derName, Name);
-          name = new GeneralName({ directoryName: asnName });
+          name3 = new GeneralName({ directoryName: asnName });
           break;
         }
         case DNS:
-          name = new GeneralName({ dNSName: args[1] });
+          name3 = new GeneralName({ dNSName: args[1] });
           break;
         case EMAIL:
-          name = new GeneralName({ rfc822Name: args[1] });
+          name3 = new GeneralName({ rfc822Name: args[1] });
           break;
         case GUID: {
           const matches = new RegExp(GUID_REGEX, "i").exec(args[1]);
@@ -11953,7 +11891,7 @@ var GeneralName3 = class extends AsnData {
             }
             return o;
           }).join("");
-          name = new GeneralName({
+          name3 = new GeneralName({
             otherName: new OtherName({
               typeId: id_GUID,
               value: AsnConvert.serialize(new OctetString2(import_pvtsutils6.Convert.FromHex(hex)))
@@ -11962,13 +11900,13 @@ var GeneralName3 = class extends AsnData {
           break;
         }
         case IP:
-          name = new GeneralName({ iPAddress: args[1] });
+          name3 = new GeneralName({ iPAddress: args[1] });
           break;
         case REGISTERED_ID:
-          name = new GeneralName({ registeredID: args[1] });
+          name3 = new GeneralName({ registeredID: args[1] });
           break;
         case UPN: {
-          name = new GeneralName({
+          name3 = new GeneralName({
             otherName: new OtherName({
               typeId: id_UPN,
               value: AsnConvert.serialize(AsnUtf8StringConverter.toASN(args[1]))
@@ -11977,17 +11915,17 @@ var GeneralName3 = class extends AsnData {
           break;
         }
         case URL:
-          name = new GeneralName({ uniformResourceIdentifier: args[1] });
+          name3 = new GeneralName({ uniformResourceIdentifier: args[1] });
           break;
         default:
           throw new Error("Cannot create GeneralName. Unsupported type of the name");
       }
     } else if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      name = AsnConvert.parse(args[0], GeneralName);
+      name3 = AsnConvert.parse(args[0], GeneralName);
     } else {
-      name = args[0];
+      name3 = args[0];
     }
-    super(name);
+    super(name3);
   }
   onInit(asn) {
     if (asn.dNSName != void 0) {
@@ -12070,11 +12008,11 @@ var GeneralNames3 = class extends AsnData {
       names2 = params;
     } else if (Array.isArray(params)) {
       const items = [];
-      for (const name of params) {
-        if (name instanceof GeneralName) {
-          items.push(name);
+      for (const name3 of params) {
+        if (name3 instanceof GeneralName) {
+          items.push(name3);
         } else {
-          const asnName = AsnConvert.parse(new GeneralName3(name.type, name.value).rawData, GeneralName);
+          const asnName = AsnConvert.parse(new GeneralName3(name3.type, name3.value).rawData, GeneralName);
           items.push(asnName);
         }
       }
@@ -12089,13 +12027,13 @@ var GeneralNames3 = class extends AsnData {
   onInit(asn) {
     const items = [];
     for (const asnName of asn) {
-      let name = null;
+      let name3 = null;
       try {
-        name = new GeneralName3(asnName);
+        name3 = new GeneralName3(asnName);
       } catch {
         continue;
       }
-      items.push(name);
+      items.push(name3);
     }
     this.items = items;
   }
@@ -12104,8 +12042,8 @@ var GeneralNames3 = class extends AsnData {
   }
   toTextObject() {
     const res = super.toTextObjectEmpty();
-    for (const name of this.items) {
-      const nameObj = name.toTextObject();
+    for (const name3 of this.items) {
+      const nameObj = name3.toTextObject();
       let field = res[nameObj[TextObject.NAME]];
       if (!Array.isArray(field)) {
         field = [];
@@ -12138,11 +12076,11 @@ var PemConverter = class {
     const res = [];
     let matches = null;
     while (matches = pattern.exec(pem)) {
-      const base64 = matches[3].replace(new RegExp(`[${rEolChars}]+`, "g"), "");
+      const base642 = matches[3].replace(new RegExp(`[${rEolChars}]+`, "g"), "");
       const pemStruct = {
         type: matches[1],
         headers: [],
-        rawData: import_pvtsutils6.Convert.FromBase64(base64)
+        rawData: import_pvtsutils6.Convert.FromBase64(base642)
       };
       const headersString = matches[2];
       if (headersString) {
@@ -12224,15 +12162,15 @@ var PemConverter = class {
       }
       res.push("");
     }
-    const base64 = import_pvtsutils6.Convert.ToBase64(pem.rawData);
+    const base642 = import_pvtsutils6.Convert.ToBase64(pem.rawData);
     let sliced;
     let offset = 0;
     const rows = Array();
-    while (offset < base64.length) {
-      if (base64.length - offset < 64) {
-        sliced = base64.substring(offset);
+    while (offset < base642.length) {
+      if (base642.length - offset < 64) {
+        sliced = base642.substring(offset);
       } else {
-        sliced = base64.substring(offset, offset + 64);
+        sliced = base642.substring(offset, offset + 64);
         offset += 64;
       }
       if (sliced.length !== 0) {
@@ -12292,16 +12230,33 @@ var PemData = class _PemData extends AsnData {
       super(args[0]);
     }
   }
-  toString(format2 = "pem") {
-    switch (format2) {
+  toString(format = "pem") {
+    switch (format) {
       case "pem":
         return PemConverter.encode(this.rawData, this.tag);
       default:
-        return super.toString(format2);
+        return super.toString(format);
     }
   }
 };
-var PublicKey = class extends PemData {
+var PublicKey = class _PublicKey extends PemData {
+  static async create(data, crypto2 = cryptoProvider.get()) {
+    if (data instanceof _PublicKey) {
+      return data;
+    } else if (CryptoProvider.isCryptoKey(data)) {
+      if (data.type !== "public") {
+        throw new TypeError("Public key is required");
+      }
+      const spki = await crypto2.subtle.exportKey("spki", data);
+      return new _PublicKey(spki);
+    } else if (data.publicKey) {
+      return data.publicKey;
+    } else if (import_pvtsutils6.BufferSourceConverter.isBufferSource(data)) {
+      return new _PublicKey(data);
+    } else {
+      throw new TypeError("Unsupported PublicKeyType");
+    }
+  }
   constructor(param) {
     if (PemData.isAsnEncoded(param)) {
       super(param, SubjectPublicKeyInfo);
@@ -12321,7 +12276,12 @@ var PublicKey = class extends PemData {
     } else {
       crypto2 = args[0] || cryptoProvider.get();
     }
-    return crypto2.subtle.importKey("spki", this.rawData, algorithm, true, keyUsages);
+    let raw = this.rawData;
+    const asnSpki = AsnConvert.parse(this.rawData, SubjectPublicKeyInfo);
+    if (asnSpki.algorithm.algorithm === id_RSASSA_PSS) {
+      raw = convertSpkiToRsaPkcs1(asnSpki, raw);
+    }
+    return crypto2.subtle.importKey("spki", raw, algorithm, true, keyUsages);
   }
   onInit(asn) {
     const algProv = instance.resolve(diAlgorithmProvider);
@@ -12348,12 +12308,24 @@ var PublicKey = class extends PemData {
     }
     return await crypto2.subtle.digest(algorithm, this.rawData);
   }
-  async getKeyIdentifier(crypto2) {
-    if (!crypto2) {
+  async getKeyIdentifier(...args) {
+    let crypto2;
+    let algorithm = "SHA-1";
+    if (args.length === 1) {
+      if (typeof args[0] === "string") {
+        algorithm = args[0];
+        crypto2 = cryptoProvider.get();
+      } else {
+        crypto2 = args[0];
+      }
+    } else if (args.length === 2) {
+      algorithm = args[0];
+      crypto2 = args[1];
+    } else {
       crypto2 = cryptoProvider.get();
     }
     const asn = AsnConvert.parse(this.rawData, SubjectPublicKeyInfo);
-    return await crypto2.subtle.digest("SHA-1", asn.subjectPublicKey);
+    return await crypto2.subtle.digest(algorithm, asn.subjectPublicKey);
   }
   toTextObject() {
     const obj = this.toTextObjectEmpty();
@@ -12370,6 +12342,206 @@ var PublicKey = class extends PemData {
     return obj;
   }
 };
+function convertSpkiToRsaPkcs1(asnSpki, raw) {
+  asnSpki.algorithm = new AlgorithmIdentifier({
+    algorithm: id_rsaEncryption,
+    parameters: null
+  });
+  raw = AsnConvert.serialize(asnSpki);
+  return raw;
+}
+var AuthorityKeyIdentifierExtension = class _AuthorityKeyIdentifierExtension extends Extension2 {
+  static async create(param, critical = false, crypto2 = cryptoProvider.get()) {
+    if ("name" in param && "serialNumber" in param) {
+      return new _AuthorityKeyIdentifierExtension(param, critical);
+    }
+    const key = await PublicKey.create(param, crypto2);
+    const id = await key.getKeyIdentifier(crypto2);
+    return new _AuthorityKeyIdentifierExtension(import_pvtsutils6.Convert.ToHex(id), critical);
+  }
+  constructor(...args) {
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+    } else if (typeof args[0] === "string") {
+      const value = new AuthorityKeyIdentifier({ keyIdentifier: new KeyIdentifier(import_pvtsutils6.Convert.FromHex(args[0])) });
+      super(id_ce_authorityKeyIdentifier, args[1], AsnConvert.serialize(value));
+    } else {
+      const certId = args[0];
+      const certIdName = certId.name instanceof GeneralNames3 ? AsnConvert.parse(certId.name.rawData, GeneralNames) : certId.name;
+      const value = new AuthorityKeyIdentifier({
+        authorityCertIssuer: certIdName,
+        authorityCertSerialNumber: import_pvtsutils6.Convert.FromHex(certId.serialNumber)
+      });
+      super(id_ce_authorityKeyIdentifier, args[1], AsnConvert.serialize(value));
+    }
+  }
+  onInit(asn) {
+    super.onInit(asn);
+    const aki = AsnConvert.parse(asn.extnValue, AuthorityKeyIdentifier);
+    if (aki.keyIdentifier) {
+      this.keyId = import_pvtsutils6.Convert.ToHex(aki.keyIdentifier);
+    }
+    if (aki.authorityCertIssuer || aki.authorityCertSerialNumber) {
+      this.certId = {
+        name: aki.authorityCertIssuer || [],
+        serialNumber: aki.authorityCertSerialNumber ? import_pvtsutils6.Convert.ToHex(aki.authorityCertSerialNumber) : ""
+      };
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    const asn = AsnConvert.parse(this.value, AuthorityKeyIdentifier);
+    if (asn.authorityCertIssuer) {
+      obj["Authority Issuer"] = new GeneralNames3(asn.authorityCertIssuer).toTextObject();
+    }
+    if (asn.authorityCertSerialNumber) {
+      obj["Authority Serial Number"] = asn.authorityCertSerialNumber;
+    }
+    if (asn.keyIdentifier) {
+      obj[""] = asn.keyIdentifier;
+    }
+    return obj;
+  }
+};
+AuthorityKeyIdentifierExtension.NAME = "Authority Key Identifier";
+var BasicConstraintsExtension = class extends Extension2 {
+  constructor(...args) {
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+      const value = AsnConvert.parse(this.value, BasicConstraints);
+      this.ca = value.cA;
+      this.pathLength = value.pathLenConstraint;
+    } else {
+      const value = new BasicConstraints({
+        cA: args[0],
+        pathLenConstraint: args[1]
+      });
+      super(id_ce_basicConstraints, args[2], AsnConvert.serialize(value));
+      this.ca = args[0];
+      this.pathLength = args[1];
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    if (this.ca) {
+      obj["CA"] = this.ca;
+    }
+    if (this.pathLength !== void 0) {
+      obj["Path Length"] = this.pathLength;
+    }
+    return obj;
+  }
+};
+BasicConstraintsExtension.NAME = "Basic Constraints";
+var ExtendedKeyUsage3;
+(function(ExtendedKeyUsage4) {
+  ExtendedKeyUsage4["serverAuth"] = "1.3.6.1.5.5.7.3.1";
+  ExtendedKeyUsage4["clientAuth"] = "1.3.6.1.5.5.7.3.2";
+  ExtendedKeyUsage4["codeSigning"] = "1.3.6.1.5.5.7.3.3";
+  ExtendedKeyUsage4["emailProtection"] = "1.3.6.1.5.5.7.3.4";
+  ExtendedKeyUsage4["timeStamping"] = "1.3.6.1.5.5.7.3.8";
+  ExtendedKeyUsage4["ocspSigning"] = "1.3.6.1.5.5.7.3.9";
+})(ExtendedKeyUsage3 || (ExtendedKeyUsage3 = {}));
+var ExtendedKeyUsageExtension = class extends Extension2 {
+  constructor(...args) {
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+      const value = AsnConvert.parse(this.value, ExtendedKeyUsage);
+      this.usages = value.map((o) => o);
+    } else {
+      const value = new ExtendedKeyUsage(args[0]);
+      super(id_ce_extKeyUsage, args[1], AsnConvert.serialize(value));
+      this.usages = args[0];
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    obj[""] = this.usages.map((o) => OidSerializer.toString(o)).join(", ");
+    return obj;
+  }
+};
+ExtendedKeyUsageExtension.NAME = "Extended Key Usages";
+var KeyUsageFlags2;
+(function(KeyUsageFlags3) {
+  KeyUsageFlags3[KeyUsageFlags3["digitalSignature"] = 1] = "digitalSignature";
+  KeyUsageFlags3[KeyUsageFlags3["nonRepudiation"] = 2] = "nonRepudiation";
+  KeyUsageFlags3[KeyUsageFlags3["keyEncipherment"] = 4] = "keyEncipherment";
+  KeyUsageFlags3[KeyUsageFlags3["dataEncipherment"] = 8] = "dataEncipherment";
+  KeyUsageFlags3[KeyUsageFlags3["keyAgreement"] = 16] = "keyAgreement";
+  KeyUsageFlags3[KeyUsageFlags3["keyCertSign"] = 32] = "keyCertSign";
+  KeyUsageFlags3[KeyUsageFlags3["cRLSign"] = 64] = "cRLSign";
+  KeyUsageFlags3[KeyUsageFlags3["encipherOnly"] = 128] = "encipherOnly";
+  KeyUsageFlags3[KeyUsageFlags3["decipherOnly"] = 256] = "decipherOnly";
+})(KeyUsageFlags2 || (KeyUsageFlags2 = {}));
+var KeyUsagesExtension = class extends Extension2 {
+  constructor(...args) {
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+      const value = AsnConvert.parse(this.value, KeyUsage);
+      this.usages = value.toNumber();
+    } else {
+      const value = new KeyUsage(args[0]);
+      super(id_ce_keyUsage, args[1], AsnConvert.serialize(value));
+      this.usages = args[0];
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    const asn = AsnConvert.parse(this.value, KeyUsage);
+    obj[""] = asn.toJSON().join(", ");
+    return obj;
+  }
+};
+KeyUsagesExtension.NAME = "Key Usages";
+var SubjectKeyIdentifierExtension = class _SubjectKeyIdentifierExtension extends Extension2 {
+  static async create(publicKey, critical = false, crypto2 = cryptoProvider.get()) {
+    const key = await PublicKey.create(publicKey, crypto2);
+    const id = await key.getKeyIdentifier(crypto2);
+    return new _SubjectKeyIdentifierExtension(import_pvtsutils6.Convert.ToHex(id), critical);
+  }
+  constructor(...args) {
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+      const value = AsnConvert.parse(this.value, SubjectKeyIdentifier);
+      this.keyId = import_pvtsutils6.Convert.ToHex(value);
+    } else {
+      const identifier = typeof args[0] === "string" ? import_pvtsutils6.Convert.FromHex(args[0]) : args[0];
+      const value = new SubjectKeyIdentifier(identifier);
+      super(id_ce_subjectKeyIdentifier, args[1], AsnConvert.serialize(value));
+      this.keyId = import_pvtsutils6.Convert.ToHex(identifier);
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    const asn = AsnConvert.parse(this.value, SubjectKeyIdentifier);
+    obj[""] = asn;
+    return obj;
+  }
+};
+SubjectKeyIdentifierExtension.NAME = "Subject Key Identifier";
+var SubjectAlternativeNameExtension = class extends Extension2 {
+  constructor(...args) {
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+    } else {
+      super(id_ce_subjectAltName, args[1], new GeneralNames3(args[0] || []).rawData);
+    }
+  }
+  onInit(asn) {
+    super.onInit(asn);
+    const value = AsnConvert.parse(asn.extnValue, SubjectAlternativeName);
+    this.names = new GeneralNames3(value);
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    const namesObj = this.names.toTextObject();
+    for (const key in namesObj) {
+      obj[key] = namesObj[key];
+    }
+    return obj;
+  }
+};
+SubjectAlternativeNameExtension.NAME = "Subject Alternative Name";
 var ExtensionFactory = class {
   static register(id, type) {
     this.items.set(id, type);
@@ -12384,6 +12556,278 @@ var ExtensionFactory = class {
   }
 };
 ExtensionFactory.items = /* @__PURE__ */ new Map();
+var CertificatePolicyExtension = class extends Extension2 {
+  constructor(...args) {
+    var _a3;
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+      const asnPolicies = AsnConvert.parse(this.value, CertificatePolicies);
+      this.policies = asnPolicies.map((o) => o.policyIdentifier);
+    } else {
+      const policies = args[0];
+      const critical = (_a3 = args[1]) !== null && _a3 !== void 0 ? _a3 : false;
+      const value = new CertificatePolicies(policies.map((o) => new PolicyInformation({
+        policyIdentifier: o
+      })));
+      super(id_ce_certificatePolicies, critical, AsnConvert.serialize(value));
+      this.policies = policies;
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    obj["Policy"] = this.policies.map((o) => new TextObject("", {}, OidSerializer.toString(o)));
+    return obj;
+  }
+};
+CertificatePolicyExtension.NAME = "Certificate Policies";
+ExtensionFactory.register(id_ce_certificatePolicies, CertificatePolicyExtension);
+var CRLDistributionPointsExtension = class extends Extension2 {
+  constructor(...args) {
+    var _a3;
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+    } else if (Array.isArray(args[0]) && typeof args[0][0] === "string") {
+      const urls = args[0];
+      const dps = urls.map((url) => {
+        return new DistributionPoint({
+          distributionPoint: new DistributionPointName({
+            fullName: [new GeneralName({ uniformResourceIdentifier: url })]
+          })
+        });
+      });
+      const value = new CRLDistributionPoints(dps);
+      super(id_ce_cRLDistributionPoints, args[1], AsnConvert.serialize(value));
+    } else {
+      const value = new CRLDistributionPoints(args[0]);
+      super(id_ce_cRLDistributionPoints, args[1], AsnConvert.serialize(value));
+    }
+    (_a3 = this.distributionPoints) !== null && _a3 !== void 0 ? _a3 : this.distributionPoints = [];
+  }
+  onInit(asn) {
+    super.onInit(asn);
+    const crlExt = AsnConvert.parse(asn.extnValue, CRLDistributionPoints);
+    this.distributionPoints = crlExt;
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    obj["Distribution Point"] = this.distributionPoints.map((dp) => {
+      var _a3;
+      const dpObj = {};
+      if (dp.distributionPoint) {
+        dpObj[""] = (_a3 = dp.distributionPoint.fullName) === null || _a3 === void 0 ? void 0 : _a3.map((name3) => new GeneralName3(name3).toString()).join(", ");
+      }
+      if (dp.reasons) {
+        dpObj["Reasons"] = dp.reasons.toString();
+      }
+      if (dp.cRLIssuer) {
+        dpObj["CRL Issuer"] = dp.cRLIssuer.map((issuer) => issuer.toString()).join(", ");
+      }
+      return dpObj;
+    });
+    return obj;
+  }
+};
+CRLDistributionPointsExtension.NAME = "CRL Distribution Points";
+var AuthorityInfoAccessExtension = class extends Extension2 {
+  constructor(...args) {
+    var _a3, _b, _c, _d;
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+    } else if (args[0] instanceof AuthorityInfoAccessSyntax) {
+      const value = new AuthorityInfoAccessSyntax(args[0]);
+      super(id_pe_authorityInfoAccess, args[1], AsnConvert.serialize(value));
+    } else {
+      const params = args[0];
+      const value = new AuthorityInfoAccessSyntax();
+      addAccessDescriptions(value, params, id_ad_ocsp, "ocsp");
+      addAccessDescriptions(value, params, id_ad_caIssuers, "caIssuers");
+      addAccessDescriptions(value, params, id_ad_timeStamping, "timeStamping");
+      addAccessDescriptions(value, params, id_ad_caRepository, "caRepository");
+      super(id_pe_authorityInfoAccess, args[1], AsnConvert.serialize(value));
+    }
+    (_a3 = this.ocsp) !== null && _a3 !== void 0 ? _a3 : this.ocsp = [];
+    (_b = this.caIssuers) !== null && _b !== void 0 ? _b : this.caIssuers = [];
+    (_c = this.timeStamping) !== null && _c !== void 0 ? _c : this.timeStamping = [];
+    (_d = this.caRepository) !== null && _d !== void 0 ? _d : this.caRepository = [];
+  }
+  onInit(asn) {
+    super.onInit(asn);
+    this.ocsp = [];
+    this.caIssuers = [];
+    this.timeStamping = [];
+    this.caRepository = [];
+    const aia = AsnConvert.parse(asn.extnValue, AuthorityInfoAccessSyntax);
+    aia.forEach((accessDescription) => {
+      switch (accessDescription.accessMethod) {
+        case id_ad_ocsp:
+          this.ocsp.push(new GeneralName3(accessDescription.accessLocation));
+          break;
+        case id_ad_caIssuers:
+          this.caIssuers.push(new GeneralName3(accessDescription.accessLocation));
+          break;
+        case id_ad_timeStamping:
+          this.timeStamping.push(new GeneralName3(accessDescription.accessLocation));
+          break;
+        case id_ad_caRepository:
+          this.caRepository.push(new GeneralName3(accessDescription.accessLocation));
+          break;
+      }
+    });
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    if (this.ocsp.length) {
+      addUrlsToObject(obj, "OCSP", this.ocsp);
+    }
+    if (this.caIssuers.length) {
+      addUrlsToObject(obj, "CA Issuers", this.caIssuers);
+    }
+    if (this.timeStamping.length) {
+      addUrlsToObject(obj, "Time Stamping", this.timeStamping);
+    }
+    if (this.caRepository.length) {
+      addUrlsToObject(obj, "CA Repository", this.caRepository);
+    }
+    return obj;
+  }
+};
+AuthorityInfoAccessExtension.NAME = "Authority Info Access";
+function addUrlsToObject(obj, key, urls) {
+  if (urls.length === 1) {
+    obj[key] = urls[0].toTextObject();
+  } else {
+    const names2 = new TextObject("");
+    urls.forEach((name3, index) => {
+      const nameObj = name3.toTextObject();
+      const indexedKey = `${nameObj[TextObject.NAME]} ${index + 1}`;
+      let field = names2[indexedKey];
+      if (!Array.isArray(field)) {
+        field = [];
+        names2[indexedKey] = field;
+      }
+      field.push(nameObj);
+    });
+    obj[key] = names2;
+  }
+}
+function addAccessDescriptions(value, params, method, key) {
+  const items = params[key];
+  if (items) {
+    const array = Array.isArray(items) ? items : [items];
+    array.forEach((url) => {
+      if (typeof url === "string") {
+        url = new GeneralName3("url", url);
+      }
+      value.push(new AccessDescription({
+        accessMethod: method,
+        accessLocation: AsnConvert.parse(url.rawData, GeneralName)
+      }));
+    });
+  }
+}
+var Attribute3 = class _Attribute extends AsnData {
+  constructor(...args) {
+    let raw;
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      raw = import_pvtsutils6.BufferSourceConverter.toArrayBuffer(args[0]);
+    } else {
+      const type = args[0];
+      const values = Array.isArray(args[1]) ? args[1].map((o) => import_pvtsutils6.BufferSourceConverter.toArrayBuffer(o)) : [];
+      raw = AsnConvert.serialize(new Attribute({ type, values }));
+    }
+    super(raw, Attribute);
+  }
+  onInit(asn) {
+    this.type = asn.type;
+    this.values = asn.values;
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    obj["Value"] = this.values.map((o) => new TextObject("", { "": o }));
+    return obj;
+  }
+  toTextObjectWithoutValue() {
+    const obj = this.toTextObjectEmpty();
+    if (obj[TextObject.NAME] === _Attribute.NAME) {
+      obj[TextObject.NAME] = OidSerializer.toString(this.type);
+    }
+    return obj;
+  }
+};
+Attribute3.NAME = "Attribute";
+var ChallengePasswordAttribute = class extends Attribute3 {
+  constructor(...args) {
+    var _a3;
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+    } else {
+      const value = new ChallengePassword({
+        printableString: args[0]
+      });
+      super(id_pkcs9_at_challengePassword, [AsnConvert.serialize(value)]);
+    }
+    (_a3 = this.password) !== null && _a3 !== void 0 ? _a3 : this.password = "";
+  }
+  onInit(asn) {
+    super.onInit(asn);
+    if (this.values[0]) {
+      const value = AsnConvert.parse(this.values[0], ChallengePassword);
+      this.password = value.toString();
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    obj[TextObject.VALUE] = this.password;
+    return obj;
+  }
+};
+ChallengePasswordAttribute.NAME = "Challenge Password";
+var ExtensionsAttribute = class extends Attribute3 {
+  constructor(...args) {
+    var _a3;
+    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
+      super(args[0]);
+    } else {
+      const extensions = args[0];
+      const value = new Extensions();
+      for (const extension of extensions) {
+        value.push(AsnConvert.parse(extension.rawData, Extension));
+      }
+      super(id_pkcs9_at_extensionRequest, [AsnConvert.serialize(value)]);
+    }
+    (_a3 = this.items) !== null && _a3 !== void 0 ? _a3 : this.items = [];
+  }
+  onInit(asn) {
+    super.onInit(asn);
+    if (this.values[0]) {
+      const value = AsnConvert.parse(this.values[0], Extensions);
+      this.items = value.map((o) => ExtensionFactory.create(AsnConvert.serialize(o)));
+    }
+  }
+  toTextObject() {
+    const obj = this.toTextObjectWithoutValue();
+    const extensions = this.items.map((o) => o.toTextObject());
+    for (const extension of extensions) {
+      obj[extension[TextObject.NAME]] = extension;
+    }
+    return obj;
+  }
+};
+ExtensionsAttribute.NAME = "Extensions";
+var AttributeFactory = class {
+  static register(id, type) {
+    this.items.set(id, type);
+  }
+  static create(data) {
+    const attribute = new Attribute3(data);
+    const Type = this.items.get(attribute.type);
+    if (Type) {
+      return new Type(data);
+    }
+    return attribute;
+  }
+};
+AttributeFactory.items = /* @__PURE__ */ new Map();
 var diAsnSignatureFormatter = "crypto.signatureFormatter";
 var AsnDefaultSignatureFormatter = class {
   toAsnSignature(algorithm, signature) {
@@ -12393,6 +12837,336 @@ var AsnDefaultSignatureFormatter = class {
     return import_pvtsutils6.BufferSourceConverter.toArrayBuffer(signature);
   }
 };
+var RsaAlgorithm_1;
+var RsaAlgorithm = RsaAlgorithm_1 = class RsaAlgorithm2 {
+  static createPssParams(hash, saltLength) {
+    const hashAlgorithm = RsaAlgorithm_1.getHashAlgorithm(hash);
+    if (!hashAlgorithm) {
+      return null;
+    }
+    return new RsaSaPssParams({
+      hashAlgorithm,
+      maskGenAlgorithm: new AlgorithmIdentifier({
+        algorithm: id_mgf1,
+        parameters: AsnConvert.serialize(hashAlgorithm)
+      }),
+      saltLength
+    });
+  }
+  static getHashAlgorithm(alg) {
+    const algProv = instance.resolve(diAlgorithmProvider);
+    if (typeof alg === "string") {
+      return algProv.toAsnAlgorithm({ name: alg });
+    }
+    if (typeof alg === "object" && alg && "name" in alg) {
+      return algProv.toAsnAlgorithm(alg);
+    }
+    return null;
+  }
+  toAsnAlgorithm(alg) {
+    switch (alg.name.toLowerCase()) {
+      case "rsassa-pkcs1-v1_5":
+        if ("hash" in alg) {
+          let hash;
+          if (typeof alg.hash === "string") {
+            hash = alg.hash;
+          } else if (alg.hash && typeof alg.hash === "object" && "name" in alg.hash && typeof alg.hash.name === "string") {
+            hash = alg.hash.name.toUpperCase();
+          } else {
+            throw new Error("Cannot get hash algorithm name");
+          }
+          switch (hash.toLowerCase()) {
+            case "sha-1":
+              return new AlgorithmIdentifier({ algorithm: id_sha1WithRSAEncryption, parameters: null });
+            case "sha-256":
+              return new AlgorithmIdentifier({ algorithm: id_sha256WithRSAEncryption, parameters: null });
+            case "sha-384":
+              return new AlgorithmIdentifier({ algorithm: id_sha384WithRSAEncryption, parameters: null });
+            case "sha-512":
+              return new AlgorithmIdentifier({ algorithm: id_sha512WithRSAEncryption, parameters: null });
+          }
+        } else {
+          return new AlgorithmIdentifier({ algorithm: id_rsaEncryption, parameters: null });
+        }
+        break;
+      case "rsa-pss":
+        if ("hash" in alg) {
+          if (!("saltLength" in alg && typeof alg.saltLength === "number")) {
+            throw new Error("Cannot get 'saltLength' from 'alg' argument");
+          }
+          const pssParams = RsaAlgorithm_1.createPssParams(alg.hash, alg.saltLength);
+          if (!pssParams) {
+            throw new Error("Cannot create PSS parameters");
+          }
+          return new AlgorithmIdentifier({ algorithm: id_RSASSA_PSS, parameters: AsnConvert.serialize(pssParams) });
+        } else {
+          return new AlgorithmIdentifier({ algorithm: id_RSASSA_PSS, parameters: null });
+        }
+    }
+    return null;
+  }
+  toWebAlgorithm(alg) {
+    switch (alg.algorithm) {
+      case id_rsaEncryption:
+        return { name: "RSASSA-PKCS1-v1_5" };
+      case id_sha1WithRSAEncryption:
+        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-1" } };
+      case id_sha256WithRSAEncryption:
+        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-256" } };
+      case id_sha384WithRSAEncryption:
+        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-384" } };
+      case id_sha512WithRSAEncryption:
+        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-512" } };
+      case id_RSASSA_PSS:
+        if (alg.parameters) {
+          const pssParams = AsnConvert.parse(alg.parameters, RsaSaPssParams);
+          const algProv = instance.resolve(diAlgorithmProvider);
+          const hashAlg = algProv.toWebAlgorithm(pssParams.hashAlgorithm);
+          return {
+            name: "RSA-PSS",
+            hash: hashAlg,
+            saltLength: pssParams.saltLength
+          };
+        } else {
+          return { name: "RSA-PSS" };
+        }
+    }
+    return null;
+  }
+};
+RsaAlgorithm = RsaAlgorithm_1 = __decorate([
+  injectable_default()
+], RsaAlgorithm);
+instance.registerSingleton(diAlgorithm, RsaAlgorithm);
+var ShaAlgorithm = class ShaAlgorithm2 {
+  toAsnAlgorithm(alg) {
+    switch (alg.name.toLowerCase()) {
+      case "sha-1":
+        return new AlgorithmIdentifier({ algorithm: id_sha1 });
+      case "sha-256":
+        return new AlgorithmIdentifier({ algorithm: id_sha256 });
+      case "sha-384":
+        return new AlgorithmIdentifier({ algorithm: id_sha384 });
+      case "sha-512":
+        return new AlgorithmIdentifier({ algorithm: id_sha512 });
+    }
+    return null;
+  }
+  toWebAlgorithm(alg) {
+    switch (alg.algorithm) {
+      case id_sha1:
+        return { name: "SHA-1" };
+      case id_sha256:
+        return { name: "SHA-256" };
+      case id_sha384:
+        return { name: "SHA-384" };
+      case id_sha512:
+        return { name: "SHA-512" };
+    }
+    return null;
+  }
+};
+ShaAlgorithm = __decorate([
+  injectable_default()
+], ShaAlgorithm);
+instance.registerSingleton(diAlgorithm, ShaAlgorithm);
+var AsnEcSignatureFormatter = class _AsnEcSignatureFormatter {
+  addPadding(pointSize, data) {
+    const bytes = import_pvtsutils6.BufferSourceConverter.toUint8Array(data);
+    const res = new Uint8Array(pointSize);
+    res.set(bytes, pointSize - bytes.length);
+    return res;
+  }
+  removePadding(data, positive = false) {
+    let bytes = import_pvtsutils6.BufferSourceConverter.toUint8Array(data);
+    for (let i = 0; i < bytes.length; i++) {
+      if (!bytes[i]) {
+        continue;
+      }
+      bytes = bytes.slice(i);
+      break;
+    }
+    if (positive && bytes[0] > 127) {
+      const result = new Uint8Array(bytes.length + 1);
+      result.set(bytes, 1);
+      return result.buffer;
+    }
+    return bytes.buffer;
+  }
+  toAsnSignature(algorithm, signature) {
+    if (algorithm.name === "ECDSA") {
+      const namedCurve = algorithm.namedCurve;
+      const pointSize = _AsnEcSignatureFormatter.namedCurveSize.get(namedCurve) || _AsnEcSignatureFormatter.defaultNamedCurveSize;
+      const ecSignature = new ECDSASigValue();
+      const uint8Signature = import_pvtsutils6.BufferSourceConverter.toUint8Array(signature);
+      ecSignature.r = this.removePadding(uint8Signature.slice(0, pointSize), true);
+      ecSignature.s = this.removePadding(uint8Signature.slice(pointSize, pointSize + pointSize), true);
+      return AsnConvert.serialize(ecSignature);
+    }
+    return null;
+  }
+  toWebSignature(algorithm, signature) {
+    if (algorithm.name === "ECDSA") {
+      const ecSigValue = AsnConvert.parse(signature, ECDSASigValue);
+      const namedCurve = algorithm.namedCurve;
+      const pointSize = _AsnEcSignatureFormatter.namedCurveSize.get(namedCurve) || _AsnEcSignatureFormatter.defaultNamedCurveSize;
+      const r = this.addPadding(pointSize, this.removePadding(ecSigValue.r));
+      const s = this.addPadding(pointSize, this.removePadding(ecSigValue.s));
+      return (0, import_pvtsutils6.combine)(r, s);
+    }
+    return null;
+  }
+};
+AsnEcSignatureFormatter.namedCurveSize = /* @__PURE__ */ new Map();
+AsnEcSignatureFormatter.defaultNamedCurveSize = 32;
+var idX25519 = "1.3.101.110";
+var idX448 = "1.3.101.111";
+var idEd25519 = "1.3.101.112";
+var idEd448 = "1.3.101.113";
+var EdAlgorithm = class EdAlgorithm2 {
+  toAsnAlgorithm(alg) {
+    let algorithm = null;
+    switch (alg.name.toLowerCase()) {
+      case "ed25519":
+        algorithm = idEd25519;
+        break;
+      case "x25519":
+        algorithm = idX25519;
+        break;
+      case "eddsa":
+        switch (alg.namedCurve.toLowerCase()) {
+          case "ed25519":
+            algorithm = idEd25519;
+            break;
+          case "ed448":
+            algorithm = idEd448;
+            break;
+        }
+        break;
+      case "ecdh-es":
+        switch (alg.namedCurve.toLowerCase()) {
+          case "x25519":
+            algorithm = idX25519;
+            break;
+          case "x448":
+            algorithm = idX448;
+            break;
+        }
+    }
+    if (algorithm) {
+      return new AlgorithmIdentifier({
+        algorithm
+      });
+    }
+    return null;
+  }
+  toWebAlgorithm(alg) {
+    switch (alg.algorithm) {
+      case idEd25519:
+        return { name: "Ed25519" };
+      case idEd448:
+        return { name: "EdDSA", namedCurve: "Ed448" };
+      case idX25519:
+        return { name: "X25519" };
+      case idX448:
+        return { name: "ECDH-ES", namedCurve: "X448" };
+    }
+    return null;
+  }
+};
+EdAlgorithm = __decorate([
+  injectable_default()
+], EdAlgorithm);
+instance.registerSingleton(diAlgorithm, EdAlgorithm);
+var Pkcs10CertificateRequest = class extends PemData {
+  constructor(param) {
+    if (PemData.isAsnEncoded(param)) {
+      super(param, CertificationRequest);
+    } else {
+      super(param);
+    }
+    this.tag = PemConverter.CertificateRequestTag;
+  }
+  onInit(asn) {
+    this.tbs = AsnConvert.serialize(asn.certificationRequestInfo);
+    this.publicKey = new PublicKey(asn.certificationRequestInfo.subjectPKInfo);
+    const algProv = instance.resolve(diAlgorithmProvider);
+    this.signatureAlgorithm = algProv.toWebAlgorithm(asn.signatureAlgorithm);
+    this.signature = asn.signature;
+    this.attributes = asn.certificationRequestInfo.attributes.map((o) => AttributeFactory.create(AsnConvert.serialize(o)));
+    const extensions = this.getAttribute(id_pkcs9_at_extensionRequest);
+    this.extensions = [];
+    if (extensions instanceof ExtensionsAttribute) {
+      this.extensions = extensions.items;
+    }
+    this.subjectName = new Name3(asn.certificationRequestInfo.subject);
+    this.subject = this.subjectName.toString();
+  }
+  getAttribute(type) {
+    for (const attr of this.attributes) {
+      if (attr.type === type) {
+        return attr;
+      }
+    }
+    return null;
+  }
+  getAttributes(type) {
+    return this.attributes.filter((o) => o.type === type);
+  }
+  getExtension(type) {
+    for (const ext of this.extensions) {
+      if (ext.type === type) {
+        return ext;
+      }
+    }
+    return null;
+  }
+  getExtensions(type) {
+    return this.extensions.filter((o) => o.type === type);
+  }
+  async verify(crypto2 = cryptoProvider.get()) {
+    const algorithm = { ...this.publicKey.algorithm, ...this.signatureAlgorithm };
+    const publicKey = await this.publicKey.export(algorithm, ["verify"], crypto2);
+    const signatureFormatters = instance.resolveAll(diAsnSignatureFormatter).reverse();
+    let signature = null;
+    for (const signatureFormatter of signatureFormatters) {
+      signature = signatureFormatter.toWebSignature(algorithm, this.signature);
+      if (signature) {
+        break;
+      }
+    }
+    if (!signature) {
+      throw Error("Cannot convert WebCrypto signature value to ASN.1 format");
+    }
+    const ok = await crypto2.subtle.verify(this.signatureAlgorithm, publicKey, signature, this.tbs);
+    return ok;
+  }
+  toTextObject() {
+    const obj = this.toTextObjectEmpty();
+    const req = AsnConvert.parse(this.rawData, CertificationRequest);
+    const tbs = req.certificationRequestInfo;
+    const data = new TextObject("", {
+      "Version": `${Version[tbs.version]} (${tbs.version})`,
+      "Subject": this.subject,
+      "Subject Public Key Info": this.publicKey
+    });
+    if (this.attributes.length) {
+      const attrs = new TextObject("");
+      for (const ext of this.attributes) {
+        const attrObj = ext.toTextObject();
+        attrs[attrObj[TextObject.NAME]] = attrObj;
+      }
+      data["Attributes"] = attrs;
+    }
+    obj["Data"] = data;
+    obj["Signature"] = new TextObject("", {
+      "Algorithm": TextConverter.serializeAlgorithm(req.signatureAlgorithm),
+      "": req.signature
+    });
+    return obj;
+  }
+};
+Pkcs10CertificateRequest.NAME = "PKCS#10 Certificate Request";
 var X509Certificate = class extends PemData {
   constructor(param) {
     if (PemData.isAsnEncoded(param)) {
@@ -12553,579 +13327,6 @@ var X509Certificate = class extends PemData {
   }
 };
 X509Certificate.NAME = "Certificate";
-var AuthorityKeyIdentifierExtension = class _AuthorityKeyIdentifierExtension extends Extension2 {
-  static async create(param, critical = false, crypto2 = cryptoProvider.get()) {
-    if (param instanceof X509Certificate || CryptoProvider.isCryptoKey(param)) {
-      const publicKey = param instanceof X509Certificate ? await param.publicKey.export(crypto2) : param;
-      const spki = await crypto2.subtle.exportKey("spki", publicKey);
-      const key = new PublicKey(spki);
-      const id = await key.getKeyIdentifier(crypto2);
-      return new _AuthorityKeyIdentifierExtension(import_pvtsutils6.Convert.ToHex(id), critical);
-    } else {
-      return new _AuthorityKeyIdentifierExtension(param, critical);
-    }
-  }
-  constructor(...args) {
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-    } else if (typeof args[0] === "string") {
-      const value = new AuthorityKeyIdentifier({ keyIdentifier: new KeyIdentifier(import_pvtsutils6.Convert.FromHex(args[0])) });
-      super(id_ce_authorityKeyIdentifier, args[1], AsnConvert.serialize(value));
-    } else {
-      const certId = args[0];
-      const certIdName = certId.name instanceof GeneralNames3 ? AsnConvert.parse(certId.name.rawData, GeneralNames) : certId.name;
-      const value = new AuthorityKeyIdentifier({
-        authorityCertIssuer: certIdName,
-        authorityCertSerialNumber: import_pvtsutils6.Convert.FromHex(certId.serialNumber)
-      });
-      super(id_ce_authorityKeyIdentifier, args[1], AsnConvert.serialize(value));
-    }
-  }
-  onInit(asn) {
-    super.onInit(asn);
-    const aki = AsnConvert.parse(asn.extnValue, AuthorityKeyIdentifier);
-    if (aki.keyIdentifier) {
-      this.keyId = import_pvtsutils6.Convert.ToHex(aki.keyIdentifier);
-    }
-    if (aki.authorityCertIssuer && aki.authorityCertSerialNumber) {
-      this.certId = {
-        name: aki.authorityCertIssuer,
-        serialNumber: import_pvtsutils6.Convert.ToHex(aki.authorityCertSerialNumber)
-      };
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    const asn = AsnConvert.parse(this.value, AuthorityKeyIdentifier);
-    if (asn.authorityCertIssuer) {
-      obj["Authority Issuer"] = new GeneralNames3(asn.authorityCertIssuer).toTextObject();
-    }
-    if (asn.authorityCertSerialNumber) {
-      obj["Authority Serial Number"] = asn.authorityCertSerialNumber;
-    }
-    if (asn.keyIdentifier) {
-      obj[""] = asn.keyIdentifier;
-    }
-    return obj;
-  }
-};
-AuthorityKeyIdentifierExtension.NAME = "Authority Key Identifier";
-var BasicConstraintsExtension = class extends Extension2 {
-  constructor(...args) {
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-      const value = AsnConvert.parse(this.value, BasicConstraints);
-      this.ca = value.cA;
-      this.pathLength = value.pathLenConstraint;
-    } else {
-      const value = new BasicConstraints({
-        cA: args[0],
-        pathLenConstraint: args[1]
-      });
-      super(id_ce_basicConstraints, args[2], AsnConvert.serialize(value));
-      this.ca = args[0];
-      this.pathLength = args[1];
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    if (this.ca) {
-      obj["CA"] = this.ca;
-    }
-    if (this.pathLength !== void 0) {
-      obj["Path Length"] = this.pathLength;
-    }
-    return obj;
-  }
-};
-BasicConstraintsExtension.NAME = "Basic Constraints";
-var ExtendedKeyUsage3;
-(function(ExtendedKeyUsage4) {
-  ExtendedKeyUsage4["serverAuth"] = "1.3.6.1.5.5.7.3.1";
-  ExtendedKeyUsage4["clientAuth"] = "1.3.6.1.5.5.7.3.2";
-  ExtendedKeyUsage4["codeSigning"] = "1.3.6.1.5.5.7.3.3";
-  ExtendedKeyUsage4["emailProtection"] = "1.3.6.1.5.5.7.3.4";
-  ExtendedKeyUsage4["timeStamping"] = "1.3.6.1.5.5.7.3.8";
-  ExtendedKeyUsage4["ocspSigning"] = "1.3.6.1.5.5.7.3.9";
-})(ExtendedKeyUsage3 || (ExtendedKeyUsage3 = {}));
-var ExtendedKeyUsageExtension = class extends Extension2 {
-  constructor(...args) {
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-      const value = AsnConvert.parse(this.value, ExtendedKeyUsage);
-      this.usages = value.map((o) => o);
-    } else {
-      const value = new ExtendedKeyUsage(args[0]);
-      super(id_ce_extKeyUsage, args[1], AsnConvert.serialize(value));
-      this.usages = args[0];
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    obj[""] = this.usages.map((o) => OidSerializer.toString(o)).join(", ");
-    return obj;
-  }
-};
-ExtendedKeyUsageExtension.NAME = "Extended Key Usages";
-var KeyUsageFlags2;
-(function(KeyUsageFlags3) {
-  KeyUsageFlags3[KeyUsageFlags3["digitalSignature"] = 1] = "digitalSignature";
-  KeyUsageFlags3[KeyUsageFlags3["nonRepudiation"] = 2] = "nonRepudiation";
-  KeyUsageFlags3[KeyUsageFlags3["keyEncipherment"] = 4] = "keyEncipherment";
-  KeyUsageFlags3[KeyUsageFlags3["dataEncipherment"] = 8] = "dataEncipherment";
-  KeyUsageFlags3[KeyUsageFlags3["keyAgreement"] = 16] = "keyAgreement";
-  KeyUsageFlags3[KeyUsageFlags3["keyCertSign"] = 32] = "keyCertSign";
-  KeyUsageFlags3[KeyUsageFlags3["cRLSign"] = 64] = "cRLSign";
-  KeyUsageFlags3[KeyUsageFlags3["encipherOnly"] = 128] = "encipherOnly";
-  KeyUsageFlags3[KeyUsageFlags3["decipherOnly"] = 256] = "decipherOnly";
-})(KeyUsageFlags2 || (KeyUsageFlags2 = {}));
-var KeyUsagesExtension = class extends Extension2 {
-  constructor(...args) {
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-      const value = AsnConvert.parse(this.value, KeyUsage);
-      this.usages = value.toNumber();
-    } else {
-      const value = new KeyUsage(args[0]);
-      super(id_ce_keyUsage, args[1], AsnConvert.serialize(value));
-      this.usages = args[0];
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    const asn = AsnConvert.parse(this.value, KeyUsage);
-    obj[""] = asn.toJSON().join(", ");
-    return obj;
-  }
-};
-KeyUsagesExtension.NAME = "Key Usages";
-var SubjectKeyIdentifierExtension = class _SubjectKeyIdentifierExtension extends Extension2 {
-  static async create(publicKey, critical = false, crypto2 = cryptoProvider.get()) {
-    let spki;
-    if (publicKey instanceof PublicKey) {
-      spki = publicKey.rawData;
-    } else if ("publicKey" in publicKey) {
-      spki = publicKey.publicKey.rawData;
-    } else if (import_pvtsutils6.BufferSourceConverter.isBufferSource(publicKey)) {
-      spki = publicKey;
-    } else {
-      spki = await crypto2.subtle.exportKey("spki", publicKey);
-    }
-    const key = new PublicKey(spki);
-    const id = await key.getKeyIdentifier(crypto2);
-    return new _SubjectKeyIdentifierExtension(import_pvtsutils6.Convert.ToHex(id), critical);
-  }
-  constructor(...args) {
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-      const value = AsnConvert.parse(this.value, SubjectKeyIdentifier);
-      this.keyId = import_pvtsutils6.Convert.ToHex(value);
-    } else {
-      const identifier = typeof args[0] === "string" ? import_pvtsutils6.Convert.FromHex(args[0]) : args[0];
-      const value = new SubjectKeyIdentifier(identifier);
-      super(id_ce_subjectKeyIdentifier, args[1], AsnConvert.serialize(value));
-      this.keyId = import_pvtsutils6.Convert.ToHex(identifier);
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    const asn = AsnConvert.parse(this.value, SubjectKeyIdentifier);
-    obj[""] = asn;
-    return obj;
-  }
-};
-SubjectKeyIdentifierExtension.NAME = "Subject Key Identifier";
-var SubjectAlternativeNameExtension = class extends Extension2 {
-  constructor(...args) {
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-    } else {
-      super(id_ce_subjectAltName, args[1], new GeneralNames3(args[0] || []).rawData);
-    }
-  }
-  onInit(asn) {
-    super.onInit(asn);
-    const value = AsnConvert.parse(asn.extnValue, SubjectAlternativeName);
-    this.names = new GeneralNames3(value);
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    const namesObj = this.names.toTextObject();
-    for (const key in namesObj) {
-      obj[key] = namesObj[key];
-    }
-    return obj;
-  }
-};
-SubjectAlternativeNameExtension.NAME = "Subject Alternative Name";
-var CertificatePolicyExtension = class extends Extension2 {
-  constructor(...args) {
-    var _a3;
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-      const asnPolicies = AsnConvert.parse(this.value, CertificatePolicies);
-      this.policies = asnPolicies.map((o) => o.policyIdentifier);
-    } else {
-      const policies = args[0];
-      const critical = (_a3 = args[1]) !== null && _a3 !== void 0 ? _a3 : false;
-      const value = new CertificatePolicies(policies.map((o) => new PolicyInformation({
-        policyIdentifier: o
-      })));
-      super(id_ce_certificatePolicies, critical, AsnConvert.serialize(value));
-      this.policies = policies;
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    obj["Policy"] = this.policies.map((o) => new TextObject("", {}, OidSerializer.toString(o)));
-    return obj;
-  }
-};
-CertificatePolicyExtension.NAME = "Certificate Policies";
-ExtensionFactory.register(id_ce_certificatePolicies, CertificatePolicyExtension);
-var Attribute3 = class _Attribute extends AsnData {
-  constructor(...args) {
-    let raw;
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      raw = import_pvtsutils6.BufferSourceConverter.toArrayBuffer(args[0]);
-    } else {
-      const type = args[0];
-      const values = Array.isArray(args[1]) ? args[1].map((o) => import_pvtsutils6.BufferSourceConverter.toArrayBuffer(o)) : [];
-      raw = AsnConvert.serialize(new Attribute({ type, values }));
-    }
-    super(raw, Attribute);
-  }
-  onInit(asn) {
-    this.type = asn.type;
-    this.values = asn.values;
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    obj["Value"] = this.values.map((o) => new TextObject("", { "": o }));
-    return obj;
-  }
-  toTextObjectWithoutValue() {
-    const obj = this.toTextObjectEmpty();
-    if (obj[TextObject.NAME] === _Attribute.NAME) {
-      obj[TextObject.NAME] = OidSerializer.toString(this.type);
-    }
-    return obj;
-  }
-};
-Attribute3.NAME = "Attribute";
-var ChallengePasswordAttribute = class extends Attribute3 {
-  constructor(...args) {
-    var _a3;
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-    } else {
-      const value = new ChallengePassword({
-        printableString: args[0]
-      });
-      super(id_pkcs9_at_challengePassword, [AsnConvert.serialize(value)]);
-    }
-    (_a3 = this.password) !== null && _a3 !== void 0 ? _a3 : this.password = "";
-  }
-  onInit(asn) {
-    super.onInit(asn);
-    if (this.values[0]) {
-      const value = AsnConvert.parse(this.values[0], ChallengePassword);
-      this.password = value.toString();
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    obj[TextObject.VALUE] = this.password;
-    return obj;
-  }
-};
-ChallengePasswordAttribute.NAME = "Challenge Password";
-var ExtensionsAttribute = class extends Attribute3 {
-  constructor(...args) {
-    var _a3;
-    if (import_pvtsutils6.BufferSourceConverter.isBufferSource(args[0])) {
-      super(args[0]);
-    } else {
-      const extensions = args[0];
-      const value = new Extensions();
-      for (const extension of extensions) {
-        value.push(AsnConvert.parse(extension.rawData, Extension));
-      }
-      super(id_pkcs9_at_extensionRequest, [AsnConvert.serialize(value)]);
-    }
-    (_a3 = this.items) !== null && _a3 !== void 0 ? _a3 : this.items = [];
-  }
-  onInit(asn) {
-    super.onInit(asn);
-    if (this.values[0]) {
-      const value = AsnConvert.parse(this.values[0], Extensions);
-      this.items = value.map((o) => ExtensionFactory.create(AsnConvert.serialize(o)));
-    }
-  }
-  toTextObject() {
-    const obj = this.toTextObjectWithoutValue();
-    const extensions = this.items.map((o) => o.toTextObject());
-    for (const extension of extensions) {
-      obj[extension[TextObject.NAME]] = extension;
-    }
-    return obj;
-  }
-};
-ExtensionsAttribute.NAME = "Extensions";
-var AttributeFactory = class {
-  static register(id, type) {
-    this.items.set(id, type);
-  }
-  static create(data) {
-    const attribute = new Attribute3(data);
-    const Type = this.items.get(attribute.type);
-    if (Type) {
-      return new Type(data);
-    }
-    return attribute;
-  }
-};
-AttributeFactory.items = /* @__PURE__ */ new Map();
-var RsaAlgorithm = class RsaAlgorithm2 {
-  toAsnAlgorithm(alg) {
-    switch (alg.name.toLowerCase()) {
-      case "rsassa-pkcs1-v1_5":
-        if ("hash" in alg) {
-          let hash;
-          if (typeof alg.hash === "string") {
-            hash = alg.hash;
-          } else if (alg.hash && typeof alg.hash === "object" && "name" in alg.hash && typeof alg.hash.name === "string") {
-            hash = alg.hash.name.toUpperCase();
-          } else {
-            throw new Error("Cannot get hash algorithm name");
-          }
-          switch (hash.toLowerCase()) {
-            case "sha-1":
-              return new AlgorithmIdentifier({ algorithm: id_sha1WithRSAEncryption, parameters: null });
-            case "sha-256":
-              return new AlgorithmIdentifier({ algorithm: id_sha256WithRSAEncryption, parameters: null });
-            case "sha-384":
-              return new AlgorithmIdentifier({ algorithm: id_sha384WithRSAEncryption, parameters: null });
-            case "sha-512":
-              return new AlgorithmIdentifier({ algorithm: id_sha512WithRSAEncryption, parameters: null });
-          }
-        } else {
-          return new AlgorithmIdentifier({ algorithm: id_rsaEncryption, parameters: null });
-        }
-    }
-    return null;
-  }
-  toWebAlgorithm(alg) {
-    switch (alg.algorithm) {
-      case id_rsaEncryption:
-        return { name: "RSASSA-PKCS1-v1_5" };
-      case id_sha1WithRSAEncryption:
-        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-1" } };
-      case id_sha256WithRSAEncryption:
-        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-256" } };
-      case id_sha384WithRSAEncryption:
-        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-384" } };
-      case id_sha512WithRSAEncryption:
-        return { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-512" } };
-    }
-    return null;
-  }
-};
-RsaAlgorithm = __decorate([
-  injectable_default()
-], RsaAlgorithm);
-instance.registerSingleton(diAlgorithm, RsaAlgorithm);
-var AsnEcSignatureFormatter = class _AsnEcSignatureFormatter {
-  addPadding(pointSize, data) {
-    const bytes = import_pvtsutils6.BufferSourceConverter.toUint8Array(data);
-    const res = new Uint8Array(pointSize);
-    res.set(bytes, pointSize - bytes.length);
-    return res;
-  }
-  removePadding(data, positive = false) {
-    let bytes = import_pvtsutils6.BufferSourceConverter.toUint8Array(data);
-    for (let i = 0; i < bytes.length; i++) {
-      if (!bytes[i]) {
-        continue;
-      }
-      bytes = bytes.slice(i);
-      break;
-    }
-    if (positive && bytes[0] > 127) {
-      const result = new Uint8Array(bytes.length + 1);
-      result.set(bytes, 1);
-      return result.buffer;
-    }
-    return bytes.buffer;
-  }
-  toAsnSignature(algorithm, signature) {
-    if (algorithm.name === "ECDSA") {
-      const namedCurve = algorithm.namedCurve;
-      const pointSize = _AsnEcSignatureFormatter.namedCurveSize.get(namedCurve) || _AsnEcSignatureFormatter.defaultNamedCurveSize;
-      const ecSignature = new ECDSASigValue();
-      const uint8Signature = import_pvtsutils6.BufferSourceConverter.toUint8Array(signature);
-      ecSignature.r = this.removePadding(uint8Signature.slice(0, pointSize), true);
-      ecSignature.s = this.removePadding(uint8Signature.slice(pointSize, pointSize + pointSize), true);
-      return AsnConvert.serialize(ecSignature);
-    }
-    return null;
-  }
-  toWebSignature(algorithm, signature) {
-    if (algorithm.name === "ECDSA") {
-      const ecSigValue = AsnConvert.parse(signature, ECDSASigValue);
-      const namedCurve = algorithm.namedCurve;
-      const pointSize = _AsnEcSignatureFormatter.namedCurveSize.get(namedCurve) || _AsnEcSignatureFormatter.defaultNamedCurveSize;
-      const r = this.addPadding(pointSize, this.removePadding(ecSigValue.r));
-      const s = this.addPadding(pointSize, this.removePadding(ecSigValue.s));
-      return (0, import_pvtsutils6.combine)(r, s);
-    }
-    return null;
-  }
-};
-AsnEcSignatureFormatter.namedCurveSize = /* @__PURE__ */ new Map();
-AsnEcSignatureFormatter.defaultNamedCurveSize = 32;
-var idX25519 = "1.3.101.110";
-var idX448 = "1.3.101.111";
-var idEd25519 = "1.3.101.112";
-var idEd448 = "1.3.101.113";
-var EdAlgorithm = class EdAlgorithm2 {
-  toAsnAlgorithm(alg) {
-    let algorithm = null;
-    switch (alg.name.toLowerCase()) {
-      case "eddsa":
-        switch (alg.namedCurve.toLowerCase()) {
-          case "ed25519":
-            algorithm = idEd25519;
-            break;
-          case "ed448":
-            algorithm = idEd448;
-            break;
-        }
-        break;
-      case "ecdh-es":
-        switch (alg.namedCurve.toLowerCase()) {
-          case "x25519":
-            algorithm = idX25519;
-            break;
-          case "x448":
-            algorithm = idX448;
-            break;
-        }
-    }
-    if (algorithm) {
-      return new AlgorithmIdentifier({
-        algorithm
-      });
-    }
-    return null;
-  }
-  toWebAlgorithm(alg) {
-    switch (alg.algorithm) {
-      case idEd25519:
-        return { name: "EdDSA", namedCurve: "Ed25519" };
-      case idEd448:
-        return { name: "EdDSA", namedCurve: "Ed448" };
-      case idX25519:
-        return { name: "ECDH-ES", namedCurve: "X25519" };
-      case idX448:
-        return { name: "ECDH-ES", namedCurve: "X448" };
-    }
-    return null;
-  }
-};
-EdAlgorithm = __decorate([
-  injectable_default()
-], EdAlgorithm);
-instance.registerSingleton(diAlgorithm, EdAlgorithm);
-var Pkcs10CertificateRequest = class extends PemData {
-  constructor(param) {
-    if (PemData.isAsnEncoded(param)) {
-      super(param, CertificationRequest);
-    } else {
-      super(param);
-    }
-    this.tag = PemConverter.CertificateRequestTag;
-  }
-  onInit(asn) {
-    this.tbs = AsnConvert.serialize(asn.certificationRequestInfo);
-    this.publicKey = new PublicKey(asn.certificationRequestInfo.subjectPKInfo);
-    const algProv = instance.resolve(diAlgorithmProvider);
-    this.signatureAlgorithm = algProv.toWebAlgorithm(asn.signatureAlgorithm);
-    this.signature = asn.signature;
-    this.attributes = asn.certificationRequestInfo.attributes.map((o) => AttributeFactory.create(AsnConvert.serialize(o)));
-    const extensions = this.getAttribute(id_pkcs9_at_extensionRequest);
-    this.extensions = [];
-    if (extensions instanceof ExtensionsAttribute) {
-      this.extensions = extensions.items;
-    }
-    this.subjectName = new Name3(asn.certificationRequestInfo.subject);
-    this.subject = this.subjectName.toString();
-  }
-  getAttribute(type) {
-    for (const attr of this.attributes) {
-      if (attr.type === type) {
-        return attr;
-      }
-    }
-    return null;
-  }
-  getAttributes(type) {
-    return this.attributes.filter((o) => o.type === type);
-  }
-  getExtension(type) {
-    for (const ext of this.extensions) {
-      if (ext.type === type) {
-        return ext;
-      }
-    }
-    return null;
-  }
-  getExtensions(type) {
-    return this.extensions.filter((o) => o.type === type);
-  }
-  async verify(crypto2 = cryptoProvider.get()) {
-    const algorithm = { ...this.publicKey.algorithm, ...this.signatureAlgorithm };
-    const publicKey = await this.publicKey.export(algorithm, ["verify"], crypto2);
-    const signatureFormatters = instance.resolveAll(diAsnSignatureFormatter).reverse();
-    let signature = null;
-    for (const signatureFormatter of signatureFormatters) {
-      signature = signatureFormatter.toWebSignature(algorithm, this.signature);
-      if (signature) {
-        break;
-      }
-    }
-    if (!signature) {
-      throw Error("Cannot convert WebCrypto signature value to ASN.1 format");
-    }
-    const ok = await crypto2.subtle.verify(this.signatureAlgorithm, publicKey, signature, this.tbs);
-    return ok;
-  }
-  toTextObject() {
-    const obj = this.toTextObjectEmpty();
-    const req = AsnConvert.parse(this.rawData, CertificationRequest);
-    const tbs = req.certificationRequestInfo;
-    const data = new TextObject("", {
-      "Version": `${Version[tbs.version]} (${tbs.version})`,
-      "Subject": this.subject,
-      "Subject Public Key Info": this.publicKey
-    });
-    if (this.attributes.length) {
-      const attrs = new TextObject("");
-      for (const ext of this.attributes) {
-        const attrObj = ext.toTextObject();
-        attrs[attrObj[TextObject.NAME]] = attrObj;
-      }
-      data["Attributes"] = attrs;
-    }
-    obj["Data"] = data;
-    obj["Signature"] = new TextObject("", {
-      "Algorithm": TextConverter.serializeAlgorithm(req.signatureAlgorithm),
-      "": req.signature
-    });
-    return obj;
-  }
-};
-Pkcs10CertificateRequest.NAME = "PKCS#10 Certificate Request";
 var X509CrlReason;
 (function(X509CrlReason2) {
   X509CrlReason2[X509CrlReason2["unspecified"] = 0] = "unspecified";
@@ -13145,6 +13346,8 @@ ExtensionFactory.register(id_ce_keyUsage, KeyUsagesExtension);
 ExtensionFactory.register(id_ce_subjectKeyIdentifier, SubjectKeyIdentifierExtension);
 ExtensionFactory.register(id_ce_authorityKeyIdentifier, AuthorityKeyIdentifierExtension);
 ExtensionFactory.register(id_ce_subjectAltName, SubjectAlternativeNameExtension);
+ExtensionFactory.register(id_ce_cRLDistributionPoints, CRLDistributionPointsExtension);
+ExtensionFactory.register(id_pe_authorityInfoAccess, AuthorityInfoAccessExtension);
 AttributeFactory.register(id_pkcs9_at_challengePassword, ChallengePasswordAttribute);
 AttributeFactory.register(id_pkcs9_at_extensionRequest, ExtensionsAttribute);
 instance.registerSingleton(diAsnSignatureFormatter, AsnDefaultSignatureFormatter);
@@ -13214,7 +13417,7 @@ async function exportToJWK(key) {
 }
 async function importFromJWK(jwk) {
   const extractable = true;
-  const format2 = "jwk";
+  const format = "jwk";
   const keyType = jwk["kty"];
   let algorithm;
   if (keyType == "EC") {
@@ -13231,7 +13434,7 @@ async function importFromJWK(jwk) {
     throw new Error(`Invalid key type specified: ${jwk["kty"]}`);
   }
   let keyUsages = jwk["d"] ? ["sign"] : ["verify"];
-  let key = await crypto.subtle.importKey(format2, jwk, algorithm, extractable, keyUsages);
+  let key = await crypto.subtle.importKey(format, jwk, algorithm, extractable, keyUsages);
   return key;
 }
 var aCode = "a".charCodeAt(0);
@@ -13244,8 +13447,8 @@ function bytesToBase64(bytes) {
   const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("");
   return btoa(binString);
 }
-function UTF8StringToBase64Url(string) {
-  var encoded = bytesToBase64(new TextEncoder().encode(string));
+function UTF8StringToBase64Url(string2) {
+  var encoded = bytesToBase64(new TextEncoder().encode(string2));
   encoded = encoded.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
   return encoded;
 }
@@ -13258,11 +13461,27 @@ export {
 };
 /*! Bundled license information:
 
+reflect-metadata/Reflect.js:
+  (*! *****************************************************************************
+  Copyright (C) Microsoft. All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+  this file except in compliance with the License. You may obtain a copy of the
+  License at http://www.apache.org/licenses/LICENSE-2.0
+  
+  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+  MERCHANTABLITY OR NON-INFRINGEMENT.
+  
+  See the Apache Version 2.0 License for specific language governing permissions
+  and limitations under the License.
+  ***************************************************************************** *)
+
 pvtsutils/build/index.js:
   (*!
    * MIT License
    * 
-   * Copyright (c) 2017-2022 Peculiar Ventures, LLC
+   * Copyright (c) 2017-2024 Peculiar Ventures, LLC
    * 
    * Permission is hereby granted, free of charge, to any person obtaining a copy
    * of this software and associated documentation files (the "Software"), to deal
@@ -13283,22 +13502,6 @@ pvtsutils/build/index.js:
    * SOFTWARE.
    * 
    *)
-
-reflect-metadata/Reflect.js:
-  (*! *****************************************************************************
-  Copyright (C) Microsoft. All rights reserved.
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-  this file except in compliance with the License. You may obtain a copy of the
-  License at http://www.apache.org/licenses/LICENSE-2.0
-  
-  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-  MERCHANTABLITY OR NON-INFRINGEMENT.
-  
-  See the Apache Version 2.0 License for specific language governing permissions
-  and limitations under the License.
-  ***************************************************************************** *)
 
 pvutils/build/utils.es.js:
   (*!
@@ -13382,4 +13585,4 @@ tslib/tslib.es6.js:
    * 
    *)
 */
-//# sourceMappingURL=chunk-WYI3LR6R.js.map
+//# sourceMappingURL=chunk-SQXV5JUG.js.map

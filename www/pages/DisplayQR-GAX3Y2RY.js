@@ -43,9 +43,9 @@ var require_easy_qrcode_min = __commonJS({
       }, h = function(a2, b2) {
         this.__root = a2, this.__ctx = b2;
       }, f = function(a2) {
-        var b2, c2 = { width: 500, height: 500, enableMirroring: false };
-        if (arguments.length > 1 ? (b2 = c2, b2.width = arguments[0], b2.height = arguments[1]) : b2 = a2 || c2, !(this instanceof f)) return new f(b2);
-        this.width = b2.width || c2.width, this.height = b2.height || c2.height, this.enableMirroring = void 0 !== b2.enableMirroring ? b2.enableMirroring : c2.enableMirroring, this.canvas = this, this.__document = b2.document || document, b2.ctx ? this.__ctx = b2.ctx : (this.__canvas = this.__document.createElement("canvas"), this.__ctx = this.__canvas.getContext("2d")), this.__setDefaultStyles(), this.__stack = [this.__getStyleState()], this.__groupStack = [], this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg"), this.__root.setAttribute("version", 1.1), this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg"), this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink"), this.__root.setAttribute("width", this.width), this.__root.setAttribute("height", this.height), this.__ids = {}, this.__defs = this.__document.createElementNS("http://www.w3.org/2000/svg", "defs"), this.__root.appendChild(this.__defs), this.__currentElement = this.__document.createElementNS("http://www.w3.org/2000/svg", "g"), this.__root.appendChild(this.__currentElement);
+        var b2, c2 = { width: 500, height: 500, veiwBoxWidth: 500, veiwBoxHeight: 500, enableMirroring: false };
+        if (arguments.length > 1 ? (b2 = c2, b2.width = arguments[0], b2.height = arguments[1], b2.veiwBoxWidth = arguments[2], b2.veiwBoxHeight = arguments[3]) : b2 = a2 || c2, !(this instanceof f)) return new f(b2);
+        this.width = b2.width || c2.width, this.height = b2.height || c2.height, this.veiwBoxWidth = b2.veiwBoxWidth || this.width, this.veiwBoxHeight = b2.veiwBoxHeight || this.height, this.enableMirroring = void 0 !== b2.enableMirroring ? b2.enableMirroring : c2.enableMirroring, this.canvas = this, this.__document = b2.document || document, b2.ctx ? this.__ctx = b2.ctx : (this.__canvas = this.__document.createElement("canvas"), this.__ctx = this.__canvas.getContext("2d")), this.__setDefaultStyles(), this.__stack = [this.__getStyleState()], this.__groupStack = [], this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg"), this.__root.setAttribute("version", 1.1), this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg"), this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink"), this.__root.setAttribute("width", this.width), this.__root.setAttribute("height", this.height), this.__root.setAttribute("viewBox", "0 0 " + this.veiwBoxWidth + " " + this.veiwBoxHeight), this.__ids = {}, this.__defs = this.__document.createElementNS("http://www.w3.org/2000/svg", "defs"), this.__root.appendChild(this.__defs), this.__currentElement = this.__document.createElementNS("http://www.w3.org/2000/svg", "g"), this.__root.appendChild(this.__currentElement);
       }, f.prototype.__createElement = function(a2, b2, c2) {
         void 0 === b2 && (b2 = {});
         var d2, e2, f2 = this.__document.createElementNS("http://www.w3.org/2000/svg", a2), g2 = Object.keys(b2);
@@ -237,11 +237,19 @@ var require_easy_qrcode_min = __commonJS({
     }(), function() {
       "use strict";
       function a(a2, b2, c2) {
-        this.mode = q.MODE_8BIT_BYTE, this.data = a2, this.parsedData = [];
-        for (var d2 = 0, e2 = this.data.length; d2 < e2; d2++) {
-          var f2 = [], g2 = this.data.charCodeAt(d2);
-          b2 ? f2[0] = g2 : g2 > 65536 ? (f2[0] = 240 | (1835008 & g2) >>> 18, f2[1] = 128 | (258048 & g2) >>> 12, f2[2] = 128 | (4032 & g2) >>> 6, f2[3] = 128 | 63 & g2) : g2 > 2048 ? (f2[0] = 224 | (61440 & g2) >>> 12, f2[1] = 128 | (4032 & g2) >>> 6, f2[2] = 128 | 63 & g2) : g2 > 128 ? (f2[0] = 192 | (1984 & g2) >>> 6, f2[1] = 128 | 63 & g2) : f2[0] = g2, this.parsedData.push(f2);
-        }
+        if (this.mode = q.MODE_8BIT_BYTE, this.data = a2, this.parsedData = [], b2) {
+          for (var d2 = 0, e2 = this.data.length; d2 < e2; d2++) {
+            var f2 = [], g2 = this.data.charCodeAt(d2);
+            f2[0] = g2, this.parsedData.push(f2);
+          }
+          this.parsedData = Array.prototype.concat.apply([], this.parsedData);
+        } else this.parsedData = function(a3) {
+          for (var b3 = [], c3 = 0; c3 < a3.length; c3++) {
+            var d3 = a3.charCodeAt(c3);
+            d3 < 128 ? b3.push(d3) : d3 < 2048 ? b3.push(192 | d3 >> 6, 128 | 63 & d3) : d3 < 55296 || d3 >= 57344 ? b3.push(224 | d3 >> 12, 128 | d3 >> 6 & 63, 128 | 63 & d3) : (c3++, d3 = 65536 + ((1023 & d3) << 10 | 1023 & a3.charCodeAt(c3)), b3.push(240 | d3 >> 18, 128 | d3 >> 12 & 63, 128 | d3 >> 6 & 63, 128 | 63 & d3));
+          }
+          return b3;
+        }(a2);
         this.parsedData = Array.prototype.concat.apply([], this.parsedData), c2 || this.parsedData.length == this.data.length || (this.parsedData.unshift(191), this.parsedData.unshift(187), this.parsedData.unshift(239));
       }
       function b(a2, b2) {
@@ -291,8 +299,7 @@ var require_easy_qrcode_min = __commonJS({
         return 0 != b2.version && (d2 <= b2.version ? (d2 = b2.version, b2.runVersion = d2) : (console.warn("QR Code version " + b2.version + " too small, run version use " + d2), b2.runVersion = d2)), d2;
       }
       function h(a2) {
-        var b2 = encodeURI(a2).toString().replace(/\%[0-9a-fA-F]{2}/g, "a");
-        return b2.length + (b2.length != a2.length ? 3 : 0);
+        return encodeURI(a2).toString().replace(/\%[0-9a-fA-F]{2}/g, "a").length;
       }
       var i, j, k = "object" == typeof global && global && global.Object === Object && global, l = "object" == typeof self && self && self.Object === Object && self, m = k || l || Function("return this")(), n = "object" == typeof exports && exports && !exports.nodeType && exports, o = n && "object" == typeof module && module && !module.nodeType && module, p = m.QRCode;
       a.prototype = { getLength: function(a2) {
@@ -558,11 +565,17 @@ var require_easy_qrcode_min = __commonJS({
           if ("svg" == this._htOption.drawer) {
             var a3 = this._oContext.getSerializedSvg(true);
             this.dataURL = a3, this._el.innerHTML = a3;
-          } else try {
-            var b3 = this._elCanvas.toDataURL("image/png");
-            this.dataURL = b3;
-          } catch (a4) {
-            console.error(a4);
+          } else {
+            !function(a4, b4, c3, d3) {
+              var e3 = document.createElement("canvas");
+              e3.width = c3, e3.height = d3, e3.getContext("2d").drawImage(a4, 0, 0, c3, d3), a4.width = c3, a4.height = d3, b4.drawImage(e3, 0, 0);
+            }(this._elCanvas, this._oContext, this._htOption.width + 2 * this._htOption.quietZone, this._htOption.height + this._htOption.titleHeight + 2 * this._htOption.quietZone);
+            try {
+              var b3 = this._elCanvas.toDataURL("image/png");
+              this.dataURL = b3;
+            } catch (a4) {
+              console.error(a4);
+            }
           }
           this._htOption.onRenderingEnd && (this.dataURL || console.error("Can not get base64 data, please check: 1. Published the page and image to the server 2. The image request support CORS 3. Configured `crossOrigin:'anonymous'` option"), this._htOption.onRenderingEnd(this._htOption, this.dataURL));
         }
@@ -574,9 +587,8 @@ var require_easy_qrcode_min = __commonJS({
             }, f2 = function() {
               c3._bSupportDataURI = true, c3._fSuccess && c3._fSuccess.call(c3);
             };
-            return d3.onabort = e3, d3.onerror = e3, d3.onload = f2, void (d3.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==");
-          }
-          true === c3._bSupportDataURI && c3._fSuccess ? c3._fSuccess.call(c3) : false === c3._bSupportDataURI && c3._fFail && c3._fFail.call(c3);
+            d3.onabort = e3, d3.onerror = e3, d3.onload = f2, d3.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
+          } else true === c3._bSupportDataURI && c3._fSuccess ? c3._fSuccess.call(c3) : false === c3._bSupportDataURI && c3._fFail && c3._fFail.call(c3);
         }
         if (m._android && m._android <= 2.1) {
           var c2 = 1 / window.devicePixelRatio, d2 = CanvasRenderingContext2D.prototype.drawImage;
@@ -591,7 +603,7 @@ var require_easy_qrcode_min = __commonJS({
         };
         return e2.prototype.draw = function(a3) {
           function b3() {
-            d3.quietZone > 0 && d3.quietZoneColor && (h2.lineWidth = 0, h2.fillStyle = d3.quietZoneColor, h2.fillRect(0, 0, i2._elCanvas.width, d3.quietZone), h2.fillRect(0, d3.quietZone, d3.quietZone, i2._elCanvas.height - 2 * d3.quietZone), h2.fillRect(i2._elCanvas.width - d3.quietZone, d3.quietZone, d3.quietZone, i2._elCanvas.height - 2 * d3.quietZone), h2.fillRect(0, i2._elCanvas.height - d3.quietZone, i2._elCanvas.width, d3.quietZone));
+            d3.quietZone > 0 && d3.quietZoneColor && (j2.lineWidth = 0, j2.fillStyle = d3.quietZoneColor, j2.fillRect(0, 0, k2._elCanvas.width, d3.quietZone), j2.fillRect(0, d3.quietZone, d3.quietZone, k2._elCanvas.height - 2 * d3.quietZone), j2.fillRect(k2._elCanvas.width - d3.quietZone, d3.quietZone, d3.quietZone, k2._elCanvas.height - 2 * d3.quietZone), j2.fillRect(0, k2._elCanvas.height - d3.quietZone, k2._elCanvas.width, d3.quietZone));
           }
           function c3(a4) {
             function c4(a5) {
@@ -599,19 +611,19 @@ var require_easy_qrcode_min = __commonJS({
               c5 !== e4 && (c5 = e4), d3.logoMaxWidth ? c5 = Math.round(d3.logoMaxWidth) : d3.logoWidth && (c5 = Math.round(d3.logoWidth)), d3.logoMaxHeight ? e4 = Math.round(d3.logoMaxHeight) : d3.logoHeight && (e4 = Math.round(d3.logoHeight));
               var f3, g3;
               void 0 === a5.naturalWidth ? (f3 = a5.width, g3 = a5.height) : (f3 = a5.naturalWidth, g3 = a5.naturalHeight), (d3.logoMaxWidth || d3.logoMaxHeight) && (d3.logoMaxWidth && f3 <= c5 && (c5 = f3), d3.logoMaxHeight && g3 <= e4 && (e4 = g3), f3 <= c5 && g3 <= e4 && (c5 = f3, e4 = g3));
-              var i4 = (d3.width + 2 * d3.quietZone - c5) / 2, j4 = (d3.height + d3.titleHeight + 2 * d3.quietZone - e4) / 2, k3 = Math.min(c5 / f3, e4 / g3), l3 = f3 * k3, m3 = g3 * k3;
-              (d3.logoMaxWidth || d3.logoMaxHeight) && (c5 = l3, e4 = m3, i4 = (d3.width + 2 * d3.quietZone - c5) / 2, j4 = (d3.height + d3.titleHeight + 2 * d3.quietZone - e4) / 2), d3.logoBackgroundTransparent || (h2.fillStyle = d3.logoBackgroundColor, h2.fillRect(i4, j4, c5, e4));
-              var n3 = h2.imageSmoothingQuality, o3 = h2.imageSmoothingEnabled;
-              h2.imageSmoothingEnabled = true, h2.imageSmoothingQuality = "high", h2.drawImage(a5, i4 + (c5 - l3) / 2, j4 + (e4 - m3) / 2, l3, m3), h2.imageSmoothingEnabled = o3, h2.imageSmoothingQuality = n3, b3(), s2._bIsPainted = true, s2.makeImage();
+              var h4 = (d3.realWidth - c5) / 2, i4 = (d3.calculatedQRHeight - e4) / 2 + d3.titleHeight + d3.quietZone, k4 = Math.min(c5 / f3, e4 / g3), l4 = f3 * k4, m3 = g3 * k4;
+              (d3.logoMaxWidth || d3.logoMaxHeight) && (c5 = l4, e4 = m3, h4 = (d3.realWidth - c5) / 2, i4 = (d3.realHeight - e4) / 2), d3.logoBackgroundTransparent || (j2.fillStyle = d3.logoBackgroundColor, j2.fillRect(h4, i4, c5, e4));
+              var n3 = j2.imageSmoothingQuality, o3 = j2.imageSmoothingEnabled;
+              j2.imageSmoothingEnabled = true, j2.imageSmoothingQuality = "high", j2.drawImage(a5, h4 + (c5 - l4) / 2, i4 + (e4 - m3) / 2, l4, m3), j2.imageSmoothingEnabled = o3, j2.imageSmoothingQuality = n3, b3(), s2._bIsPainted = true, s2.makeImage();
             }
             d3.onRenderingStart && d3.onRenderingStart(d3);
-            for (var i3 = 0; i3 < e3; i3++) for (var j3 = 0; j3 < e3; j3++) {
-              var k2 = j3 * f2 + d3.quietZone, l2 = i3 * g2 + d3.quietZone, m2 = a4.isDark(i3, j3), n2 = a4.getEye(i3, j3), o2 = d3.dotScale;
-              h2.lineWidth = 0;
+            for (var h3 = 0; h3 < e3; h3++) for (var i3 = 0; i3 < e3; i3++) {
+              var k3 = i3 * f2 + d3.quietZone, l3 = h3 * g2 + d3.quietZone, m2 = a4.isDark(h3, i3), n2 = a4.getEye(h3, i3), o2 = d3.dotScale;
+              j2.lineWidth = 0;
               var p2, q2;
-              n2 ? (p2 = d3[n2.type] || d3[n2.type.substring(0, 2)] || d3.colorDark, q2 = d3.colorLight) : d3.backgroundImage ? (q2 = "rgba(0,0,0,0)", 6 == i3 ? d3.autoColor ? (p2 = d3.timing_H || d3.timing || d3.autoColorDark, q2 = d3.autoColorLight) : p2 = d3.timing_H || d3.timing || d3.colorDark : 6 == j3 ? d3.autoColor ? (p2 = d3.timing_V || d3.timing || d3.autoColorDark, q2 = d3.autoColorLight) : p2 = d3.timing_V || d3.timing || d3.colorDark : d3.autoColor ? (p2 = d3.autoColorDark, q2 = d3.autoColorLight) : p2 = d3.colorDark) : (p2 = 6 == i3 ? d3.timing_H || d3.timing || d3.colorDark : 6 == j3 ? d3.timing_V || d3.timing || d3.colorDark : d3.colorDark, q2 = d3.colorLight), h2.strokeStyle = m2 ? p2 : q2, h2.fillStyle = m2 ? p2 : q2, n2 ? (o2 = "AO" == n2.type ? d3.dotScaleAO : "AI" == n2.type ? d3.dotScaleAI : 1, d3.backgroundImage && d3.autoColor ? (p2 = ("AO" == n2.type ? d3.AI : d3.AO) || d3.autoColorDark, q2 = d3.autoColorLight) : p2 = ("AO" == n2.type ? d3.AI : d3.AO) || p2, m2 = n2.isDark, h2.fillRect(k2 + f2 * (1 - o2) / 2, d3.titleHeight + l2 + g2 * (1 - o2) / 2, f2 * o2, g2 * o2)) : 6 == i3 ? (o2 = d3.dotScaleTiming_H, h2.fillRect(k2 + f2 * (1 - o2) / 2, d3.titleHeight + l2 + g2 * (1 - o2) / 2, f2 * o2, g2 * o2)) : 6 == j3 ? (o2 = d3.dotScaleTiming_V, h2.fillRect(k2 + f2 * (1 - o2) / 2, d3.titleHeight + l2 + g2 * (1 - o2) / 2, f2 * o2, g2 * o2)) : (d3.backgroundImage, h2.fillRect(k2 + f2 * (1 - o2) / 2, d3.titleHeight + l2 + g2 * (1 - o2) / 2, f2 * o2, g2 * o2)), 1 == d3.dotScale || n2 || (h2.strokeStyle = d3.colorLight);
+              n2 ? (p2 = d3[n2.type] || d3[n2.type.substring(0, 2)] || d3.colorDark, q2 = d3.colorLight) : d3.backgroundImage ? (q2 = "rgba(0,0,0,0)", 6 == h3 ? d3.autoColor ? (p2 = d3.timing_H || d3.timing || d3.autoColorDark, q2 = d3.autoColorLight) : p2 = d3.timing_H || d3.timing || d3.colorDark : 6 == i3 ? d3.autoColor ? (p2 = d3.timing_V || d3.timing || d3.autoColorDark, q2 = d3.autoColorLight) : p2 = d3.timing_V || d3.timing || d3.colorDark : d3.autoColor ? (p2 = d3.autoColorDark, q2 = d3.autoColorLight) : p2 = d3.colorDark) : (p2 = 6 == h3 ? d3.timing_H || d3.timing || d3.colorDark : 6 == i3 ? d3.timing_V || d3.timing || d3.colorDark : d3.colorDark, q2 = d3.colorLight), j2.strokeStyle = m2 ? p2 : q2, j2.fillStyle = m2 ? p2 : q2, n2 ? (o2 = "AO" == n2.type ? d3.dotScaleAO : "AI" == n2.type ? d3.dotScaleAI : 1, d3.backgroundImage && d3.autoColor ? (p2 = ("AO" == n2.type ? d3.AI : d3.AO) || d3.autoColorDark, q2 = d3.autoColorLight) : p2 = ("AO" == n2.type ? d3.AI : d3.AO) || p2, m2 = n2.isDark, j2.fillRect(Math.ceil(k3 + f2 * (1 - o2) / 2), Math.ceil(d3.titleHeight + l3 + g2 * (1 - o2) / 2), Math.ceil(f2 * o2), Math.ceil(g2 * o2))) : 6 == h3 ? (o2 = d3.dotScaleTiming_H, j2.fillRect(Math.ceil(k3 + f2 * (1 - o2) / 2), Math.ceil(d3.titleHeight + l3 + g2 * (1 - o2) / 2), Math.ceil(f2 * o2), Math.ceil(g2 * o2))) : 6 == i3 ? (o2 = d3.dotScaleTiming_V, j2.fillRect(Math.ceil(k3 + f2 * (1 - o2) / 2), Math.ceil(d3.titleHeight + l3 + g2 * (1 - o2) / 2), Math.ceil(f2 * o2), Math.ceil(g2 * o2))) : (d3.backgroundImage, j2.fillRect(Math.ceil(k3 + f2 * (1 - o2) / 2), Math.ceil(d3.titleHeight + l3 + g2 * (1 - o2) / 2), Math.ceil(f2 * o2), Math.ceil(g2 * o2))), 1 == d3.dotScale || n2 || (j2.strokeStyle = d3.colorLight);
             }
-            if (d3.title && (h2.fillStyle = d3.titleBackgroundColor, h2.fillRect(d3.quietZone, d3.quietZone, d3.width, d3.titleHeight), h2.font = d3.titleFont, h2.fillStyle = d3.titleColor, h2.textAlign = "center", h2.fillText(d3.title, this._elCanvas.width / 2, +d3.quietZone + d3.titleTop)), d3.subTitle && (h2.font = d3.subTitleFont, h2.fillStyle = d3.subTitleColor, h2.fillText(d3.subTitle, this._elCanvas.width / 2, +d3.quietZone + d3.subTitleTop)), d3.logo) {
+            if (d3.title && (j2.fillStyle = d3.titleBackgroundColor, j2.fillRect(d3.quietZone, d3.quietZone, d3.calculatedQRWidth, d3.titleHeight), j2.font = d3.titleFont, j2.fillStyle = d3.titleColor, j2.textAlign = "center", j2.fillText(d3.title, this._elCanvas.width / 2, +d3.quietZone + d3.titleTop)), d3.subTitle && (j2.font = d3.subTitleFont, j2.fillStyle = d3.subTitleColor, j2.fillText(d3.subTitle, this._elCanvas.width / 2, +d3.quietZone + d3.subTitleTop)), d3.logo) {
               var r2 = new Image(), s2 = this;
               r2.onload = function() {
                 c4(r2);
@@ -620,19 +632,21 @@ var require_easy_qrcode_min = __commonJS({
               }, null != d3.crossOrigin && (r2.crossOrigin = d3.crossOrigin), r2.originalSrc = d3.logo, r2.src = d3.logo;
             } else b3(), this._bIsPainted = true, this.makeImage();
           }
-          var d3 = this._htOption, e3 = a3.getModuleCount(), f2 = Math.round(d3.width / e3), g2 = Math.round((d3.height - d3.titleHeight) / e3);
-          f2 <= 1 && (f2 = 1), g2 <= 1 && (g2 = 1), d3.width = f2 * e3, d3.height = g2 * e3 + d3.titleHeight, d3.quietZone = Math.round(d3.quietZone), this._elCanvas.width = d3.width + 2 * d3.quietZone, this._elCanvas.height = d3.height + 2 * d3.quietZone, "canvas" != this._htOption.drawer && (this._oContext = new C2S(this._elCanvas.width, this._elCanvas.height)), this.clear();
-          var h2 = this._oContext;
-          h2.lineWidth = 0, h2.fillStyle = d3.colorLight, h2.fillRect(0, 0, this._elCanvas.width, this._elCanvas.height), h2.clearRect(d3.quietZone, d3.quietZone, d3.width, d3.titleHeight);
-          var i2 = this;
+          var d3 = this._htOption, e3 = a3.getModuleCount(), f2 = d3.width / e3, g2 = d3.height / e3;
+          f2 <= 1 && (f2 = 1), g2 <= 1 && (g2 = 1), f2 = Math.round(f2), g2 = Math.round(g2);
+          var h2 = f2 * e3, i2 = g2 * e3;
+          d3.heightWithTitle = i2 + d3.titleHeight, d3.realHeight = d3.heightWithTitle + 2 * d3.quietZone, d3.realWidth = h2 + 2 * d3.quietZone, d3.calculatedQRWidth = h2, d3.calculatedQRHeight = i2, this._elCanvas.width = d3.realWidth, this._elCanvas.height = d3.realHeight, "canvas" != d3.drawer && (this._oContext = new C2S(d3.width + 2 * this._htOption.quietZone, d3.height + d3.titleHeight + 2 * this._htOption.quietZone, d3.realWidth, d3.realHeight)), this.clear();
+          var j2 = this._oContext;
+          j2.lineWidth = 0, j2.fillStyle = d3.colorLight, j2.fillRect(0, 0, this._elCanvas.width, this._elCanvas.height), j2.clearRect(d3.quietZone, d3.quietZone, d3.calculatedQRWidth, d3.titleHeight);
+          var k2 = this;
           if (d3.backgroundImage) {
-            var j2 = new Image();
-            j2.onload = function() {
-              h2.globalAlpha = 1, h2.globalAlpha = d3.backgroundImageAlpha;
-              var b4 = h2.imageSmoothingQuality, e4 = h2.imageSmoothingEnabled;
-              h2.imageSmoothingEnabled = true, h2.imageSmoothingQuality = "high", h2.drawImage(j2, 0, d3.titleHeight, d3.width + 2 * d3.quietZone, d3.height + 2 * d3.quietZone - d3.titleHeight), h2.imageSmoothingEnabled = e4, h2.imageSmoothingQuality = b4, h2.globalAlpha = 1, c3.call(i2, a3);
-            }, null != d3.crossOrigin && (j2.crossOrigin = d3.crossOrigin), j2.originalSrc = d3.backgroundImage, j2.src = d3.backgroundImage;
-          } else c3.call(i2, a3);
+            var l2 = new Image();
+            l2.onload = function() {
+              j2.globalAlpha = 1, j2.globalAlpha = d3.backgroundImageAlpha;
+              var b4 = j2.imageSmoothingQuality, e4 = j2.imageSmoothingEnabled;
+              j2.imageSmoothingEnabled = true, j2.imageSmoothingQuality = "high", (d3.title || d3.subTitle) && d3.titleHeight ? j2.drawImage(l2, d3.quietZone, d3.quietZone + d3.titleHeight, d3.width, d3.height) : j2.drawImage(l2, 0, 0, d3.realWidth, d3.realHeight), j2.imageSmoothingEnabled = e4, j2.imageSmoothingQuality = b4, j2.globalAlpha = 1, c3.call(k2, a3);
+            }, null != d3.crossOrigin && (l2.crossOrigin = d3.crossOrigin), l2.originalSrc = d3.backgroundImage, l2.src = d3.backgroundImage;
+          } else c3.call(k2, a3);
         }, e2.prototype.makeImage = function() {
           this._bIsPainted && b2.call(this, a2);
         }, e2.prototype.isPainted = function() {
@@ -649,54 +663,56 @@ var require_easy_qrcode_min = __commonJS({
           this._el = a3, this._htOption = b2;
         };
         return a2.prototype.draw = function(a3) {
-          var b2 = this._htOption, c2 = this._el, d2 = a3.getModuleCount(), e2 = Math.round(b2.width / d2), f2 = Math.round((b2.height - b2.titleHeight) / d2);
-          e2 <= 1 && (e2 = 1), f2 <= 1 && (f2 = 1), this._htOption.width = e2 * d2, this._htOption.height = f2 * d2 + b2.titleHeight, this._htOption.quietZone = Math.round(this._htOption.quietZone);
-          var g2 = [], h2 = "", i2 = Math.round(e2 * b2.dotScale), j2 = Math.round(f2 * b2.dotScale);
-          i2 < 4 && (i2 = 4, j2 = 4);
-          var k2 = b2.colorDark, l2 = b2.colorLight;
+          var b2 = this._htOption, c2 = this._el, d2 = a3.getModuleCount(), e2 = b2.width / d2, f2 = b2.height / d2;
+          e2 <= 1 && (e2 = 1), f2 <= 1 && (f2 = 1);
+          var g2 = e2 * d2, h2 = f2 * d2;
+          b2.heightWithTitle = h2 + b2.titleHeight, b2.realHeight = b2.heightWithTitle + 2 * b2.quietZone, b2.realWidth = g2 + 2 * b2.quietZone;
+          var i2 = [], j2 = "", k2 = Math.round(e2 * b2.dotScale), l2 = Math.round(f2 * b2.dotScale);
+          k2 < 4 && (k2 = 4, l2 = 4);
+          var m2 = b2.colorDark, n2 = b2.colorLight;
           if (b2.backgroundImage) {
             b2.autoColor ? (b2.colorDark = "rgba(0, 0, 0, .6);filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#99000000', EndColorStr='#99000000');", b2.colorLight = "rgba(255, 255, 255, .7);filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#B2FFFFFF', EndColorStr='#B2FFFFFF');") : b2.colorLight = "rgba(0,0,0,0)";
-            var m2 = '<div style="display:inline-block; z-index:-10;position:absolute;"><img src="' + b2.backgroundImage + '" widht="' + (b2.width + 2 * b2.quietZone) + '" height="' + (b2.height + 2 * b2.quietZone) + '" style="opacity:' + b2.backgroundImageAlpha + ";filter:alpha(opacity=" + 100 * b2.backgroundImageAlpha + '); "/></div>';
-            g2.push(m2);
+            var o2 = '<div style="display:inline-block; z-index:-10;position:absolute;"><img src="' + b2.backgroundImage + '" width="' + (b2.width + 2 * b2.quietZone) + '" height="' + b2.realHeight + '" style="opacity:' + b2.backgroundImageAlpha + ";filter:alpha(opacity=" + 100 * b2.backgroundImageAlpha + '); "/></div>';
+            i2.push(o2);
           }
-          if (b2.quietZone && (h2 = "display:inline-block; width:" + (b2.width + 2 * b2.quietZone) + "px; height:" + (b2.width + 2 * b2.quietZone) + "px;background:" + b2.quietZoneColor + "; text-align:center;"), g2.push('<div style="font-size:0;' + h2 + '">'), g2.push('<table  style="font-size:0;border:0;border-collapse:collapse; margin-top:' + b2.quietZone + 'px;" border="0" cellspacing="0" cellspadding="0" align="center" valign="middle">'), g2.push('<tr height="' + b2.titleHeight + '" align="center"><td style="border:0;border-collapse:collapse;margin:0;padding:0" colspan="' + d2 + '">'), b2.title) {
-            var n2 = b2.titleColor, o2 = b2.titleFont;
-            g2.push('<div style="width:100%;margin-top:' + b2.titleTop + "px;color:" + n2 + ";font:" + o2 + ";background:" + b2.titleBackgroundColor + '">' + b2.title + "</div>");
+          if (b2.quietZone && (j2 = "display:inline-block; width:" + (b2.width + 2 * b2.quietZone) + "px; height:" + (b2.width + 2 * b2.quietZone) + "px;background:" + b2.quietZoneColor + "; text-align:center;"), i2.push('<div style="font-size:0;' + j2 + '">'), i2.push('<table  style="font-size:0;border:0;border-collapse:collapse; margin-top:' + b2.quietZone + 'px;" border="0" cellspacing="0" cellspadding="0" align="center" valign="middle">'), i2.push('<tr height="' + b2.titleHeight + '" align="center"><td style="border:0;border-collapse:collapse;margin:0;padding:0" colspan="' + d2 + '">'), b2.title) {
+            var p2 = b2.titleColor, q2 = b2.titleFont;
+            i2.push('<div style="width:100%;margin-top:' + b2.titleTop + "px;color:" + p2 + ";font:" + q2 + ";background:" + b2.titleBackgroundColor + '">' + b2.title + "</div>");
           }
-          b2.subTitle && g2.push('<div style="width:100%;margin-top:' + (b2.subTitleTop - b2.titleTop) + "px;color:" + b2.subTitleColor + "; font:" + b2.subTitleFont + '">' + b2.subTitle + "</div>"), g2.push("</td></tr>");
-          for (var p2 = 0; p2 < d2; p2++) {
-            g2.push('<tr style="border:0; padding:0; margin:0;" height="7">');
-            for (var q2 = 0; q2 < d2; q2++) {
-              var r2 = a3.isDark(p2, q2), s2 = a3.getEye(p2, q2);
-              if (s2) {
-                r2 = s2.isDark;
-                var t2 = s2.type, u2 = b2[t2] || b2[t2.substring(0, 2)] || k2;
-                g2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + 'px;"><span style="width:' + e2 + "px;height:" + f2 + "px;background-color:" + (r2 ? u2 : l2) + ';display:inline-block"></span></td>');
+          b2.subTitle && i2.push('<div style="width:100%;margin-top:' + (b2.subTitleTop - b2.titleTop) + "px;color:" + b2.subTitleColor + "; font:" + b2.subTitleFont + '">' + b2.subTitle + "</div>"), i2.push("</td></tr>");
+          for (var r2 = 0; r2 < d2; r2++) {
+            i2.push('<tr style="border:0; padding:0; margin:0;" height="7">');
+            for (var s2 = 0; s2 < d2; s2++) {
+              var t2 = a3.isDark(r2, s2), u2 = a3.getEye(r2, s2);
+              if (u2) {
+                t2 = u2.isDark;
+                var v2 = u2.type, w2 = b2[v2] || b2[v2.substring(0, 2)] || m2;
+                i2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + 'px;"><span style="width:' + e2 + "px;height:" + f2 + "px;background-color:" + (t2 ? w2 : n2) + ';display:inline-block"></span></td>');
               } else {
-                var v2 = b2.colorDark;
-                6 == p2 ? (v2 = b2.timing_H || b2.timing || k2, g2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + "px;background-color:" + (r2 ? v2 : l2) + ';"></td>')) : 6 == q2 ? (v2 = b2.timing_V || b2.timing || k2, g2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + "px;background-color:" + (r2 ? v2 : l2) + ';"></td>')) : g2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + 'px;"><div style="display:inline-block;width:' + i2 + "px;height:" + j2 + "px;background-color:" + (r2 ? v2 : b2.colorLight) + ';"></div></td>');
+                var x2 = b2.colorDark;
+                6 == r2 ? (x2 = b2.timing_H || b2.timing || m2, i2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + "px;background-color:" + (t2 ? x2 : n2) + ';"></td>')) : 6 == s2 ? (x2 = b2.timing_V || b2.timing || m2, i2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + "px;background-color:" + (t2 ? x2 : n2) + ';"></td>')) : i2.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + e2 + "px;height:" + f2 + 'px;"><div style="display:inline-block;width:' + k2 + "px;height:" + l2 + "px;background-color:" + (t2 ? x2 : b2.colorLight) + ';"></div></td>');
               }
             }
-            g2.push("</tr>");
+            i2.push("</tr>");
           }
-          if (g2.push("</table>"), g2.push("</div>"), b2.logo) {
-            var w2 = new Image();
-            null != b2.crossOrigin && (w2.crossOrigin = b2.crossOrigin), w2.src = b2.logo;
-            var x2 = b2.width / 3.5, y = b2.height / 3.5;
-            x2 != y && (x2 = y), b2.logoWidth && (x2 = b2.logoWidth), b2.logoHeight && (y = b2.logoHeight);
-            var z = "position:relative; z-index:1;display:table-cell;top:-" + ((b2.height - b2.titleHeight) / 2 + y / 2 + b2.quietZone) + "px;text-align:center; width:" + x2 + "px; height:" + y + "px;line-height:" + x2 + "px; vertical-align: middle;";
-            b2.logoBackgroundTransparent || (z += "background:" + b2.logoBackgroundColor), g2.push('<div style="' + z + '"><img  src="' + b2.logo + '"  style="max-width: ' + x2 + "px; max-height: " + y + 'px;" /> <div style=" display: none; width:1px;margin-left: -1px;"></div></div>');
+          if (i2.push("</table>"), i2.push("</div>"), b2.logo) {
+            var y = new Image();
+            null != b2.crossOrigin && (y.crossOrigin = b2.crossOrigin), y.src = b2.logo;
+            var z = b2.width / 3.5, A = b2.height / 3.5;
+            z != A && (z = A), b2.logoWidth && (z = b2.logoWidth), b2.logoHeight && (A = b2.logoHeight);
+            var B = "position:relative; z-index:1;display:table-cell;top:-" + (b2.height / 2 + A / 2 + b2.quietZone) + "px;text-align:center; width:" + z + "px; height:" + A + "px;line-height:" + z + "px; vertical-align: middle;";
+            b2.logoBackgroundTransparent || (B += "background:" + b2.logoBackgroundColor), i2.push('<div style="' + B + '"><img  src="' + b2.logo + '"  style="max-width: ' + z + "px; max-height: " + A + 'px;" /> <div style=" display: none; width:1px;margin-left: -1px;"></div></div>');
           }
-          b2.onRenderingStart && b2.onRenderingStart(b2), c2.innerHTML = g2.join("");
-          var A = c2.childNodes[0], B = (b2.width - A.offsetWidth) / 2, C = (b2.height - A.offsetHeight) / 2;
-          B > 0 && C > 0 && (A.style.margin = C + "px " + B + "px"), this._htOption.onRenderingEnd && this._htOption.onRenderingEnd(this._htOption, null);
+          b2.onRenderingStart && b2.onRenderingStart(b2), c2.innerHTML = i2.join("");
+          var C = c2.childNodes[0], D = (b2.width - C.offsetWidth) / 2, E = (b2.heightWithTitle - C.offsetHeight) / 2;
+          D > 0 && E > 0 && (C.style.margin = E + "px " + D + "px"), this._htOption.onRenderingEnd && this._htOption.onRenderingEnd(this._htOption, null);
         }, a2.prototype.clear = function() {
           this._el.innerHTML = "";
         }, a2;
       }();
       j = function(a2, b2) {
         if (this._htOption = { width: 256, height: 256, typeNumber: 4, colorDark: "#000000", colorLight: "#ffffff", correctLevel: r.H, dotScale: 1, dotScaleTiming: 1, dotScaleTiming_H: i, dotScaleTiming_V: i, dotScaleA: 1, dotScaleAO: i, dotScaleAI: i, quietZone: 0, quietZoneColor: "rgba(0,0,0,0)", title: "", titleFont: "normal normal bold 16px Arial", titleColor: "#000000", titleBackgroundColor: "#ffffff", titleHeight: 0, titleTop: 30, subTitle: "", subTitleFont: "normal normal normal 14px Arial", subTitleColor: "#4F4F4F", subTitleTop: 60, logo: i, logoWidth: i, logoHeight: i, logoMaxWidth: i, logoMaxHeight: i, logoBackgroundColor: "#ffffff", logoBackgroundTransparent: false, PO: i, PI: i, PO_TL: i, PI_TL: i, PO_TR: i, PI_TR: i, PO_BL: i, PI_BL: i, AO: i, AI: i, timing: i, timing_H: i, timing_V: i, backgroundImage: i, backgroundImageAlpha: 1, autoColor: false, autoColorDark: "rgba(0, 0, 0, .6)", autoColorLight: "rgba(255, 255, 255, .7)", onRenderingStart: i, onRenderingEnd: i, version: 0, tooltip: false, binary: false, drawer: "canvas", crossOrigin: null, utf8WithoutBOM: true }, "string" == typeof b2 && (b2 = { text: b2 }), b2) for (var c2 in b2) this._htOption[c2] = b2[c2];
-        this._htOption.title || this._htOption.subTitle || (this._htOption.titleHeight = 0), (this._htOption.version < 0 || this._htOption.version > 40) && (console.warn("QR Code version '" + this._htOption.version + "' is invalidate, reset to 0"), this._htOption.version = 0), (this._htOption.dotScale < 0 || this._htOption.dotScale > 1) && (console.warn(this._htOption.dotScale + " , is invalidate, dotScale must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScale = 1), (this._htOption.dotScaleTiming < 0 || this._htOption.dotScaleTiming > 1) && (console.warn(this._htOption.dotScaleTiming + " , is invalidate, dotScaleTiming must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleTiming = 1), this._htOption.dotScaleTiming_H ? (this._htOption.dotScaleTiming_H < 0 || this._htOption.dotScaleTiming_H > 1) && (console.warn(this._htOption.dotScaleTiming_H + " , is invalidate, dotScaleTiming_H must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleTiming_H = 1) : this._htOption.dotScaleTiming_H = this._htOption.dotScaleTiming, this._htOption.dotScaleTiming_V ? (this._htOption.dotScaleTiming_V < 0 || this._htOption.dotScaleTiming_V > 1) && (console.warn(this._htOption.dotScaleTiming_V + " , is invalidate, dotScaleTiming_V must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleTiming_V = 1) : this._htOption.dotScaleTiming_V = this._htOption.dotScaleTiming, (this._htOption.dotScaleA < 0 || this._htOption.dotScaleA > 1) && (console.warn(this._htOption.dotScaleA + " , is invalidate, dotScaleA must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleA = 1), this._htOption.dotScaleAO ? (this._htOption.dotScaleAO < 0 || this._htOption.dotScaleAO > 1) && (console.warn(this._htOption.dotScaleAO + " , is invalidate, dotScaleAO must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleAO = 1) : this._htOption.dotScaleAO = this._htOption.dotScaleA, this._htOption.dotScaleAI ? (this._htOption.dotScaleAI < 0 || this._htOption.dotScaleAI > 1) && (console.warn(this._htOption.dotScaleAI + " , is invalidate, dotScaleAI must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleAI = 1) : this._htOption.dotScaleAI = this._htOption.dotScaleA, (this._htOption.backgroundImageAlpha < 0 || this._htOption.backgroundImageAlpha > 1) && (console.warn(this._htOption.backgroundImageAlpha + " , is invalidate, backgroundImageAlpha must between 0 and 1, now reset to 1. "), this._htOption.backgroundImageAlpha = 1), this._htOption.height = this._htOption.height + this._htOption.titleHeight, "string" == typeof a2 && (a2 = document.getElementById(a2)), (!this._htOption.drawer || "svg" != this._htOption.drawer && "canvas" != this._htOption.drawer) && (this._htOption.drawer = "canvas"), this._android = f(), this._el = a2, this._oQRCode = null, this._htOption._element = a2;
+        this._htOption.title || this._htOption.subTitle || (this._htOption.titleHeight = 0), (this._htOption.version < 0 || this._htOption.version > 40) && (console.warn("QR Code version '" + this._htOption.version + "' is invalidate, reset to 0"), this._htOption.version = 0), (this._htOption.dotScale < 0 || this._htOption.dotScale > 1) && (console.warn(this._htOption.dotScale + " , is invalidate, dotScale must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScale = 1), (this._htOption.dotScaleTiming < 0 || this._htOption.dotScaleTiming > 1) && (console.warn(this._htOption.dotScaleTiming + " , is invalidate, dotScaleTiming must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleTiming = 1), this._htOption.dotScaleTiming_H ? (this._htOption.dotScaleTiming_H < 0 || this._htOption.dotScaleTiming_H > 1) && (console.warn(this._htOption.dotScaleTiming_H + " , is invalidate, dotScaleTiming_H must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleTiming_H = 1) : this._htOption.dotScaleTiming_H = this._htOption.dotScaleTiming, this._htOption.dotScaleTiming_V ? (this._htOption.dotScaleTiming_V < 0 || this._htOption.dotScaleTiming_V > 1) && (console.warn(this._htOption.dotScaleTiming_V + " , is invalidate, dotScaleTiming_V must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleTiming_V = 1) : this._htOption.dotScaleTiming_V = this._htOption.dotScaleTiming, (this._htOption.dotScaleA < 0 || this._htOption.dotScaleA > 1) && (console.warn(this._htOption.dotScaleA + " , is invalidate, dotScaleA must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleA = 1), this._htOption.dotScaleAO ? (this._htOption.dotScaleAO < 0 || this._htOption.dotScaleAO > 1) && (console.warn(this._htOption.dotScaleAO + " , is invalidate, dotScaleAO must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleAO = 1) : this._htOption.dotScaleAO = this._htOption.dotScaleA, this._htOption.dotScaleAI ? (this._htOption.dotScaleAI < 0 || this._htOption.dotScaleAI > 1) && (console.warn(this._htOption.dotScaleAI + " , is invalidate, dotScaleAI must greater than 0, less than or equal to 1, now reset to 1. "), this._htOption.dotScaleAI = 1) : this._htOption.dotScaleAI = this._htOption.dotScaleA, (this._htOption.backgroundImageAlpha < 0 || this._htOption.backgroundImageAlpha > 1) && (console.warn(this._htOption.backgroundImageAlpha + " , is invalidate, backgroundImageAlpha must between 0 and 1, now reset to 1. "), this._htOption.backgroundImageAlpha = 1), this._htOption.quietZone || (this._htOption.quietZone = 0), this._htOption.titleHeight || (this._htOption.titleHeight = 0), this._htOption.width = Math.round(this._htOption.width), this._htOption.height = Math.round(this._htOption.height), this._htOption.quietZone = Math.round(this._htOption.quietZone), this._htOption.titleHeight = Math.round(this._htOption.titleHeight), "string" == typeof a2 && (a2 = document.getElementById(a2)), (!this._htOption.drawer || "svg" != this._htOption.drawer && "canvas" != this._htOption.drawer) && (this._htOption.drawer = "canvas"), this._android = f(), this._el = a2, this._oQRCode = null, this._htOption._element = a2;
         var d2 = {};
         for (var c2 in this._htOption) d2[c2] = this._htOption[c2];
         this._oDrawing = new x(this._el, d2), this._htOption.text && this.makeCode(this._htOption.text);
@@ -764,4 +780,4 @@ window.MHR.register("DisplayQR", class DisplayQR extends window.MHR.AbstractPage
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=DisplayQR-XTTVI7NE.js.map
+//# sourceMappingURL=DisplayQR-GAX3Y2RY.js.map

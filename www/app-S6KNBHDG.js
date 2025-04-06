@@ -1,11 +1,11 @@
 import {
   storage
-} from "./chunks/chunk-RXHT3X2B.js";
+} from "./chunks/chunk-LSEA562B.js";
 import {
+  hole_default,
   html,
-  render,
   svg
-} from "./chunks/chunk-THCKPUYZ.js";
+} from "./chunks/chunk-K7R3KOTQ.js";
 import "./chunks/chunk-W7NC74ZX.js";
 
 // front/src/i18n/translations.js
@@ -181,7 +181,7 @@ window.addEventListener("load", async (event) => {
     console.log("In production");
   }
   if (INSTALL_SERVICE_WORKER && "serviceWorker" in navigator) {
-    const { Workbox } = await import("./chunks/workbox-window.prod.es5-K6JWD4NQ.js");
+    const { Workbox } = await import("./chunks/workbox-window.prod.es5-BMGUVAUA.js");
     const wb = new Workbox("./sw.js");
     wb.addEventListener("message", (event2) => {
       if (event2.data.type === "CACHE_UPDATED") {
@@ -306,9 +306,9 @@ var AbstractPage = class {
     this.domElem.style.display = "block";
     let header = document.getElementById("the_header");
     if (header) {
-      render(header, HeaderBar(backButton, this.loginData));
+      hole_default(header, HeaderBar(backButton, this.loginData));
     }
-    render(this.domElem, theHtml);
+    hole_default(this.domElem, theHtml);
   }
   /**
    * @param {string} title
@@ -435,9 +435,9 @@ globalThis.MHR = {
   ErrorPanel,
   cleanReload,
   html,
-  render,
+  render: hole_default,
   btoaUrl,
   atobUrl,
   pageNameToClass
 };
-//# sourceMappingURL=app-UDOQIYP3.js.map
+//# sourceMappingURL=app-S6KNBHDG.js.map

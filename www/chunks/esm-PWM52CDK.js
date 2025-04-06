@@ -433,7 +433,7 @@ var Arrays = (
       return true;
     };
     Arrays2.hashCode = function(a) {
-      var e_1, _a;
+      var e_1, _a2;
       if (a === null) {
         return 0;
       }
@@ -447,7 +447,7 @@ var Arrays = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (a_1_1 && !a_1_1.done && (_a = a_1.return)) _a.call(a_1);
+          if (a_1_1 && !a_1_1.done && (_a2 = a_1.return)) _a2.call(a_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -818,6 +818,13 @@ var BitArray = (
     BitArray2.prototype.clone = function() {
       return new BitArray2(this.size, this.bits.slice());
     };
+    BitArray2.prototype.toArray = function() {
+      var result = [];
+      for (var i = 0, size = this.size; i < size; i++) {
+        result.push(this.get(i));
+      }
+      return result;
+    };
     return BitArray2;
   }()
 );
@@ -833,10 +840,11 @@ var DecodeHintType;
   DecodeHintType2[DecodeHintType2["CHARACTER_SET"] = 4] = "CHARACTER_SET";
   DecodeHintType2[DecodeHintType2["ALLOWED_LENGTHS"] = 5] = "ALLOWED_LENGTHS";
   DecodeHintType2[DecodeHintType2["ASSUME_CODE_39_CHECK_DIGIT"] = 6] = "ASSUME_CODE_39_CHECK_DIGIT";
-  DecodeHintType2[DecodeHintType2["ASSUME_GS1"] = 7] = "ASSUME_GS1";
-  DecodeHintType2[DecodeHintType2["RETURN_CODABAR_START_END"] = 8] = "RETURN_CODABAR_START_END";
-  DecodeHintType2[DecodeHintType2["NEED_RESULT_POINT_CALLBACK"] = 9] = "NEED_RESULT_POINT_CALLBACK";
-  DecodeHintType2[DecodeHintType2["ALLOWED_EAN_EXTENSIONS"] = 10] = "ALLOWED_EAN_EXTENSIONS";
+  DecodeHintType2[DecodeHintType2["ENABLE_CODE_39_EXTENDED_MODE"] = 7] = "ENABLE_CODE_39_EXTENDED_MODE";
+  DecodeHintType2[DecodeHintType2["ASSUME_GS1"] = 8] = "ASSUME_GS1";
+  DecodeHintType2[DecodeHintType2["RETURN_CODABAR_START_END"] = 9] = "RETURN_CODABAR_START_END";
+  DecodeHintType2[DecodeHintType2["NEED_RESULT_POINT_CALLBACK"] = 10] = "NEED_RESULT_POINT_CALLBACK";
+  DecodeHintType2[DecodeHintType2["ALLOWED_EAN_EXTENSIONS"] = 11] = "ALLOWED_EAN_EXTENSIONS";
 })(DecodeHintType || (DecodeHintType = {}));
 var DecodeHintType_default = DecodeHintType;
 
@@ -920,7 +928,7 @@ var CharacterSetECI = (
   /** @class */
   function() {
     function CharacterSetECI2(valueIdentifier, valuesParam, name) {
-      var e_1, _a;
+      var e_1, _a2;
       var otherEncodingNames = [];
       for (var _i = 3; _i < arguments.length; _i++) {
         otherEncodingNames[_i - 3] = arguments[_i];
@@ -949,7 +957,7 @@ var CharacterSetECI = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (otherEncodingNames_1_1 && !otherEncodingNames_1_1.done && (_a = otherEncodingNames_1.return)) _a.call(otherEncodingNames_1);
+          if (otherEncodingNames_1_1 && !otherEncodingNames_1_1.done && (_a2 = otherEncodingNames_1.return)) _a2.call(otherEncodingNames_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -1385,7 +1393,7 @@ var StringBuilder = (
       return this.value;
     };
     StringBuilder2.prototype.insert = function(n, c) {
-      this.value = this.value.substr(0, n) + c + this.value.substr(n + c.length);
+      this.value = this.value.substring(0, n) + c + this.value.substring(n);
     };
     return StringBuilder2;
   }()
@@ -2203,31 +2211,57 @@ var HTMLCanvasElementLuminanceSource = (
   /** @class */
   function(_super) {
     __extends14(HTMLCanvasElementLuminanceSource3, _super);
-    function HTMLCanvasElementLuminanceSource3(canvas) {
+    function HTMLCanvasElementLuminanceSource3(canvas, doAutoInvert) {
+      if (doAutoInvert === void 0) {
+        doAutoInvert = false;
+      }
       var _this = _super.call(this, canvas.width, canvas.height) || this;
       _this.canvas = canvas;
       _this.tempCanvasElement = null;
-      _this.buffer = HTMLCanvasElementLuminanceSource3.makeBufferFromCanvasImageData(canvas);
+      _this.buffer = HTMLCanvasElementLuminanceSource3.makeBufferFromCanvasImageData(canvas, doAutoInvert);
       return _this;
     }
-    HTMLCanvasElementLuminanceSource3.makeBufferFromCanvasImageData = function(canvas) {
+    HTMLCanvasElementLuminanceSource3.makeBufferFromCanvasImageData = function(canvas, doAutoInvert) {
+      if (doAutoInvert === void 0) {
+        doAutoInvert = false;
+      }
       var imageData = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-      return HTMLCanvasElementLuminanceSource3.toGrayscaleBuffer(imageData.data, canvas.width, canvas.height);
+      return HTMLCanvasElementLuminanceSource3.toGrayscaleBuffer(imageData.data, canvas.width, canvas.height, doAutoInvert);
     };
-    HTMLCanvasElementLuminanceSource3.toGrayscaleBuffer = function(imageBuffer, width, height) {
+    HTMLCanvasElementLuminanceSource3.toGrayscaleBuffer = function(imageBuffer, width, height, doAutoInvert) {
+      if (doAutoInvert === void 0) {
+        doAutoInvert = false;
+      }
       var grayscaleBuffer = new Uint8ClampedArray(width * height);
-      for (var i = 0, j = 0, length_1 = imageBuffer.length; i < length_1; i += 4, j++) {
-        var gray = void 0;
-        var alpha = imageBuffer[i + 3];
-        if (alpha === 0) {
-          gray = 255;
-        } else {
-          var pixelR = imageBuffer[i];
-          var pixelG = imageBuffer[i + 1];
-          var pixelB = imageBuffer[i + 2];
-          gray = 306 * pixelR + 601 * pixelG + 117 * pixelB + 512 >> 10;
+      HTMLCanvasElementLuminanceSource3.FRAME_INDEX = !HTMLCanvasElementLuminanceSource3.FRAME_INDEX;
+      if (HTMLCanvasElementLuminanceSource3.FRAME_INDEX || !doAutoInvert) {
+        for (var i = 0, j = 0, length_1 = imageBuffer.length; i < length_1; i += 4, j++) {
+          var gray = void 0;
+          var alpha = imageBuffer[i + 3];
+          if (alpha === 0) {
+            gray = 255;
+          } else {
+            var pixelR = imageBuffer[i];
+            var pixelG = imageBuffer[i + 1];
+            var pixelB = imageBuffer[i + 2];
+            gray = 306 * pixelR + 601 * pixelG + 117 * pixelB + 512 >> 10;
+          }
+          grayscaleBuffer[j] = gray;
         }
-        grayscaleBuffer[j] = gray;
+      } else {
+        for (var i = 0, j = 0, length_2 = imageBuffer.length; i < length_2; i += 4, j++) {
+          var gray = void 0;
+          var alpha = imageBuffer[i + 3];
+          if (alpha === 0) {
+            gray = 255;
+          } else {
+            var pixelR = imageBuffer[i];
+            var pixelG = imageBuffer[i + 1];
+            var pixelB = imageBuffer[i + 2];
+            gray = 306 * pixelR + 601 * pixelG + 117 * pixelB + 512 >> 10;
+          }
+          grayscaleBuffer[j] = 255 - gray;
+        }
       }
       return grayscaleBuffer;
     };
@@ -2297,6 +2331,7 @@ var HTMLCanvasElementLuminanceSource = (
       return new InvertedLuminanceSource_default(this);
     };
     HTMLCanvasElementLuminanceSource3.DEGREE_TO_RADIANS = Math.PI / 180;
+    HTMLCanvasElementLuminanceSource3.FRAME_INDEX = true;
     return HTMLCanvasElementLuminanceSource3;
   }(LuminanceSource_default)
 );
@@ -2510,7 +2545,7 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.listVideoInputDevices = function() {
       return __awaiter(this, void 0, void 0, function() {
         var devices, videoDevices, devices_1, devices_1_1, device, kind, deviceId, label, groupId, videoDevice;
-        var e_1, _a;
+        var e_1, _a2;
         return __generator(this, function(_b) {
           switch (_b.label) {
             case 0:
@@ -2541,7 +2576,7 @@ var BrowserCodeReader = (
                 e_1 = { error: e_1_1 };
               } finally {
                 try {
-                  if (devices_1_1 && !devices_1_1.done && (_a = devices_1.return)) _a.call(devices_1);
+                  if (devices_1_1 && !devices_1_1.done && (_a2 = devices_1.return)) _a2.call(devices_1);
                 } finally {
                   if (e_1) throw e_1.error;
                 }
@@ -2554,12 +2589,12 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.getVideoInputDevices = function() {
       return __awaiter(this, void 0, void 0, function() {
         var devices;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, this.listVideoInputDevices()];
             case 1:
-              devices = _a.sent();
+              devices = _a2.sent();
               return [2, devices.map(function(d) {
                 return new VideoInputDevice(d.deviceId, d.label);
               })];
@@ -2570,12 +2605,12 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.findDeviceById = function(deviceId) {
       return __awaiter(this, void 0, void 0, function() {
         var devices;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, this.listVideoInputDevices()];
             case 1:
-              devices = _a.sent();
+              devices = _a2.sent();
               if (!devices) {
                 return [2, null];
               }
@@ -2588,12 +2623,12 @@ var BrowserCodeReader = (
     };
     BrowserCodeReader3.prototype.decodeFromInputVideoDevice = function(deviceId, videoSource) {
       return __awaiter(this, void 0, void 0, function() {
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, this.decodeOnceFromVideoDevice(deviceId, videoSource)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2601,8 +2636,8 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.decodeOnceFromVideoDevice = function(deviceId, videoSource) {
       return __awaiter(this, void 0, void 0, function() {
         var videoConstraints, constraints;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               this.reset();
               if (!deviceId) {
@@ -2613,7 +2648,7 @@ var BrowserCodeReader = (
               constraints = { video: videoConstraints };
               return [4, this.decodeOnceFromConstraints(constraints, videoSource)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2621,15 +2656,15 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.decodeOnceFromConstraints = function(constraints, videoSource) {
       return __awaiter(this, void 0, void 0, function() {
         var stream;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, navigator.mediaDevices.getUserMedia(constraints)];
             case 1:
-              stream = _a.sent();
+              stream = _a2.sent();
               return [4, this.decodeOnceFromStream(stream, videoSource)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2637,16 +2672,16 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.decodeOnceFromStream = function(stream, videoSource) {
       return __awaiter(this, void 0, void 0, function() {
         var video, result;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               this.reset();
               return [4, this.attachStreamToVideo(stream, videoSource)];
             case 1:
-              video = _a.sent();
+              video = _a2.sent();
               return [4, this.decodeOnce(video)];
             case 2:
-              result = _a.sent();
+              result = _a2.sent();
               return [2, result];
           }
         });
@@ -2654,12 +2689,12 @@ var BrowserCodeReader = (
     };
     BrowserCodeReader3.prototype.decodeFromInputVideoDeviceContinuously = function(deviceId, videoSource, callbackFn) {
       return __awaiter(this, void 0, void 0, function() {
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, this.decodeFromVideoDevice(deviceId, videoSource, callbackFn)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2667,8 +2702,8 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.decodeFromVideoDevice = function(deviceId, videoSource, callbackFn) {
       return __awaiter(this, void 0, void 0, function() {
         var videoConstraints, constraints;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (!deviceId) {
                 videoConstraints = { facingMode: "environment" };
@@ -2678,7 +2713,7 @@ var BrowserCodeReader = (
               constraints = { video: videoConstraints };
               return [4, this.decodeFromConstraints(constraints, videoSource, callbackFn)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2686,15 +2721,15 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.decodeFromConstraints = function(constraints, videoSource, callbackFn) {
       return __awaiter(this, void 0, void 0, function() {
         var stream;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, navigator.mediaDevices.getUserMedia(constraints)];
             case 1:
-              stream = _a.sent();
+              stream = _a2.sent();
               return [4, this.decodeFromStream(stream, videoSource, callbackFn)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2702,16 +2737,16 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.decodeFromStream = function(stream, videoSource, callbackFn) {
       return __awaiter(this, void 0, void 0, function() {
         var video;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               this.reset();
               return [4, this.attachStreamToVideo(stream, videoSource)];
             case 1:
-              video = _a.sent();
+              video = _a2.sent();
               return [4, this.decodeContinuously(video, callbackFn)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -2725,8 +2760,8 @@ var BrowserCodeReader = (
     BrowserCodeReader3.prototype.attachStreamToVideo = function(stream, videoSource) {
       return __awaiter(this, void 0, void 0, function() {
         var videoElement;
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               videoElement = this.prepareVideoElement(videoSource);
               this.addVideoSource(videoElement, stream);
@@ -2734,7 +2769,7 @@ var BrowserCodeReader = (
               this.stream = stream;
               return [4, this.playVideoOnLoadAsync(videoElement)];
             case 1:
-              _a.sent();
+              _a2.sent();
               return [2, videoElement];
           }
         });
@@ -2766,7 +2801,7 @@ var BrowserCodeReader = (
     };
     BrowserCodeReader3.prototype.tryPlayVideo = function(videoElement) {
       return __awaiter(this, void 0, void 0, function() {
-        var _a;
+        var _a2;
         return __generator(this, function(_b) {
           switch (_b.label) {
             case 0:
@@ -2785,7 +2820,7 @@ var BrowserCodeReader = (
               _b.sent();
               return [3, 4];
             case 3:
-              _a = _b.sent();
+              _a2 = _b.sent();
               console.warn("It was not possible to play the video.");
               return [3, 4];
             case 4:
@@ -2908,27 +2943,27 @@ var BrowserCodeReader = (
     };
     BrowserCodeReader3.prototype._decodeOnLoadVideo = function(videoElement) {
       return __awaiter(this, void 0, void 0, function() {
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, this.playVideoOnLoadAsync(videoElement)];
             case 1:
-              _a.sent();
+              _a2.sent();
               return [4, this.decodeOnce(videoElement)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
     };
     BrowserCodeReader3.prototype._decodeOnLoadVideoContinuously = function(videoElement, callbackFn) {
       return __awaiter(this, void 0, void 0, function() {
-        return __generator(this, function(_a) {
-          switch (_a.label) {
+        return __generator(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, this.playVideoOnLoadAsync(videoElement)];
             case 1:
-              _a.sent();
+              _a2.sent();
               this.decodeContinuously(videoElement, callbackFn);
               return [
                 2
@@ -3041,16 +3076,27 @@ var BrowserCodeReader = (
     };
     BrowserCodeReader3.prototype.createBinaryBitmap = function(mediaElement) {
       var ctx = this.getCaptureCanvasContext(mediaElement);
-      this.drawImageOnCanvas(ctx, mediaElement);
+      var doAutoInvert = false;
+      if (mediaElement instanceof HTMLVideoElement) {
+        this.drawFrameOnCanvas(mediaElement);
+        doAutoInvert = true;
+      } else {
+        this.drawImageOnCanvas(mediaElement);
+      }
       var canvas = this.getCaptureCanvas(mediaElement);
-      var luminanceSource = new HTMLCanvasElementLuminanceSource(canvas);
+      var luminanceSource = new HTMLCanvasElementLuminanceSource(canvas, doAutoInvert);
       var hybridBinarizer = new HybridBinarizer_default(luminanceSource);
       return new BinaryBitmap_default(hybridBinarizer);
     };
     BrowserCodeReader3.prototype.getCaptureCanvasContext = function(mediaElement) {
       if (!this.captureCanvasContext) {
         var elem = this.getCaptureCanvas(mediaElement);
-        var ctx = elem.getContext("2d");
+        var ctx = void 0;
+        try {
+          ctx = elem.getContext("2d", { willReadFrequently: true });
+        } catch (e) {
+          ctx = elem.getContext("2d");
+        }
         this.captureCanvasContext = ctx;
       }
       return this.captureCanvasContext;
@@ -3062,8 +3108,41 @@ var BrowserCodeReader = (
       }
       return this.captureCanvas;
     };
-    BrowserCodeReader3.prototype.drawImageOnCanvas = function(canvasElementContext, srcElement) {
-      canvasElementContext.drawImage(srcElement, 0, 0);
+    BrowserCodeReader3.prototype.drawFrameOnCanvas = function(srcElement, dimensions, canvasElementContext) {
+      if (dimensions === void 0) {
+        dimensions = {
+          sx: 0,
+          sy: 0,
+          sWidth: srcElement.videoWidth,
+          sHeight: srcElement.videoHeight,
+          dx: 0,
+          dy: 0,
+          dWidth: srcElement.videoWidth,
+          dHeight: srcElement.videoHeight
+        };
+      }
+      if (canvasElementContext === void 0) {
+        canvasElementContext = this.captureCanvasContext;
+      }
+      canvasElementContext.drawImage(srcElement, dimensions.sx, dimensions.sy, dimensions.sWidth, dimensions.sHeight, dimensions.dx, dimensions.dy, dimensions.dWidth, dimensions.dHeight);
+    };
+    BrowserCodeReader3.prototype.drawImageOnCanvas = function(srcElement, dimensions, canvasElementContext) {
+      if (dimensions === void 0) {
+        dimensions = {
+          sx: 0,
+          sy: 0,
+          sWidth: srcElement.naturalWidth,
+          sHeight: srcElement.naturalHeight,
+          dx: 0,
+          dy: 0,
+          dWidth: srcElement.naturalWidth,
+          dHeight: srcElement.naturalHeight
+        };
+      }
+      if (canvasElementContext === void 0) {
+        canvasElementContext = this.captureCanvasContext;
+      }
+      canvasElementContext.drawImage(srcElement, dimensions.sx, dimensions.sy, dimensions.sWidth, dimensions.sHeight, dimensions.dx, dimensions.dy, dimensions.dWidth, dimensions.dHeight);
     };
     BrowserCodeReader3.prototype.decodeBitmap = function(binaryBitmap) {
       return this.reader.decode(binaryBitmap, this._hints);
@@ -3165,7 +3244,7 @@ var BrowserCodeReader = (
 var Result = (
   /** @class */
   function() {
-    function Result2(text, rawBytes, numBits, resultPoints, format, timestamp) {
+    function Result3(text, rawBytes, numBits, resultPoints, format, timestamp) {
       if (numBits === void 0) {
         numBits = rawBytes == null ? 0 : 8 * rawBytes.length;
       }
@@ -3194,31 +3273,31 @@ var Result = (
         this.timestamp = timestamp;
       }
     }
-    Result2.prototype.getText = function() {
+    Result3.prototype.getText = function() {
       return this.text;
     };
-    Result2.prototype.getRawBytes = function() {
+    Result3.prototype.getRawBytes = function() {
       return this.rawBytes;
     };
-    Result2.prototype.getNumBits = function() {
+    Result3.prototype.getNumBits = function() {
       return this.numBits;
     };
-    Result2.prototype.getResultPoints = function() {
+    Result3.prototype.getResultPoints = function() {
       return this.resultPoints;
     };
-    Result2.prototype.getBarcodeFormat = function() {
+    Result3.prototype.getBarcodeFormat = function() {
       return this.format;
     };
-    Result2.prototype.getResultMetadata = function() {
+    Result3.prototype.getResultMetadata = function() {
       return this.resultMetadata;
     };
-    Result2.prototype.putMetadata = function(type, value) {
+    Result3.prototype.putMetadata = function(type, value) {
       if (this.resultMetadata === null) {
         this.resultMetadata = /* @__PURE__ */ new Map();
       }
       this.resultMetadata.set(type, value);
     };
-    Result2.prototype.putAllMetadata = function(metadata) {
+    Result3.prototype.putAllMetadata = function(metadata) {
       if (metadata !== null) {
         if (this.resultMetadata === null) {
           this.resultMetadata = metadata;
@@ -3227,7 +3306,7 @@ var Result = (
         }
       }
     };
-    Result2.prototype.addResultPoints = function(newPoints) {
+    Result3.prototype.addResultPoints = function(newPoints) {
       var oldPoints = this.resultPoints;
       if (oldPoints === null) {
         this.resultPoints = newPoints;
@@ -3238,13 +3317,13 @@ var Result = (
         this.resultPoints = allPoints;
       }
     };
-    Result2.prototype.getTimestamp = function() {
+    Result3.prototype.getTimestamp = function() {
       return this.timestamp;
     };
-    Result2.prototype.toString = function() {
+    Result3.prototype.toString = function() {
       return this.text;
     };
-    return Result2;
+    return Result3;
   }()
 );
 var Result_default = Result;
@@ -4204,28 +4283,26 @@ var Decoder = (
       "CTRL_BS"
     ];
     Decoder4.MIXED_TABLE = [
-      // Module parse failed: Octal literal in strict mode (50:29)
-      // so number string were scaped
       "CTRL_PS",
       " ",
-      "\\1",
-      "\\2",
-      "\\3",
-      "\\4",
-      "\\5",
-      "\\6",
-      "\\7",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "\x07",
       "\b",
       "	",
       "\n",
-      "\\13",
+      "\v",
       "\f",
       "\r",
-      "\\33",
-      "\\34",
-      "\\35",
-      "\\36",
-      "\\37",
+      "\x1B",
+      "",
+      "",
+      "",
+      "",
       "@",
       "\\",
       "^",
@@ -4233,7 +4310,7 @@ var Decoder = (
       "`",
       "|",
       "~",
-      "\\177",
+      "",
       "CTRL_LL",
       "CTRL_UL",
       "CTRL_PL",
@@ -4303,7 +4380,7 @@ var MathUtils = (
     function MathUtils2() {
     }
     MathUtils2.round = function(d) {
-      if (NaN === d)
+      if (isNaN(d))
         return 0;
       if (d <= Number.MIN_SAFE_INTEGER)
         return Number.MIN_SAFE_INTEGER;
@@ -5576,7 +5653,7 @@ var Code128Reader = (
               return Int32Array.from([patternStart, i, bestMatch]);
             }
             patternStart += counters[0] + counters[1];
-            counters = counters.slice(2, counters.length - 1);
+            counters = counters.slice(2, counters.length);
             counters[counterPosition - 1] = 0;
             counters[counterPosition] = 0;
             counterPosition--;
@@ -6020,7 +6097,7 @@ var Code39Reader = (
       return _this;
     }
     Code39Reader2.prototype.decodeRow = function(rowNumber, row, hints) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       var theCounters = this.counters;
       theCounters.fill(0);
       this.decodeRowResult = "";
@@ -6047,7 +6124,7 @@ var Code39Reader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (theCounters_1_1 && !theCounters_1_1.done && (_a = theCounters_1.return)) _a.call(theCounters_1);
+            if (theCounters_1_1 && !theCounters_1_1.done && (_a2 = theCounters_1.return)) _a2.call(theCounters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -6128,7 +6205,7 @@ var Code39Reader = (
       throw new NotFoundException_default();
     };
     Code39Reader2.toNarrowWidePattern = function(counters) {
-      var e_3, _a;
+      var e_3, _a2;
       var numCounters = counters.length;
       var maxNarrowCounter = 0;
       var wideCounters;
@@ -6145,7 +6222,7 @@ var Code39Reader = (
           e_3 = { error: e_3_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_3) throw e_3.error;
           }
@@ -6303,7 +6380,7 @@ var Code39Reader = (
 );
 var Code39Reader_default = Code39Reader;
 
-// front/node_modules/@zxing/library/esm/core/oned/ITFReader.js
+// front/node_modules/@zxing/library/esm/core/oned/Code93Reader.js
 var __extends24 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
@@ -6332,17 +6409,333 @@ var __values5 = function(o) {
   };
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var Code93Reader = (
+  /** @class */
+  function(_super) {
+    __extends24(Code93Reader2, _super);
+    function Code93Reader2() {
+      var _this = _super.call(this) || this;
+      _this.decodeRowResult = "";
+      _this.counters = new Int32Array(6);
+      return _this;
+    }
+    Code93Reader2.prototype.decodeRow = function(rowNumber, row, hints) {
+      var e_1, _a2, e_2, _b;
+      var start = this.findAsteriskPattern(row);
+      var nextStart = row.getNextSet(start[1]);
+      var end = row.getSize();
+      var theCounters = this.counters;
+      theCounters.fill(0);
+      this.decodeRowResult = "";
+      var decodedChar;
+      var lastStart;
+      do {
+        Code93Reader2.recordPattern(row, nextStart, theCounters);
+        var pattern = this.toPattern(theCounters);
+        if (pattern < 0) {
+          throw new NotFoundException_default();
+        }
+        decodedChar = this.patternToChar(pattern);
+        this.decodeRowResult += decodedChar;
+        lastStart = nextStart;
+        try {
+          for (var theCounters_1 = (e_1 = void 0, __values5(theCounters)), theCounters_1_1 = theCounters_1.next(); !theCounters_1_1.done; theCounters_1_1 = theCounters_1.next()) {
+            var counter = theCounters_1_1.value;
+            nextStart += counter;
+          }
+        } catch (e_1_1) {
+          e_1 = { error: e_1_1 };
+        } finally {
+          try {
+            if (theCounters_1_1 && !theCounters_1_1.done && (_a2 = theCounters_1.return)) _a2.call(theCounters_1);
+          } finally {
+            if (e_1) throw e_1.error;
+          }
+        }
+        nextStart = row.getNextSet(nextStart);
+      } while (decodedChar !== "*");
+      this.decodeRowResult = this.decodeRowResult.substring(0, this.decodeRowResult.length - 1);
+      var lastPatternSize = 0;
+      try {
+        for (var theCounters_2 = __values5(theCounters), theCounters_2_1 = theCounters_2.next(); !theCounters_2_1.done; theCounters_2_1 = theCounters_2.next()) {
+          var counter = theCounters_2_1.value;
+          lastPatternSize += counter;
+        }
+      } catch (e_2_1) {
+        e_2 = { error: e_2_1 };
+      } finally {
+        try {
+          if (theCounters_2_1 && !theCounters_2_1.done && (_b = theCounters_2.return)) _b.call(theCounters_2);
+        } finally {
+          if (e_2) throw e_2.error;
+        }
+      }
+      if (nextStart === end || !row.get(nextStart)) {
+        throw new NotFoundException_default();
+      }
+      if (this.decodeRowResult.length < 2) {
+        throw new NotFoundException_default();
+      }
+      this.checkChecksums(this.decodeRowResult);
+      this.decodeRowResult = this.decodeRowResult.substring(0, this.decodeRowResult.length - 2);
+      var resultString = this.decodeExtended(this.decodeRowResult);
+      var left = (start[1] + start[0]) / 2;
+      var right = lastStart + lastPatternSize / 2;
+      return new Result_default(resultString, null, 0, [new ResultPoint_default(left, rowNumber), new ResultPoint_default(right, rowNumber)], BarcodeFormat_default.CODE_93, (/* @__PURE__ */ new Date()).getTime());
+    };
+    Code93Reader2.prototype.findAsteriskPattern = function(row) {
+      var width = row.getSize();
+      var rowOffset = row.getNextSet(0);
+      this.counters.fill(0);
+      var theCounters = this.counters;
+      var patternStart = rowOffset;
+      var isWhite = false;
+      var patternLength = theCounters.length;
+      var counterPosition = 0;
+      for (var i = rowOffset; i < width; i++) {
+        if (row.get(i) !== isWhite) {
+          theCounters[counterPosition]++;
+        } else {
+          if (counterPosition === patternLength - 1) {
+            if (this.toPattern(theCounters) === Code93Reader2.ASTERISK_ENCODING) {
+              return new Int32Array([patternStart, i]);
+            }
+            patternStart += theCounters[0] + theCounters[1];
+            theCounters.copyWithin(0, 2, 2 + counterPosition - 1);
+            theCounters[counterPosition - 1] = 0;
+            theCounters[counterPosition] = 0;
+            counterPosition--;
+          } else {
+            counterPosition++;
+          }
+          theCounters[counterPosition] = 1;
+          isWhite = !isWhite;
+        }
+      }
+      throw new NotFoundException_default();
+    };
+    Code93Reader2.prototype.toPattern = function(counters) {
+      var e_3, _a2;
+      var sum = 0;
+      try {
+        for (var counters_1 = __values5(counters), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          var counter = counters_1_1.value;
+          sum += counter;
+        }
+      } catch (e_3_1) {
+        e_3 = { error: e_3_1 };
+      } finally {
+        try {
+          if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
+        } finally {
+          if (e_3) throw e_3.error;
+        }
+      }
+      var pattern = 0;
+      var max = counters.length;
+      for (var i = 0; i < max; i++) {
+        var scaled = Math.round(counters[i] * 9 / sum);
+        if (scaled < 1 || scaled > 4) {
+          return -1;
+        }
+        if ((i & 1) === 0) {
+          for (var j = 0; j < scaled; j++) {
+            pattern = pattern << 1 | 1;
+          }
+        } else {
+          pattern <<= scaled;
+        }
+      }
+      return pattern;
+    };
+    Code93Reader2.prototype.patternToChar = function(pattern) {
+      for (var i = 0; i < Code93Reader2.CHARACTER_ENCODINGS.length; i++) {
+        if (Code93Reader2.CHARACTER_ENCODINGS[i] === pattern) {
+          return Code93Reader2.ALPHABET_STRING.charAt(i);
+        }
+      }
+      throw new NotFoundException_default();
+    };
+    Code93Reader2.prototype.decodeExtended = function(encoded) {
+      var length = encoded.length;
+      var decoded = "";
+      for (var i = 0; i < length; i++) {
+        var c = encoded.charAt(i);
+        if (c >= "a" && c <= "d") {
+          if (i >= length - 1) {
+            throw new FormatException_default();
+          }
+          var next = encoded.charAt(i + 1);
+          var decodedChar = "\0";
+          switch (c) {
+            case "d":
+              if (next >= "A" && next <= "Z") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) + 32);
+              } else {
+                throw new FormatException_default();
+              }
+              break;
+            case "a":
+              if (next >= "A" && next <= "Z") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) - 64);
+              } else {
+                throw new FormatException_default();
+              }
+              break;
+            case "b":
+              if (next >= "A" && next <= "E") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) - 38);
+              } else if (next >= "F" && next <= "J") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) - 11);
+              } else if (next >= "K" && next <= "O") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) + 16);
+              } else if (next >= "P" && next <= "T") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) + 43);
+              } else if (next === "U") {
+                decodedChar = "\0";
+              } else if (next === "V") {
+                decodedChar = "@";
+              } else if (next === "W") {
+                decodedChar = "`";
+              } else if (next >= "X" && next <= "Z") {
+                decodedChar = String.fromCharCode(127);
+              } else {
+                throw new FormatException_default();
+              }
+              break;
+            case "c":
+              if (next >= "A" && next <= "O") {
+                decodedChar = String.fromCharCode(next.charCodeAt(0) - 32);
+              } else if (next === "Z") {
+                decodedChar = ":";
+              } else {
+                throw new FormatException_default();
+              }
+              break;
+          }
+          decoded += decodedChar;
+          i++;
+        } else {
+          decoded += c;
+        }
+      }
+      return decoded;
+    };
+    Code93Reader2.prototype.checkChecksums = function(result) {
+      var length = result.length;
+      this.checkOneChecksum(result, length - 2, 20);
+      this.checkOneChecksum(result, length - 1, 15);
+    };
+    Code93Reader2.prototype.checkOneChecksum = function(result, checkPosition, weightMax) {
+      var weight = 1;
+      var total = 0;
+      for (var i = checkPosition - 1; i >= 0; i--) {
+        total += weight * Code93Reader2.ALPHABET_STRING.indexOf(result.charAt(i));
+        if (++weight > weightMax) {
+          weight = 1;
+        }
+      }
+      if (result.charAt(checkPosition) !== Code93Reader2.ALPHABET_STRING[total % 47]) {
+        throw new ChecksumException_default();
+      }
+    };
+    Code93Reader2.ALPHABET_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%abcd*";
+    Code93Reader2.CHARACTER_ENCODINGS = [
+      276,
+      328,
+      324,
+      322,
+      296,
+      292,
+      290,
+      336,
+      274,
+      266,
+      424,
+      420,
+      418,
+      404,
+      402,
+      394,
+      360,
+      356,
+      354,
+      308,
+      282,
+      344,
+      332,
+      326,
+      300,
+      278,
+      436,
+      434,
+      428,
+      422,
+      406,
+      410,
+      364,
+      358,
+      310,
+      314,
+      302,
+      468,
+      466,
+      458,
+      366,
+      374,
+      430,
+      294,
+      474,
+      470,
+      306,
+      350
+    ];
+    Code93Reader2.ASTERISK_ENCODING = Code93Reader2.CHARACTER_ENCODINGS[47];
+    return Code93Reader2;
+  }(OneDReader_default)
+);
+var Code93Reader_default = Code93Reader;
+
+// front/node_modules/@zxing/library/esm/core/oned/ITFReader.js
+var __extends25 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var __values6 = function(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function() {
+      if (o && i >= o.length) o = void 0;
+      return { value: o && o[i++], done: !o };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var ITFReader = (
   /** @class */
   function(_super) {
-    __extends24(ITFReader2, _super);
+    __extends25(ITFReader2, _super);
     function ITFReader2() {
       var _this = _super !== null && _super.apply(this, arguments) || this;
       _this.narrowLineWidth = -1;
       return _this;
     }
     ITFReader2.prototype.decodeRow = function(rowNumber, row, hints) {
-      var e_1, _a;
+      var e_1, _a2;
       var startRange = this.decodeStart(row);
       var endRange = this.decodeEnd(row);
       var result = new StringBuilder_default();
@@ -6359,7 +6752,7 @@ var ITFReader = (
       var lengthOK = false;
       var maxAllowedLength = 0;
       try {
-        for (var allowedLengths_1 = __values5(allowedLengths), allowedLengths_1_1 = allowedLengths_1.next(); !allowedLengths_1_1.done; allowedLengths_1_1 = allowedLengths_1.next()) {
+        for (var allowedLengths_1 = __values6(allowedLengths), allowedLengths_1_1 = allowedLengths_1.next(); !allowedLengths_1_1.done; allowedLengths_1_1 = allowedLengths_1.next()) {
           var value = allowedLengths_1_1.value;
           if (length === value) {
             lengthOK = true;
@@ -6373,7 +6766,7 @@ var ITFReader = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (allowedLengths_1_1 && !allowedLengths_1_1.done && (_a = allowedLengths_1.return)) _a.call(allowedLengths_1);
+          if (allowedLengths_1_1 && !allowedLengths_1_1.done && (_a2 = allowedLengths_1.return)) _a2.call(allowedLengths_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -6556,7 +6949,7 @@ var ITFReader = (
 var ITFReader_default = ITFReader;
 
 // front/node_modules/@zxing/library/esm/core/oned/AbstractUPCEANReader.js
-var __extends25 = /* @__PURE__ */ function() {
+var __extends26 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -6576,7 +6969,7 @@ var __extends25 = /* @__PURE__ */ function() {
 var AbstractUPCEANReader = (
   /** @class */
   function(_super) {
-    __extends25(AbstractUPCEANReader2, _super);
+    __extends26(AbstractUPCEANReader2, _super);
     function AbstractUPCEANReader2() {
       var _this = _super !== null && _super.apply(this, arguments) || this;
       _this.decodeRowStringBuffer = "";
@@ -6651,7 +7044,7 @@ var AbstractUPCEANReader = (
               return Int32Array.from([patternStart, x]);
             }
             patternStart += counters[0] + counters[1];
-            var slice = counters.slice(2, counters.length - 1);
+            var slice = counters.slice(2, counters.length);
             for (var i = 0; i < counterPosition - 1; i++) {
               counters[i] = slice[i];
             }
@@ -6709,7 +7102,7 @@ var AbstractUPCEANReader = (
 var AbstractUPCEANReader_default = AbstractUPCEANReader;
 
 // front/node_modules/@zxing/library/esm/core/oned/UPCEANExtension5Support.js
-var __values6 = function(o) {
+var __values7 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -6744,7 +7137,7 @@ var UPCEANExtension5Support = (
       return extensionResult;
     };
     UPCEANExtension5Support2.prototype.decodeMiddle = function(row, startRange, resultString) {
-      var e_1, _a;
+      var e_1, _a2;
       var counters = this.decodeMiddleCounters;
       counters[0] = 0;
       counters[1] = 0;
@@ -6757,7 +7150,7 @@ var UPCEANExtension5Support = (
         var bestMatch = AbstractUPCEANReader_default.decodeDigit(row, counters, rowOffset, AbstractUPCEANReader_default.L_AND_G_PATTERNS);
         resultString += String.fromCharCode("0".charCodeAt(0) + bestMatch % 10);
         try {
-          for (var counters_1 = (e_1 = void 0, __values6(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          for (var counters_1 = (e_1 = void 0, __values7(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
             var counter = counters_1_1.value;
             rowOffset += counter;
           }
@@ -6765,7 +7158,7 @@ var UPCEANExtension5Support = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -6854,7 +7247,7 @@ var UPCEANExtension5Support = (
 var UPCEANExtension5Support_default = UPCEANExtension5Support;
 
 // front/node_modules/@zxing/library/esm/core/oned/UPCEANExtension2Support.js
-var __values7 = function(o) {
+var __values8 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -6888,7 +7281,7 @@ var UPCEANExtension2Support = (
       return extensionResult;
     };
     UPCEANExtension2Support2.prototype.decodeMiddle = function(row, startRange, resultString) {
-      var e_1, _a;
+      var e_1, _a2;
       var counters = this.decodeMiddleCounters;
       counters[0] = 0;
       counters[1] = 0;
@@ -6901,7 +7294,7 @@ var UPCEANExtension2Support = (
         var bestMatch = AbstractUPCEANReader_default.decodeDigit(row, counters, rowOffset, AbstractUPCEANReader_default.L_AND_G_PATTERNS);
         resultString += String.fromCharCode("0".charCodeAt(0) + bestMatch % 10);
         try {
-          for (var counters_1 = (e_1 = void 0, __values7(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          for (var counters_1 = (e_1 = void 0, __values8(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
             var counter = counters_1_1.value;
             rowOffset += counter;
           }
@@ -6909,7 +7302,7 @@ var UPCEANExtension2Support = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -6964,7 +7357,7 @@ var UPCEANExtensionSupport = (
 var UPCEANExtensionSupport_default = UPCEANExtensionSupport;
 
 // front/node_modules/@zxing/library/esm/core/oned/UPCEANReader.js
-var __extends26 = /* @__PURE__ */ function() {
+var __extends27 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -6984,7 +7377,7 @@ var __extends26 = /* @__PURE__ */ function() {
 var UPCEANReader = (
   /** @class */
   function(_super) {
-    __extends26(UPCEANReader2, _super);
+    __extends27(UPCEANReader2, _super);
     function UPCEANReader2() {
       var _this = _super.call(this) || this;
       _this.decodeRowStringBuffer = "";
@@ -7102,7 +7495,7 @@ var UPCEANReader = (
 var UPCEANReader_default = UPCEANReader;
 
 // front/node_modules/@zxing/library/esm/core/oned/EAN13Reader.js
-var __extends27 = /* @__PURE__ */ function() {
+var __extends28 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -7119,7 +7512,7 @@ var __extends27 = /* @__PURE__ */ function() {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __values8 = function(o) {
+var __values9 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -7133,14 +7526,14 @@ var __values8 = function(o) {
 var EAN13Reader = (
   /** @class */
   function(_super) {
-    __extends27(EAN13Reader2, _super);
+    __extends28(EAN13Reader2, _super);
     function EAN13Reader2() {
       var _this = _super.call(this) || this;
       _this.decodeMiddleCounters = Int32Array.from([0, 0, 0, 0]);
       return _this;
     }
     EAN13Reader2.prototype.decodeMiddle = function(row, startRange, resultString) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       var counters = this.decodeMiddleCounters;
       counters[0] = 0;
       counters[1] = 0;
@@ -7153,7 +7546,7 @@ var EAN13Reader = (
         var bestMatch = UPCEANReader_default.decodeDigit(row, counters, rowOffset, UPCEANReader_default.L_AND_G_PATTERNS);
         resultString += String.fromCharCode("0".charCodeAt(0) + bestMatch % 10);
         try {
-          for (var counters_1 = (e_1 = void 0, __values8(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          for (var counters_1 = (e_1 = void 0, __values9(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
             var counter = counters_1_1.value;
             rowOffset += counter;
           }
@@ -7161,7 +7554,7 @@ var EAN13Reader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -7177,7 +7570,7 @@ var EAN13Reader = (
         var bestMatch = UPCEANReader_default.decodeDigit(row, counters, rowOffset, UPCEANReader_default.L_PATTERNS);
         resultString += String.fromCharCode("0".charCodeAt(0) + bestMatch);
         try {
-          for (var counters_2 = (e_2 = void 0, __values8(counters)), counters_2_1 = counters_2.next(); !counters_2_1.done; counters_2_1 = counters_2.next()) {
+          for (var counters_2 = (e_2 = void 0, __values9(counters)), counters_2_1 = counters_2.next(); !counters_2_1.done; counters_2_1 = counters_2.next()) {
             var counter = counters_2_1.value;
             rowOffset += counter;
           }
@@ -7212,7 +7605,7 @@ var EAN13Reader = (
 var EAN13Reader_default = EAN13Reader;
 
 // front/node_modules/@zxing/library/esm/core/oned/EAN8Reader.js
-var __extends28 = /* @__PURE__ */ function() {
+var __extends29 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -7229,7 +7622,7 @@ var __extends28 = /* @__PURE__ */ function() {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __values9 = function(o) {
+var __values10 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -7243,14 +7636,14 @@ var __values9 = function(o) {
 var EAN8Reader = (
   /** @class */
   function(_super) {
-    __extends28(EAN8Reader2, _super);
+    __extends29(EAN8Reader2, _super);
     function EAN8Reader2() {
       var _this = _super.call(this) || this;
       _this.decodeMiddleCounters = Int32Array.from([0, 0, 0, 0]);
       return _this;
     }
     EAN8Reader2.prototype.decodeMiddle = function(row, startRange, resultString) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       var counters = this.decodeMiddleCounters;
       counters[0] = 0;
       counters[1] = 0;
@@ -7262,7 +7655,7 @@ var EAN8Reader = (
         var bestMatch = UPCEANReader_default.decodeDigit(row, counters, rowOffset, UPCEANReader_default.L_PATTERNS);
         resultString += String.fromCharCode("0".charCodeAt(0) + bestMatch);
         try {
-          for (var counters_1 = (e_1 = void 0, __values9(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          for (var counters_1 = (e_1 = void 0, __values10(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
             var counter = counters_1_1.value;
             rowOffset += counter;
           }
@@ -7270,7 +7663,7 @@ var EAN8Reader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -7282,7 +7675,7 @@ var EAN8Reader = (
         var bestMatch = UPCEANReader_default.decodeDigit(row, counters, rowOffset, UPCEANReader_default.L_PATTERNS);
         resultString += String.fromCharCode("0".charCodeAt(0) + bestMatch);
         try {
-          for (var counters_2 = (e_2 = void 0, __values9(counters)), counters_2_1 = counters_2.next(); !counters_2_1.done; counters_2_1 = counters_2.next()) {
+          for (var counters_2 = (e_2 = void 0, __values10(counters)), counters_2_1 = counters_2.next(); !counters_2_1.done; counters_2_1 = counters_2.next()) {
             var counter = counters_2_1.value;
             rowOffset += counter;
           }
@@ -7307,7 +7700,7 @@ var EAN8Reader = (
 var EAN8Reader_default = EAN8Reader;
 
 // front/node_modules/@zxing/library/esm/core/oned/UPCAReader.js
-var __extends29 = /* @__PURE__ */ function() {
+var __extends30 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -7327,7 +7720,7 @@ var __extends29 = /* @__PURE__ */ function() {
 var UPCAReader = (
   /** @class */
   function(_super) {
-    __extends29(UPCAReader2, _super);
+    __extends30(UPCAReader2, _super);
     function UPCAReader2() {
       var _this = _super !== null && _super.apply(this, arguments) || this;
       _this.ean13Reader = new EAN13Reader_default();
@@ -7366,7 +7759,7 @@ var UPCAReader = (
 var UPCAReader_default = UPCAReader;
 
 // front/node_modules/@zxing/library/esm/core/oned/UPCEReader.js
-var __extends30 = /* @__PURE__ */ function() {
+var __extends31 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -7383,7 +7776,7 @@ var __extends30 = /* @__PURE__ */ function() {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __values10 = function(o) {
+var __values11 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -7397,14 +7790,14 @@ var __values10 = function(o) {
 var UPCEReader = (
   /** @class */
   function(_super) {
-    __extends30(UPCEReader2, _super);
+    __extends31(UPCEReader2, _super);
     function UPCEReader2() {
       var _this = _super.call(this) || this;
       _this.decodeMiddleCounters = new Int32Array(4);
       return _this;
     }
     UPCEReader2.prototype.decodeMiddle = function(row, startRange, result) {
-      var e_1, _a;
+      var e_1, _a2;
       var counters = this.decodeMiddleCounters.map(function(x2) {
         return x2;
       });
@@ -7419,7 +7812,7 @@ var UPCEReader = (
         var bestMatch = UPCEReader2.decodeDigit(row, counters, rowOffset, UPCEReader2.L_AND_G_PATTERNS);
         result += String.fromCharCode("0".charCodeAt(0) + bestMatch % 10);
         try {
-          for (var counters_1 = (e_1 = void 0, __values10(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          for (var counters_1 = (e_1 = void 0, __values11(counters)), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
             var counter = counters_1_1.value;
             rowOffset += counter;
           }
@@ -7427,7 +7820,7 @@ var UPCEReader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -7517,117 +7910,6 @@ var UPCEReader = (
 var UPCEReader_default = UPCEReader;
 
 // front/node_modules/@zxing/library/esm/core/oned/MultiFormatUPCEANReader.js
-var __extends31 = /* @__PURE__ */ function() {
-  var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
-      d2.__proto__ = b2;
-    } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
-    };
-    return extendStatics(d, b);
-  };
-  return function(d, b) {
-    extendStatics(d, b);
-    function __() {
-      this.constructor = d;
-    }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
-}();
-var __values11 = function(o) {
-  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-  if (m) return m.call(o);
-  if (o && typeof o.length === "number") return {
-    next: function() {
-      if (o && i >= o.length) o = void 0;
-      return { value: o && o[i++], done: !o };
-    }
-  };
-  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-var MultiFormatUPCEANReader = (
-  /** @class */
-  function(_super) {
-    __extends31(MultiFormatUPCEANReader2, _super);
-    function MultiFormatUPCEANReader2(hints) {
-      var _this = _super.call(this) || this;
-      var possibleFormats = hints == null ? null : hints.get(DecodeHintType_default.POSSIBLE_FORMATS);
-      var readers = [];
-      if (possibleFormats != null) {
-        if (possibleFormats.indexOf(BarcodeFormat_default.EAN_13) > -1) {
-          readers.push(new EAN13Reader_default());
-        } else if (possibleFormats.indexOf(BarcodeFormat_default.UPC_A) > -1) {
-          readers.push(new UPCAReader_default());
-        }
-        if (possibleFormats.indexOf(BarcodeFormat_default.EAN_8) > -1) {
-          readers.push(new EAN8Reader_default());
-        }
-        if (possibleFormats.indexOf(BarcodeFormat_default.UPC_E) > -1) {
-          readers.push(new UPCEReader_default());
-        }
-      }
-      if (readers.length === 0) {
-        readers.push(new EAN13Reader_default());
-        readers.push(new EAN8Reader_default());
-        readers.push(new UPCEReader_default());
-      }
-      _this.readers = readers;
-      return _this;
-    }
-    MultiFormatUPCEANReader2.prototype.decodeRow = function(rowNumber, row, hints) {
-      var e_1, _a;
-      try {
-        for (var _b = __values11(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
-          var reader = _c.value;
-          try {
-            var result = reader.decodeRow(rowNumber, row, hints);
-            var ean13MayBeUPCA = result.getBarcodeFormat() === BarcodeFormat_default.EAN_13 && result.getText().charAt(0) === "0";
-            var possibleFormats = hints == null ? null : hints.get(DecodeHintType_default.POSSIBLE_FORMATS);
-            var canReturnUPCA = possibleFormats == null || possibleFormats.includes(BarcodeFormat_default.UPC_A);
-            if (ean13MayBeUPCA && canReturnUPCA) {
-              var rawBytes = result.getRawBytes();
-              var resultUPCA = new Result_default(result.getText().substring(1), rawBytes, rawBytes.length, result.getResultPoints(), BarcodeFormat_default.UPC_A);
-              resultUPCA.putAllMetadata(result.getResultMetadata());
-              return resultUPCA;
-            }
-            return result;
-          } catch (err) {
-          }
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-        } finally {
-          if (e_1) throw e_1.error;
-        }
-      }
-      throw new NotFoundException_default();
-    };
-    MultiFormatUPCEANReader2.prototype.reset = function() {
-      var e_2, _a;
-      try {
-        for (var _b = __values11(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
-          var reader = _c.value;
-          reader.reset();
-        }
-      } catch (e_2_1) {
-        e_2 = { error: e_2_1 };
-      } finally {
-        try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-        } finally {
-          if (e_2) throw e_2.error;
-        }
-      }
-    };
-    return MultiFormatUPCEANReader2;
-  }(OneDReader_default)
-);
-var MultiFormatUPCEANReader_default = MultiFormatUPCEANReader;
-
-// front/node_modules/@zxing/library/esm/core/oned/rss/AbstractRSSReader.js
 var __extends32 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
@@ -7656,10 +7938,234 @@ var __values12 = function(o) {
   };
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var MultiFormatUPCEANReader = (
+  /** @class */
+  function(_super) {
+    __extends32(MultiFormatUPCEANReader2, _super);
+    function MultiFormatUPCEANReader2(hints) {
+      var _this = _super.call(this) || this;
+      var possibleFormats = hints == null ? null : hints.get(DecodeHintType_default.POSSIBLE_FORMATS);
+      var readers = [];
+      if (possibleFormats != null) {
+        if (possibleFormats.indexOf(BarcodeFormat_default.EAN_13) > -1) {
+          readers.push(new EAN13Reader_default());
+        }
+        if (possibleFormats.indexOf(BarcodeFormat_default.UPC_A) > -1) {
+          readers.push(new UPCAReader_default());
+        }
+        if (possibleFormats.indexOf(BarcodeFormat_default.EAN_8) > -1) {
+          readers.push(new EAN8Reader_default());
+        }
+        if (possibleFormats.indexOf(BarcodeFormat_default.UPC_E) > -1) {
+          readers.push(new UPCEReader_default());
+        }
+      }
+      if (readers.length === 0) {
+        readers.push(new EAN13Reader_default());
+        readers.push(new UPCAReader_default());
+        readers.push(new EAN8Reader_default());
+        readers.push(new UPCEReader_default());
+      }
+      _this.readers = readers;
+      return _this;
+    }
+    MultiFormatUPCEANReader2.prototype.decodeRow = function(rowNumber, row, hints) {
+      var e_1, _a2;
+      try {
+        for (var _b = __values12(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
+          var reader = _c.value;
+          try {
+            var result = reader.decodeRow(rowNumber, row, hints);
+            var ean13MayBeUPCA = result.getBarcodeFormat() === BarcodeFormat_default.EAN_13 && result.getText().charAt(0) === "0";
+            var possibleFormats = hints == null ? null : hints.get(DecodeHintType_default.POSSIBLE_FORMATS);
+            var canReturnUPCA = possibleFormats == null || possibleFormats.includes(BarcodeFormat_default.UPC_A);
+            if (ean13MayBeUPCA && canReturnUPCA) {
+              var rawBytes = result.getRawBytes();
+              var resultUPCA = new Result_default(result.getText().substring(1), rawBytes, rawBytes ? rawBytes.length : null, result.getResultPoints(), BarcodeFormat_default.UPC_A);
+              resultUPCA.putAllMetadata(result.getResultMetadata());
+              return resultUPCA;
+            }
+            return result;
+          } catch (err) {
+          }
+        }
+      } catch (e_1_1) {
+        e_1 = { error: e_1_1 };
+      } finally {
+        try {
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
+        } finally {
+          if (e_1) throw e_1.error;
+        }
+      }
+      throw new NotFoundException_default();
+    };
+    MultiFormatUPCEANReader2.prototype.reset = function() {
+      var e_2, _a2;
+      try {
+        for (var _b = __values12(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
+          var reader = _c.value;
+          reader.reset();
+        }
+      } catch (e_2_1) {
+        e_2 = { error: e_2_1 };
+      } finally {
+        try {
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
+        } finally {
+          if (e_2) throw e_2.error;
+        }
+      }
+    };
+    return MultiFormatUPCEANReader2;
+  }(OneDReader_default)
+);
+var MultiFormatUPCEANReader_default = MultiFormatUPCEANReader;
+
+// front/node_modules/@zxing/library/esm/core/oned/CodaBarReader.js
+var __extends33 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var CodaBarReader = (
+  /** @class */
+  function(_super) {
+    __extends33(CodaBarReader2, _super);
+    function CodaBarReader2() {
+      var _this = _super !== null && _super.apply(this, arguments) || this;
+      _this.CODA_BAR_CHAR_SET = {
+        nnnnnww: "0",
+        nnnnwwn: "1",
+        nnnwnnw: "2",
+        wwnnnnn: "3",
+        nnwnnwn: "4",
+        wnnnnwn: "5",
+        nwnnnnw: "6",
+        nwnnwnn: "7",
+        nwwnnnn: "8",
+        wnnwnnn: "9",
+        nnnwwnn: "-",
+        nnwwnnn: "$",
+        wnnnwnw: ":",
+        wnwnnnw: "/",
+        wnwnwnn: ".",
+        nnwwwww: "+",
+        nnwwnwn: "A",
+        nwnwnnw: "B",
+        nnnwnww: "C",
+        nnnwwwn: "D"
+      };
+      return _this;
+    }
+    CodaBarReader2.prototype.decodeRow = function(rowNumber, row, hints) {
+      var validRowData = this.getValidRowData(row);
+      if (!validRowData)
+        throw new NotFoundException_default();
+      var retStr = this.codaBarDecodeRow(validRowData.row);
+      if (!retStr)
+        throw new NotFoundException_default();
+      return new Result_default(retStr, null, 0, [new ResultPoint_default(validRowData.left, rowNumber), new ResultPoint_default(validRowData.right, rowNumber)], BarcodeFormat_default.CODABAR, (/* @__PURE__ */ new Date()).getTime());
+    };
+    CodaBarReader2.prototype.getValidRowData = function(row) {
+      var booleanArr = row.toArray();
+      var startIndex = booleanArr.indexOf(true);
+      if (startIndex === -1)
+        return null;
+      var lastIndex = booleanArr.lastIndexOf(true);
+      if (lastIndex <= startIndex)
+        return null;
+      booleanArr = booleanArr.slice(startIndex, lastIndex + 1);
+      var result = [];
+      var lastBit = booleanArr[0];
+      var bitLength = 1;
+      for (var i = 1; i < booleanArr.length; i++) {
+        if (booleanArr[i] === lastBit) {
+          bitLength++;
+        } else {
+          lastBit = booleanArr[i];
+          result.push(bitLength);
+          bitLength = 1;
+        }
+      }
+      result.push(bitLength);
+      if (result.length < 23 && (result.length + 1) % 8 !== 0)
+        return null;
+      return { row: result, left: startIndex, right: lastIndex };
+    };
+    CodaBarReader2.prototype.codaBarDecodeRow = function(row) {
+      var code = [];
+      var barThreshold = Math.ceil(row.reduce(function(pre, item) {
+        return (pre + item) / 2;
+      }, 0));
+      while (row.length > 0) {
+        var seg = row.splice(0, 8).splice(0, 7);
+        var key = seg.map(function(len) {
+          return len < barThreshold ? "n" : "w";
+        }).join("");
+        if (this.CODA_BAR_CHAR_SET[key] === void 0)
+          return null;
+        code.push(this.CODA_BAR_CHAR_SET[key]);
+      }
+      var strCode = code.join("");
+      if (this.validCodaBarString(strCode))
+        return strCode;
+      return null;
+    };
+    CodaBarReader2.prototype.validCodaBarString = function(src) {
+      var reg = /^[A-D].{1,}[A-D]$/;
+      return reg.test(src);
+    };
+    return CodaBarReader2;
+  }(OneDReader_default)
+);
+var CodaBarReader_default = CodaBarReader;
+
+// front/node_modules/@zxing/library/esm/core/oned/rss/AbstractRSSReader.js
+var __extends34 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var __values13 = function(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function() {
+      if (o && i >= o.length) o = void 0;
+      return { value: o && o[i++], done: !o };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var AbstractRSSReader = (
   /** @class */
   function(_super) {
-    __extends32(AbstractRSSReader2, _super);
+    __extends34(AbstractRSSReader2, _super);
     function AbstractRSSReader2() {
       var _this = _super.call(this) || this;
       _this.decodeFinderCounters = new Int32Array(4);
@@ -7722,7 +8228,7 @@ var AbstractRSSReader = (
       array[index]--;
     };
     AbstractRSSReader2.isFinderPattern = function(counters) {
-      var e_1, _a;
+      var e_1, _a2;
       var firstTwoSum = counters[0] + counters[1];
       var sum = firstTwoSum + counters[2] + counters[3];
       var ratio = firstTwoSum / sum;
@@ -7730,7 +8236,7 @@ var AbstractRSSReader = (
         var minCounter = Number.MAX_SAFE_INTEGER;
         var maxCounter = Number.MIN_SAFE_INTEGER;
         try {
-          for (var counters_1 = __values12(counters), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
+          for (var counters_1 = __values13(counters), counters_1_1 = counters_1.next(); !counters_1_1.done; counters_1_1 = counters_1.next()) {
             var counter = counters_1_1.value;
             if (counter > maxCounter) {
               maxCounter = counter;
@@ -7743,7 +8249,7 @@ var AbstractRSSReader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (counters_1_1 && !counters_1_1.done && (_a = counters_1.return)) _a.call(counters_1);
+            if (counters_1_1 && !counters_1_1.done && (_a2 = counters_1.return)) _a2.call(counters_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -7831,7 +8337,7 @@ var FinderPattern = (
 var FinderPattern_default = FinderPattern;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/RSSUtils.js
-var __values13 = function(o) {
+var __values14 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -7848,10 +8354,10 @@ var RSSUtils = (
     function RSSUtils2() {
     }
     RSSUtils2.getRSSvalue = function(widths, maxWidth, noNarrow) {
-      var e_1, _a;
+      var e_1, _a2;
       var n = 0;
       try {
-        for (var widths_1 = __values13(widths), widths_1_1 = widths_1.next(); !widths_1_1.done; widths_1_1 = widths_1.next()) {
+        for (var widths_1 = __values14(widths), widths_1_1 = widths_1.next(); !widths_1_1.done; widths_1_1 = widths_1.next()) {
           var width = widths_1_1.value;
           n += width;
         }
@@ -7859,7 +8365,7 @@ var RSSUtils = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (widths_1_1 && !widths_1_1.done && (_a = widths_1.return)) _a.call(widths_1);
+          if (widths_1_1 && !widths_1_1.done && (_a2 = widths_1.return)) _a2.call(widths_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -7936,7 +8442,7 @@ var BitArrayBuilder = (
       var firstPair = pairs[0];
       var firstValue = firstPair.getRightChar().getValue();
       for (var i = 11; i >= 0; --i) {
-        if ((firstValue & 1 << i) != 0) {
+        if ((firstValue & 1 << i) !== 0) {
           binary.set(accPos);
         }
         accPos++;
@@ -7945,15 +8451,15 @@ var BitArrayBuilder = (
         var currentPair = pairs[i];
         var leftValue = currentPair.getLeftChar().getValue();
         for (var j = 11; j >= 0; --j) {
-          if ((leftValue & 1 << j) != 0) {
+          if ((leftValue & 1 << j) !== 0) {
             binary.set(accPos);
           }
           accPos++;
         }
-        if (currentPair.getRightChar() != null) {
+        if (currentPair.getRightChar() !== null) {
           var rightValue = currentPair.getRightChar().getValue();
           for (var j = 11; j >= 0; --j) {
-            if ((rightValue & 1 << j) != 0) {
+            if ((rightValue & 1 << j) !== 0) {
               binary.set(accPos);
             }
             accPos++;
@@ -8006,7 +8512,7 @@ var DecodedObject = (
 var DecodedObject_default = DecodedObject;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/DecodedChar.js
-var __extends33 = /* @__PURE__ */ function() {
+var __extends35 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8026,7 +8532,7 @@ var __extends33 = /* @__PURE__ */ function() {
 var DecodedChar = (
   /** @class */
   function(_super) {
-    __extends33(DecodedChar2, _super);
+    __extends35(DecodedChar2, _super);
     function DecodedChar2(newPosition, value) {
       var _this = _super.call(this, newPosition) || this;
       _this.value = value;
@@ -8045,7 +8551,7 @@ var DecodedChar = (
 var DecodedChar_default = DecodedChar;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/DecodedInformation.js
-var __extends34 = /* @__PURE__ */ function() {
+var __extends36 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8065,7 +8571,7 @@ var __extends34 = /* @__PURE__ */ function() {
 var DecodedInformation = (
   /** @class */
   function(_super) {
-    __extends34(DecodedInformation2, _super);
+    __extends36(DecodedInformation2, _super);
     function DecodedInformation2(newPosition, newString, remainingValue) {
       var _this = _super.call(this, newPosition) || this;
       if (remainingValue) {
@@ -8093,7 +8599,7 @@ var DecodedInformation = (
 var DecodedInformation_default = DecodedInformation;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/DecodedNumeric.js
-var __extends35 = /* @__PURE__ */ function() {
+var __extends37 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8113,7 +8619,7 @@ var __extends35 = /* @__PURE__ */ function() {
 var DecodedNumeric = (
   /** @class */
   function(_super) {
-    __extends35(DecodedNumeric2, _super);
+    __extends37(DecodedNumeric2, _super);
     function DecodedNumeric2(newPosition, firstDigit, secondDigit) {
       var _this = _super.call(this, newPosition) || this;
       if (firstDigit < 0 || firstDigit > 10 || secondDigit < 0 || secondDigit > 10) {
@@ -8148,7 +8654,7 @@ var DecodedNumeric = (
 var DecodedNumeric_default = DecodedNumeric;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/FieldParser.js
-var __values14 = function(o) {
+var __values15 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -8165,7 +8671,7 @@ var FieldParser = (
     function FieldParser2() {
     }
     FieldParser2.parseFieldsInGeneralPurpose = function(rawInformation) {
-      var e_1, _a, e_2, _b, e_3, _c, e_4, _d;
+      var e_1, _a2, e_2, _b, e_3, _c, e_4, _d;
       if (!rawInformation) {
         return null;
       }
@@ -8174,7 +8680,7 @@ var FieldParser = (
       }
       var firstTwoDigits = rawInformation.substring(0, 2);
       try {
-        for (var _e = __values14(FieldParser2.TWO_DIGIT_DATA_LENGTH), _f = _e.next(); !_f.done; _f = _e.next()) {
+        for (var _e = __values15(FieldParser2.TWO_DIGIT_DATA_LENGTH), _f = _e.next(); !_f.done; _f = _e.next()) {
           var dataLength = _f.value;
           if (dataLength[0] === firstTwoDigits) {
             if (dataLength[1] === FieldParser2.VARIABLE_LENGTH) {
@@ -8187,7 +8693,7 @@ var FieldParser = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
+          if (_f && !_f.done && (_a2 = _e.return)) _a2.call(_e);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -8197,7 +8703,7 @@ var FieldParser = (
       }
       var firstThreeDigits = rawInformation.substring(0, 3);
       try {
-        for (var _g = __values14(FieldParser2.THREE_DIGIT_DATA_LENGTH), _h = _g.next(); !_h.done; _h = _g.next()) {
+        for (var _g = __values15(FieldParser2.THREE_DIGIT_DATA_LENGTH), _h = _g.next(); !_h.done; _h = _g.next()) {
           var dataLength = _h.value;
           if (dataLength[0] === firstThreeDigits) {
             if (dataLength[1] === FieldParser2.VARIABLE_LENGTH) {
@@ -8216,7 +8722,7 @@ var FieldParser = (
         }
       }
       try {
-        for (var _j = __values14(FieldParser2.THREE_DIGIT_PLUS_DIGIT_DATA_LENGTH), _k = _j.next(); !_k.done; _k = _j.next()) {
+        for (var _j = __values15(FieldParser2.THREE_DIGIT_PLUS_DIGIT_DATA_LENGTH), _k = _j.next(); !_k.done; _k = _j.next()) {
           var dataLength = _k.value;
           if (dataLength[0] === firstThreeDigits) {
             if (dataLength[1] === FieldParser2.VARIABLE_LENGTH) {
@@ -8239,7 +8745,7 @@ var FieldParser = (
       }
       var firstFourDigits = rawInformation.substring(0, 4);
       try {
-        for (var _l = __values14(FieldParser2.FOUR_DIGIT_DATA_LENGTH), _m = _l.next(); !_m.done; _m = _l.next()) {
+        for (var _l = __values15(FieldParser2.FOUR_DIGIT_DATA_LENGTH), _m = _l.next(); !_m.done; _m = _l.next()) {
           var dataLength = _m.value;
           if (dataLength[0] === firstFourDigits) {
             if (dataLength[1] === FieldParser2.VARIABLE_LENGTH) {
@@ -8815,7 +9321,7 @@ var AbstractExpandedDecoder = (
 var AbstractExpandedDecoder_default = AbstractExpandedDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI01decoder.js
-var __extends36 = /* @__PURE__ */ function() {
+var __extends38 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8835,7 +9341,7 @@ var __extends36 = /* @__PURE__ */ function() {
 var AI01decoder = (
   /** @class */
   function(_super) {
-    __extends36(AI01decoder2, _super);
+    __extends38(AI01decoder2, _super);
     function AI01decoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -8877,7 +9383,7 @@ var AI01decoder = (
 var AI01decoder_default = AI01decoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI01AndOtherAIs.js
-var __extends37 = /* @__PURE__ */ function() {
+var __extends39 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8897,7 +9403,7 @@ var __extends37 = /* @__PURE__ */ function() {
 var AI01AndOtherAIs = (
   /** @class */
   function(_super) {
-    __extends37(AI01AndOtherAIs2, _super);
+    __extends39(AI01AndOtherAIs2, _super);
     function AI01AndOtherAIs2(information) {
       return _super.call(this, information) || this;
     }
@@ -8917,7 +9423,7 @@ var AI01AndOtherAIs = (
 var AI01AndOtherAIs_default = AI01AndOtherAIs;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AnyAIDecoder.js
-var __extends38 = /* @__PURE__ */ function() {
+var __extends40 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8937,7 +9443,7 @@ var __extends38 = /* @__PURE__ */ function() {
 var AnyAIDecoder = (
   /** @class */
   function(_super) {
-    __extends38(AnyAIDecoder2, _super);
+    __extends40(AnyAIDecoder2, _super);
     function AnyAIDecoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -8952,7 +9458,7 @@ var AnyAIDecoder = (
 var AnyAIDecoder_default = AnyAIDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI01weightDecoder.js
-var __extends39 = /* @__PURE__ */ function() {
+var __extends41 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -8972,7 +9478,7 @@ var __extends39 = /* @__PURE__ */ function() {
 var AI01weightDecoder = (
   /** @class */
   function(_super) {
-    __extends39(AI01weightDecoder2, _super);
+    __extends41(AI01weightDecoder2, _super);
     function AI01weightDecoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -8995,7 +9501,7 @@ var AI01weightDecoder = (
 var AI01weightDecoder_default = AI01weightDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI013x0xDecoder.js
-var __extends40 = /* @__PURE__ */ function() {
+var __extends42 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9015,12 +9521,12 @@ var __extends40 = /* @__PURE__ */ function() {
 var AI013x0xDecoder = (
   /** @class */
   function(_super) {
-    __extends40(AI013x0xDecoder2, _super);
+    __extends42(AI013x0xDecoder2, _super);
     function AI013x0xDecoder2(information) {
       return _super.call(this, information) || this;
     }
     AI013x0xDecoder2.prototype.parseInformation = function() {
-      if (this.getInformation().getSize() != AI013x0xDecoder2.HEADER_SIZE + AI01weightDecoder_default.GTIN_SIZE + AI013x0xDecoder2.WEIGHT_SIZE) {
+      if (this.getInformation().getSize() !== AI013x0xDecoder2.HEADER_SIZE + AI01weightDecoder_default.GTIN_SIZE + AI013x0xDecoder2.WEIGHT_SIZE) {
         throw new NotFoundException_default();
       }
       var buf = new StringBuilder_default();
@@ -9036,7 +9542,7 @@ var AI013x0xDecoder = (
 var AI013x0xDecoder_default = AI013x0xDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI013103decoder.js
-var __extends41 = /* @__PURE__ */ function() {
+var __extends43 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9056,7 +9562,7 @@ var __extends41 = /* @__PURE__ */ function() {
 var AI013103decoder = (
   /** @class */
   function(_super) {
-    __extends41(AI013103decoder2, _super);
+    __extends43(AI013103decoder2, _super);
     function AI013103decoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -9072,7 +9578,7 @@ var AI013103decoder = (
 var AI013103decoder_default = AI013103decoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI01320xDecoder.js
-var __extends42 = /* @__PURE__ */ function() {
+var __extends44 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9092,7 +9598,7 @@ var __extends42 = /* @__PURE__ */ function() {
 var AI01320xDecoder = (
   /** @class */
   function(_super) {
-    __extends42(AI01320xDecoder2, _super);
+    __extends44(AI01320xDecoder2, _super);
     function AI01320xDecoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -9115,7 +9621,7 @@ var AI01320xDecoder = (
 var AI01320xDecoder_default = AI01320xDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI01392xDecoder.js
-var __extends43 = /* @__PURE__ */ function() {
+var __extends45 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9135,7 +9641,7 @@ var __extends43 = /* @__PURE__ */ function() {
 var AI01392xDecoder = (
   /** @class */
   function(_super) {
-    __extends43(AI01392xDecoder2, _super);
+    __extends45(AI01392xDecoder2, _super);
     function AI01392xDecoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -9161,7 +9667,7 @@ var AI01392xDecoder = (
 var AI01392xDecoder_default = AI01392xDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI01393xDecoder.js
-var __extends44 = /* @__PURE__ */ function() {
+var __extends46 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9181,7 +9687,7 @@ var __extends44 = /* @__PURE__ */ function() {
 var AI01393xDecoder = (
   /** @class */
   function(_super) {
-    __extends44(AI01393xDecoder2, _super);
+    __extends46(AI01393xDecoder2, _super);
     function AI01393xDecoder2(information) {
       return _super.call(this, information) || this;
     }
@@ -9196,10 +9702,10 @@ var AI01393xDecoder = (
       buf.append(lastAIdigit);
       buf.append(")");
       var firstThreeDigits = this.getGeneralDecoder().extractNumericValueFromBitArray(AI01393xDecoder2.HEADER_SIZE + AI01decoder_default.GTIN_SIZE + AI01393xDecoder2.LAST_DIGIT_SIZE, AI01393xDecoder2.FIRST_THREE_DIGITS_SIZE);
-      if (firstThreeDigits / 100 == 0) {
+      if (firstThreeDigits / 100 === 0) {
         buf.append("0");
       }
-      if (firstThreeDigits / 10 == 0) {
+      if (firstThreeDigits / 10 === 0) {
         buf.append("0");
       }
       buf.append(firstThreeDigits);
@@ -9216,7 +9722,7 @@ var AI01393xDecoder = (
 var AI01393xDecoder_default = AI01393xDecoder;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/decoders/AI013x0x1xDecoder.js
-var __extends45 = /* @__PURE__ */ function() {
+var __extends47 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9236,7 +9742,7 @@ var __extends45 = /* @__PURE__ */ function() {
 var AI013x0x1xDecoder = (
   /** @class */
   function(_super) {
-    __extends45(AI013x0x1xDecoder2, _super);
+    __extends47(AI013x0x1xDecoder2, _super);
     function AI013x0x1xDecoder2(information, firstAIdigits, dateCode) {
       var _this = _super.call(this, information) || this;
       _this.dateCode = dateCode;
@@ -9244,7 +9750,7 @@ var AI013x0x1xDecoder = (
       return _this;
     }
     AI013x0x1xDecoder2.prototype.parseInformation = function() {
-      if (this.getInformation().getSize() != AI013x0x1xDecoder2.HEADER_SIZE + AI013x0x1xDecoder2.GTIN_SIZE + AI013x0x1xDecoder2.WEIGHT_SIZE + AI013x0x1xDecoder2.DATE_SIZE) {
+      if (this.getInformation().getSize() !== AI013x0x1xDecoder2.HEADER_SIZE + AI013x0x1xDecoder2.GTIN_SIZE + AI013x0x1xDecoder2.WEIGHT_SIZE + AI013x0x1xDecoder2.DATE_SIZE) {
         throw new NotFoundException_default();
       }
       var buf = new StringBuilder_default();
@@ -9255,7 +9761,7 @@ var AI013x0x1xDecoder = (
     };
     AI013x0x1xDecoder2.prototype.encodeCompressedDate = function(buf, currentPos) {
       var numericDate = this.getGeneralDecoder().extractNumericValueFromBitArray(currentPos, AI013x0x1xDecoder2.DATE_SIZE);
-      if (numericDate == 38400) {
+      if (numericDate === 38400) {
         return;
       }
       buf.append("(");
@@ -9266,15 +9772,15 @@ var AI013x0x1xDecoder = (
       var month = numericDate % 12 + 1;
       numericDate /= 12;
       var year = numericDate;
-      if (year / 10 == 0) {
+      if (year / 10 === 0) {
         buf.append("0");
       }
       buf.append(year);
-      if (month / 10 == 0) {
+      if (month / 10 === 0) {
         buf.append("0");
       }
       buf.append(month);
-      if (day / 10 == 0) {
+      if (day / 10 === 0) {
         buf.append("0");
       }
       buf.append(day);
@@ -9439,7 +9945,7 @@ var ExpandedRow = (
 var ExpandedRow_default = ExpandedRow;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/expanded/RSSExpandedReader.js
-var __extends46 = /* @__PURE__ */ function() {
+var __extends48 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -9456,7 +9962,7 @@ var __extends46 = /* @__PURE__ */ function() {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __values15 = function(o) {
+var __values16 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -9470,7 +9976,7 @@ var __values15 = function(o) {
 var RSSExpandedReader = (
   /** @class */
   function(_super) {
-    __extends46(RSSExpandedReader2, _super);
+    __extends48(RSSExpandedReader2, _super);
     function RSSExpandedReader2() {
       var _this = _super !== null && _super.apply(this, arguments) || this;
       _this.pairs = new Array(RSSExpandedReader2.MAX_PAIRS);
@@ -9550,12 +10056,12 @@ var RSSExpandedReader = (
       return ps;
     };
     RSSExpandedReader2.prototype.checkRows = function(collectedRows, currentRow) {
-      var e_1, _a;
+      var e_1, _a2;
       for (var i = currentRow; i < this.rows.length; i++) {
         var row = this.rows[i];
         this.pairs.length = 0;
         try {
-          for (var collectedRows_1 = (e_1 = void 0, __values15(collectedRows)), collectedRows_1_1 = collectedRows_1.next(); !collectedRows_1_1.done; collectedRows_1_1 = collectedRows_1.next()) {
+          for (var collectedRows_1 = (e_1 = void 0, __values16(collectedRows)), collectedRows_1_1 = collectedRows_1.next(); !collectedRows_1_1.done; collectedRows_1_1 = collectedRows_1.next()) {
             var collectedRow = collectedRows_1_1.value;
             this.pairs.push(collectedRow.getPairs());
           }
@@ -9563,7 +10069,7 @@ var RSSExpandedReader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (collectedRows_1_1 && !collectedRows_1_1.done && (_a = collectedRows_1.return)) _a.call(collectedRows_1);
+            if (collectedRows_1_1 && !collectedRows_1_1.done && (_a2 = collectedRows_1.return)) _a2.call(collectedRows_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -9586,16 +10092,16 @@ var RSSExpandedReader = (
       throw new NotFoundException_default();
     };
     RSSExpandedReader2.isValidSequence = function(pairs) {
-      var e_2, _a;
+      var e_2, _a2;
       try {
-        for (var _b = __values15(RSSExpandedReader2.FINDER_PATTERN_SEQUENCES), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values16(RSSExpandedReader2.FINDER_PATTERN_SEQUENCES), _c = _b.next(); !_c.done; _c = _b.next()) {
           var sequence = _c.value;
           if (pairs.length > sequence.length) {
             continue;
           }
           var stop_1 = true;
           for (var j = 0; j < pairs.length; j++) {
-            if (pairs[j].getFinderPattern().getValue() != sequence[j]) {
+            if (pairs[j].getFinderPattern().getValue() !== sequence[j]) {
               stop_1 = false;
               break;
             }
@@ -9608,7 +10114,7 @@ var RSSExpandedReader = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_2) throw e_2.error;
         }
@@ -9638,20 +10144,20 @@ var RSSExpandedReader = (
       this.removePartialRows(this.pairs, this.rows);
     };
     RSSExpandedReader2.prototype.removePartialRows = function(pairs, rows) {
-      var e_3, _a, e_4, _b, e_5, _c;
+      var e_3, _a2, e_4, _b, e_5, _c;
       try {
-        for (var rows_1 = __values15(rows), rows_1_1 = rows_1.next(); !rows_1_1.done; rows_1_1 = rows_1.next()) {
+        for (var rows_1 = __values16(rows), rows_1_1 = rows_1.next(); !rows_1_1.done; rows_1_1 = rows_1.next()) {
           var row = rows_1_1.value;
           if (row.getPairs().length === pairs.length) {
             continue;
           }
           var allFound = true;
           try {
-            for (var _d = (e_4 = void 0, __values15(row.getPairs())), _e = _d.next(); !_e.done; _e = _d.next()) {
+            for (var _d = (e_4 = void 0, __values16(row.getPairs())), _e = _d.next(); !_e.done; _e = _d.next()) {
               var p = _e.value;
               var found = false;
               try {
-                for (var pairs_1 = (e_5 = void 0, __values15(pairs)), pairs_1_1 = pairs_1.next(); !pairs_1_1.done; pairs_1_1 = pairs_1.next()) {
+                for (var pairs_1 = (e_5 = void 0, __values16(pairs)), pairs_1_1 = pairs_1.next(); !pairs_1_1.done; pairs_1_1 = pairs_1.next()) {
                   var pp = pairs_1_1.value;
                   if (ExpandedPair_default.equals(p, pp)) {
                     found = true;
@@ -9685,24 +10191,24 @@ var RSSExpandedReader = (
         e_3 = { error: e_3_1 };
       } finally {
         try {
-          if (rows_1_1 && !rows_1_1.done && (_a = rows_1.return)) _a.call(rows_1);
+          if (rows_1_1 && !rows_1_1.done && (_a2 = rows_1.return)) _a2.call(rows_1);
         } finally {
           if (e_3) throw e_3.error;
         }
       }
     };
     RSSExpandedReader2.isPartialRow = function(pairs, rows) {
-      var e_6, _a, e_7, _b, e_8, _c;
+      var e_6, _a2, e_7, _b, e_8, _c;
       try {
-        for (var rows_2 = __values15(rows), rows_2_1 = rows_2.next(); !rows_2_1.done; rows_2_1 = rows_2.next()) {
+        for (var rows_2 = __values16(rows), rows_2_1 = rows_2.next(); !rows_2_1.done; rows_2_1 = rows_2.next()) {
           var r = rows_2_1.value;
           var allFound = true;
           try {
-            for (var pairs_2 = (e_7 = void 0, __values15(pairs)), pairs_2_1 = pairs_2.next(); !pairs_2_1.done; pairs_2_1 = pairs_2.next()) {
+            for (var pairs_2 = (e_7 = void 0, __values16(pairs)), pairs_2_1 = pairs_2.next(); !pairs_2_1.done; pairs_2_1 = pairs_2.next()) {
               var p = pairs_2_1.value;
               var found = false;
               try {
-                for (var _d = (e_8 = void 0, __values15(r.getPairs())), _e = _d.next(); !_e.done; _e = _d.next()) {
+                for (var _d = (e_8 = void 0, __values16(r.getPairs())), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var pp = _e.value;
                   if (p.equals(pp)) {
                     found = true;
@@ -9740,7 +10246,7 @@ var RSSExpandedReader = (
         e_6 = { error: e_6_1 };
       } finally {
         try {
-          if (rows_2_1 && !rows_2_1.done && (_a = rows_2.return)) _a.call(rows_2);
+          if (rows_2_1 && !rows_2_1.done && (_a2 = rows_2.return)) _a2.call(rows_2);
         } finally {
           if (e_6) throw e_6.error;
         }
@@ -9763,7 +10269,7 @@ var RSSExpandedReader = (
       var firstPair = this.pairs.get(0);
       var checkCharacter = firstPair.getLeftChar();
       var firstCharacter = firstPair.getRightChar();
-      if (firstCharacter == null) {
+      if (firstCharacter === null) {
         return false;
       }
       var checksum = firstCharacter.getChecksumPortion();
@@ -9780,7 +10286,7 @@ var RSSExpandedReader = (
       }
       checksum %= 211;
       var checkCharacterValue = 211 * (s - 4) + checksum;
-      return checkCharacterValue == checkCharacter.getValue();
+      return checkCharacterValue === checkCharacter.getValue();
     };
     RSSExpandedReader2.getNextSecondBar = function(row, initialPos) {
       var currentPos;
@@ -9794,7 +10300,7 @@ var RSSExpandedReader = (
       return currentPos;
     };
     RSSExpandedReader2.prototype.retrieveNextPair = function(row, previousPairs, rowNumber) {
-      var isOddPattern = previousPairs.length % 2 == 0;
+      var isOddPattern = previousPairs.length % 2 === 0;
       if (this.startFromEven) {
         isOddPattern = !isOddPattern;
       }
@@ -9804,7 +10310,7 @@ var RSSExpandedReader = (
       do {
         this.findNextPair(row, previousPairs, forcedOffset);
         pattern = this.parseFoundFinderPattern(row, rowNumber, isOddPattern);
-        if (pattern == null) {
+        if (pattern === null) {
           forcedOffset = RSSExpandedReader2.getNextSecondBar(row, this.startEnd[0]);
         } else {
           keepFinding = false;
@@ -9845,7 +10351,7 @@ var RSSExpandedReader = (
         var lastPair = previousPairs[previousPairs.length - 1];
         rowOffset = lastPair.getFinderPattern().getStartEnd()[1];
       }
-      var searchingEvenPair = previousPairs.length % 2 != 0;
+      var searchingEvenPair = previousPairs.length % 2 !== 0;
       if (this.startFromEven) {
         searchingEvenPair = !searchingEvenPair;
       }
@@ -9860,10 +10366,10 @@ var RSSExpandedReader = (
       var counterPosition = 0;
       var patternStart = rowOffset;
       for (var x = rowOffset; x < width; x++) {
-        if (row.get(x) != isWhite) {
+        if (row.get(x) !== isWhite) {
           counters[counterPosition]++;
         } else {
-          if (counterPosition == 3) {
+          if (counterPosition === 3) {
             if (searchingEvenPair) {
               RSSExpandedReader2.reverseCounters(counters);
             }
@@ -9924,7 +10430,6 @@ var RSSExpandedReader = (
         value = this.parseFinderValue(counters, RSSExpandedReader2.FINDER_PATTERNS);
       } catch (e) {
         return null;
-        console.log(e);
       }
       return new FinderPattern_default(value, [start, end], start, end, rowNumber);
     };
@@ -9968,7 +10473,7 @@ var RSSExpandedReader = (
           count = 8;
         }
         var offset = i / 2;
-        if ((i & 1) == 0) {
+        if ((i & 1) === 0) {
           oddCounts[offset] = count;
           oddRoundingErrors[offset] = value_1 - count;
         } else {
@@ -9995,7 +10500,7 @@ var RSSExpandedReader = (
         }
       }
       var checksumPortion = oddChecksumPortion + evenChecksumPortion;
-      if ((oddSum & 1) != 0 || oddSum > 13 || oddSum < 4) {
+      if ((oddSum & 1) !== 0 || oddSum > 13 || oddSum < 4) {
         throw new NotFoundException_default();
       }
       var group = (13 - oddSum) / 2;
@@ -10009,7 +10514,7 @@ var RSSExpandedReader = (
       return new DataCharacter_default(value, checksumPortion);
     };
     RSSExpandedReader2.isNotA1left = function(pattern, isOddPattern, leftChar) {
-      return !(pattern.getValue() == 0 && isOddPattern && leftChar);
+      return !(pattern.getValue() === 0 && isOddPattern && leftChar);
     };
     RSSExpandedReader2.prototype.adjustOddEvenCounts = function(numModules) {
       var oddSum = MathUtils_default.sum(new Int32Array(this.getOddCounts()));
@@ -10029,9 +10534,9 @@ var RSSExpandedReader = (
         incrementEven = true;
       }
       var mismatch = oddSum + evenSum - numModules;
-      var oddParityBad = (oddSum & 1) == 1;
-      var evenParityBad = (evenSum & 1) == 0;
-      if (mismatch == 1) {
+      var oddParityBad = (oddSum & 1) === 1;
+      var evenParityBad = (evenSum & 1) === 0;
+      if (mismatch === 1) {
         if (oddParityBad) {
           if (evenParityBad) {
             throw new NotFoundException_default();
@@ -10043,7 +10548,7 @@ var RSSExpandedReader = (
           }
           decrementEven = true;
         }
-      } else if (mismatch == -1) {
+      } else if (mismatch === -1) {
         if (oddParityBad) {
           if (evenParityBad) {
             throw new NotFoundException_default();
@@ -10055,7 +10560,7 @@ var RSSExpandedReader = (
           }
           incrementEven = true;
         }
-      } else if (mismatch == 0) {
+      } else if (mismatch === 0) {
         if (oddParityBad) {
           if (!evenParityBad) {
             throw new NotFoundException_default();
@@ -10104,7 +10609,6 @@ var RSSExpandedReader = (
       Int32Array.from([3, 2, 8, 1]),
       Int32Array.from([2, 6, 5, 1]),
       Int32Array.from([2, 2, 9, 1])
-      // F
     ];
     RSSExpandedReader2.WEIGHTS = [
       [1, 3, 9, 27, 81, 32, 96, 77],
@@ -10139,15 +10643,87 @@ var RSSExpandedReader = (
     RSSExpandedReader2.FINDER_PAT_F = 5;
     RSSExpandedReader2.FINDER_PATTERN_SEQUENCES = [
       [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_A],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_B],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_D],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_C],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_F],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_F, RSSExpandedReader2.FINDER_PAT_F],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_D],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_E],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_F, RSSExpandedReader2.FINDER_PAT_F],
-      [RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_A, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_B, RSSExpandedReader2.FINDER_PAT_C, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_D, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_E, RSSExpandedReader2.FINDER_PAT_F, RSSExpandedReader2.FINDER_PAT_F]
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_B
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_D
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_C
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_F
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_F,
+        RSSExpandedReader2.FINDER_PAT_F
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_D
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_E
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_F,
+        RSSExpandedReader2.FINDER_PAT_F
+      ],
+      [
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_A,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_B,
+        RSSExpandedReader2.FINDER_PAT_C,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_D,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_E,
+        RSSExpandedReader2.FINDER_PAT_F,
+        RSSExpandedReader2.FINDER_PAT_F
+      ]
     ];
     RSSExpandedReader2.MAX_PAIRS = 11;
     return RSSExpandedReader2;
@@ -10156,7 +10732,7 @@ var RSSExpandedReader = (
 var RSSExpandedReader_default = RSSExpandedReader;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/Pair.js
-var __extends47 = /* @__PURE__ */ function() {
+var __extends49 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -10176,7 +10752,7 @@ var __extends47 = /* @__PURE__ */ function() {
 var Pair = (
   /** @class */
   function(_super) {
-    __extends47(Pair2, _super);
+    __extends49(Pair2, _super);
     function Pair2(value, checksumPortion, finderPattern) {
       var _this = _super.call(this, value, checksumPortion) || this;
       _this.count = 0;
@@ -10198,7 +10774,7 @@ var Pair = (
 var Pair_default = Pair;
 
 // front/node_modules/@zxing/library/esm/core/oned/rss/RSS14Reader.js
-var __extends48 = /* @__PURE__ */ function() {
+var __extends50 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -10215,7 +10791,7 @@ var __extends48 = /* @__PURE__ */ function() {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __values16 = function(o) {
+var __values17 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -10229,7 +10805,7 @@ var __values16 = function(o) {
 var RSS14Reader = (
   /** @class */
   function(_super) {
-    __extends48(RSS14Reader2, _super);
+    __extends50(RSS14Reader2, _super);
     function RSS14Reader2() {
       var _this = _super !== null && _super.apply(this, arguments) || this;
       _this.possibleLeftPairs = [];
@@ -10237,7 +10813,7 @@ var RSS14Reader = (
       return _this;
     }
     RSS14Reader2.prototype.decodeRow = function(rowNumber, row, hints) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       var leftPair = this.decodePair(row, false, rowNumber, hints);
       RSS14Reader2.addOrTally(this.possibleLeftPairs, leftPair);
       row.reverse();
@@ -10245,11 +10821,11 @@ var RSS14Reader = (
       RSS14Reader2.addOrTally(this.possibleRightPairs, rightPair);
       row.reverse();
       try {
-        for (var _c = __values16(this.possibleLeftPairs), _d = _c.next(); !_d.done; _d = _c.next()) {
+        for (var _c = __values17(this.possibleLeftPairs), _d = _c.next(); !_d.done; _d = _c.next()) {
           var left = _d.value;
           if (left.getCount() > 1) {
             try {
-              for (var _e = (e_2 = void 0, __values16(this.possibleRightPairs)), _f = _e.next(); !_f.done; _f = _e.next()) {
+              for (var _e = (e_2 = void 0, __values17(this.possibleRightPairs)), _f = _e.next(); !_f.done; _f = _e.next()) {
                 var right = _f.value;
                 if (right.getCount() > 1 && RSS14Reader2.checkChecksum(left, right)) {
                   return RSS14Reader2.constructResult(left, right);
@@ -10270,7 +10846,7 @@ var RSS14Reader = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+          if (_d && !_d.done && (_a2 = _c.return)) _a2.call(_c);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -10278,13 +10854,13 @@ var RSS14Reader = (
       throw new NotFoundException_default();
     };
     RSS14Reader2.addOrTally = function(possiblePairs, pair) {
-      var e_3, _a;
+      var e_3, _a2;
       if (pair == null) {
         return;
       }
       var found = false;
       try {
-        for (var possiblePairs_1 = __values16(possiblePairs), possiblePairs_1_1 = possiblePairs_1.next(); !possiblePairs_1_1.done; possiblePairs_1_1 = possiblePairs_1.next()) {
+        for (var possiblePairs_1 = __values17(possiblePairs), possiblePairs_1_1 = possiblePairs_1.next(); !possiblePairs_1_1.done; possiblePairs_1_1 = possiblePairs_1.next()) {
           var other = possiblePairs_1_1.value;
           if (other.getValue() === pair.getValue()) {
             other.incrementCount();
@@ -10296,7 +10872,7 @@ var RSS14Reader = (
         e_3 = { error: e_3_1 };
       } finally {
         try {
-          if (possiblePairs_1_1 && !possiblePairs_1_1.done && (_a = possiblePairs_1.return)) _a.call(possiblePairs_1);
+          if (possiblePairs_1_1 && !possiblePairs_1_1.done && (_a2 = possiblePairs_1.return)) _a2.call(possiblePairs_1);
         } finally {
           if (e_3) throw e_3.error;
         }
@@ -10622,7 +11198,7 @@ var RSS14Reader = (
 var RSS14Reader_default = RSS14Reader;
 
 // front/node_modules/@zxing/library/esm/core/oned/MultiFormatOneDReader.js
-var __extends49 = /* @__PURE__ */ function() {
+var __extends51 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -10642,24 +11218,31 @@ var __extends49 = /* @__PURE__ */ function() {
 var MultiFormatOneDReader = (
   /** @class */
   function(_super) {
-    __extends49(MultiFormatOneDReader2, _super);
+    __extends51(MultiFormatOneDReader2, _super);
     function MultiFormatOneDReader2(hints) {
       var _this = _super.call(this) || this;
       _this.readers = [];
       var possibleFormats = !hints ? null : hints.get(DecodeHintType_default.POSSIBLE_FORMATS);
       var useCode39CheckDigit = hints && hints.get(DecodeHintType_default.ASSUME_CODE_39_CHECK_DIGIT) !== void 0;
+      var useCode39ExtendedMode = hints && hints.get(DecodeHintType_default.ENABLE_CODE_39_EXTENDED_MODE) !== void 0;
       if (possibleFormats) {
         if (possibleFormats.includes(BarcodeFormat_default.EAN_13) || possibleFormats.includes(BarcodeFormat_default.UPC_A) || possibleFormats.includes(BarcodeFormat_default.EAN_8) || possibleFormats.includes(BarcodeFormat_default.UPC_E)) {
           _this.readers.push(new MultiFormatUPCEANReader_default(hints));
         }
         if (possibleFormats.includes(BarcodeFormat_default.CODE_39)) {
-          _this.readers.push(new Code39Reader_default(useCode39CheckDigit));
+          _this.readers.push(new Code39Reader_default(useCode39CheckDigit, useCode39ExtendedMode));
+        }
+        if (possibleFormats.includes(BarcodeFormat_default.CODE_93)) {
+          _this.readers.push(new Code93Reader_default());
         }
         if (possibleFormats.includes(BarcodeFormat_default.CODE_128)) {
           _this.readers.push(new Code128Reader_default());
         }
         if (possibleFormats.includes(BarcodeFormat_default.ITF)) {
           _this.readers.push(new ITFReader_default());
+        }
+        if (possibleFormats.includes(BarcodeFormat_default.CODABAR)) {
+          _this.readers.push(new CodaBarReader_default());
         }
         if (possibleFormats.includes(BarcodeFormat_default.RSS_14)) {
           _this.readers.push(new RSS14Reader_default());
@@ -10672,6 +11255,7 @@ var MultiFormatOneDReader = (
       if (_this.readers.length === 0) {
         _this.readers.push(new MultiFormatUPCEANReader_default(hints));
         _this.readers.push(new Code39Reader_default());
+        _this.readers.push(new Code93Reader_default());
         _this.readers.push(new MultiFormatUPCEANReader_default(hints));
         _this.readers.push(new Code128Reader_default());
         _this.readers.push(new ITFReader_default());
@@ -10699,7 +11283,7 @@ var MultiFormatOneDReader = (
 var MultiFormatOneDReader_default = MultiFormatOneDReader;
 
 // front/node_modules/@zxing/library/esm/browser/BrowserBarcodeReader.js
-var __extends50 = /* @__PURE__ */ function() {
+var __extends52 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -10719,7 +11303,7 @@ var __extends50 = /* @__PURE__ */ function() {
 var BrowserBarcodeReader = (
   /** @class */
   function(_super) {
-    __extends50(BrowserBarcodeReader2, _super);
+    __extends52(BrowserBarcodeReader2, _super);
     function BrowserBarcodeReader2(timeBetweenScansMillis, hints) {
       if (timeBetweenScansMillis === void 0) {
         timeBetweenScansMillis = 500;
@@ -10731,7 +11315,7 @@ var BrowserBarcodeReader = (
 );
 
 // front/node_modules/@zxing/library/esm/core/datamatrix/decoder/Version.js
-var __values17 = function(o) {
+var __values18 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -10779,7 +11363,7 @@ var Version = (
   /** @class */
   function() {
     function Version3(versionNumber, symbolSizeRows, symbolSizeColumns, dataRegionSizeRows, dataRegionSizeColumns, ecBlocks) {
-      var e_1, _a;
+      var e_1, _a2;
       this.versionNumber = versionNumber;
       this.symbolSizeRows = symbolSizeRows;
       this.symbolSizeColumns = symbolSizeColumns;
@@ -10790,7 +11374,7 @@ var Version = (
       var ecCodewords = ecBlocks.getECCodewords();
       var ecbArray = ecBlocks.getECBlocks();
       try {
-        for (var ecbArray_1 = __values17(ecbArray), ecbArray_1_1 = ecbArray_1.next(); !ecbArray_1_1.done; ecbArray_1_1 = ecbArray_1.next()) {
+        for (var ecbArray_1 = __values18(ecbArray), ecbArray_1_1 = ecbArray_1.next(); !ecbArray_1_1.done; ecbArray_1_1 = ecbArray_1.next()) {
           var ecBlock = ecbArray_1_1.value;
           total += ecBlock.getCount() * (ecBlock.getDataCodewords() + ecCodewords);
         }
@@ -10798,7 +11382,7 @@ var Version = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (ecbArray_1_1 && !ecbArray_1_1.done && (_a = ecbArray_1.return)) _a.call(ecbArray_1);
+          if (ecbArray_1_1 && !ecbArray_1_1.done && (_a2 = ecbArray_1.return)) _a2.call(ecbArray_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -10827,12 +11411,12 @@ var Version = (
       return this.ecBlocks;
     };
     Version3.getVersionForDimensions = function(numRows, numColumns) {
-      var e_2, _a;
+      var e_2, _a2;
       if ((numRows & 1) !== 0 || (numColumns & 1) !== 0) {
         throw new FormatException_default();
       }
       try {
-        for (var _b = __values17(Version3.VERSIONS), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values18(Version3.VERSIONS), _c = _b.next(); !_c.done; _c = _b.next()) {
           var version = _c.value;
           if (version.symbolSizeRows === numRows && version.symbolSizeColumns === numColumns) {
             return version;
@@ -10842,7 +11426,7 @@ var Version = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_2) throw e_2.error;
         }
@@ -11196,7 +11780,7 @@ var BitMatrixParser = (
 var BitMatrixParser_default = BitMatrixParser;
 
 // front/node_modules/@zxing/library/esm/core/datamatrix/decoder/DataBlock.js
-var __values18 = function(o) {
+var __values19 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -11215,12 +11799,12 @@ var DataBlock = (
       this.codewords = codewords;
     }
     DataBlock3.getDataBlocks = function(rawCodewords, version) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       var ecBlocks = version.getECBlocks();
       var totalBlocks = 0;
       var ecBlockArray = ecBlocks.getECBlocks();
       try {
-        for (var ecBlockArray_1 = __values18(ecBlockArray), ecBlockArray_1_1 = ecBlockArray_1.next(); !ecBlockArray_1_1.done; ecBlockArray_1_1 = ecBlockArray_1.next()) {
+        for (var ecBlockArray_1 = __values19(ecBlockArray), ecBlockArray_1_1 = ecBlockArray_1.next(); !ecBlockArray_1_1.done; ecBlockArray_1_1 = ecBlockArray_1.next()) {
           var ecBlock = ecBlockArray_1_1.value;
           totalBlocks += ecBlock.getCount();
         }
@@ -11228,7 +11812,7 @@ var DataBlock = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (ecBlockArray_1_1 && !ecBlockArray_1_1.done && (_a = ecBlockArray_1.return)) _a.call(ecBlockArray_1);
+          if (ecBlockArray_1_1 && !ecBlockArray_1_1.done && (_a2 = ecBlockArray_1.return)) _a2.call(ecBlockArray_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -11236,7 +11820,7 @@ var DataBlock = (
       var result = new Array(totalBlocks);
       var numResultBlocks = 0;
       try {
-        for (var ecBlockArray_2 = __values18(ecBlockArray), ecBlockArray_2_1 = ecBlockArray_2.next(); !ecBlockArray_2_1.done; ecBlockArray_2_1 = ecBlockArray_2.next()) {
+        for (var ecBlockArray_2 = __values19(ecBlockArray), ecBlockArray_2_1 = ecBlockArray_2.next(); !ecBlockArray_2_1.done; ecBlockArray_2_1 = ecBlockArray_2.next()) {
           var ecBlock = ecBlockArray_2_1.value;
           for (var i = 0; i < ecBlock.getCount(); i++) {
             var numDataCodewords = ecBlock.getDataCodewords();
@@ -11354,14 +11938,14 @@ var BitSource_default = BitSource;
 
 // front/node_modules/@zxing/library/esm/core/datamatrix/decoder/DecodedBitStreamParser.js
 var Mode;
-(function(Mode4) {
-  Mode4[Mode4["PAD_ENCODE"] = 0] = "PAD_ENCODE";
-  Mode4[Mode4["ASCII_ENCODE"] = 1] = "ASCII_ENCODE";
-  Mode4[Mode4["C40_ENCODE"] = 2] = "C40_ENCODE";
-  Mode4[Mode4["TEXT_ENCODE"] = 3] = "TEXT_ENCODE";
-  Mode4[Mode4["ANSIX12_ENCODE"] = 4] = "ANSIX12_ENCODE";
-  Mode4[Mode4["EDIFACT_ENCODE"] = 5] = "EDIFACT_ENCODE";
-  Mode4[Mode4["BASE256_ENCODE"] = 6] = "BASE256_ENCODE";
+(function(Mode5) {
+  Mode5[Mode5["PAD_ENCODE"] = 0] = "PAD_ENCODE";
+  Mode5[Mode5["ASCII_ENCODE"] = 1] = "ASCII_ENCODE";
+  Mode5[Mode5["C40_ENCODE"] = 2] = "C40_ENCODE";
+  Mode5[Mode5["TEXT_ENCODE"] = 3] = "TEXT_ENCODE";
+  Mode5[Mode5["ANSIX12_ENCODE"] = 4] = "ANSIX12_ENCODE";
+  Mode5[Mode5["EDIFACT_ENCODE"] = 5] = "EDIFACT_ENCODE";
+  Mode5[Mode5["BASE256_ENCODE"] = 6] = "BASE256_ENCODE";
 })(Mode || (Mode = {}));
 var DecodedBitStreamParser = (
   /** @class */
@@ -11884,7 +12468,7 @@ var DecodedBitStreamParser = (
 var DecodedBitStreamParser_default = DecodedBitStreamParser;
 
 // front/node_modules/@zxing/library/esm/core/datamatrix/decoder/Decoder.js
-var __values19 = function(o) {
+var __values20 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -11902,14 +12486,14 @@ var Decoder2 = (
       this.rsDecoder = new ReedSolomonDecoder_default(GenericGF_default.DATA_MATRIX_FIELD_256);
     }
     Decoder4.prototype.decode = function(bits) {
-      var e_1, _a;
+      var e_1, _a2;
       var parser = new BitMatrixParser_default(bits);
       var version = parser.getVersion();
       var codewords = parser.readCodewords();
       var dataBlocks = DataBlock_default.getDataBlocks(codewords, version);
       var totalBytes = 0;
       try {
-        for (var dataBlocks_1 = __values19(dataBlocks), dataBlocks_1_1 = dataBlocks_1.next(); !dataBlocks_1_1.done; dataBlocks_1_1 = dataBlocks_1.next()) {
+        for (var dataBlocks_1 = __values20(dataBlocks), dataBlocks_1_1 = dataBlocks_1.next(); !dataBlocks_1_1.done; dataBlocks_1_1 = dataBlocks_1.next()) {
           var db = dataBlocks_1_1.value;
           totalBytes += db.getNumDataCodewords();
         }
@@ -11917,7 +12501,7 @@ var Decoder2 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (dataBlocks_1_1 && !dataBlocks_1_1.done && (_a = dataBlocks_1.return)) _a.call(dataBlocks_1);
+          if (dataBlocks_1_1 && !dataBlocks_1_1.done && (_a2 = dataBlocks_1.return)) _a2.call(dataBlocks_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -12266,7 +12850,7 @@ var DataMatrixReader = (
 var DataMatrixReader_default = DataMatrixReader;
 
 // front/node_modules/@zxing/library/esm/browser/BrowserDatamatrixCodeReader.js
-var __extends51 = /* @__PURE__ */ function() {
+var __extends53 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -12286,7 +12870,7 @@ var __extends51 = /* @__PURE__ */ function() {
 var BrowserDatamatrixCodeReader = (
   /** @class */
   function(_super) {
-    __extends51(BrowserDatamatrixCodeReader3, _super);
+    __extends53(BrowserDatamatrixCodeReader3, _super);
     function BrowserDatamatrixCodeReader3(timeBetweenScansMillis) {
       if (timeBetweenScansMillis === void 0) {
         timeBetweenScansMillis = 500;
@@ -12363,7 +12947,7 @@ var ErrorCorrectionLevel = (
 var ErrorCorrectionLevel_default = ErrorCorrectionLevel;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/decoder/FormatInformation.js
-var __values20 = function(o) {
+var __values21 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -12393,11 +12977,11 @@ var FormatInformation = (
       return FormatInformation2.doDecodeFormatInformation(maskedFormatInfo1 ^ FormatInformation2.FORMAT_INFO_MASK_QR, maskedFormatInfo2 ^ FormatInformation2.FORMAT_INFO_MASK_QR);
     };
     FormatInformation2.doDecodeFormatInformation = function(maskedFormatInfo1, maskedFormatInfo2) {
-      var e_1, _a;
+      var e_1, _a2;
       var bestDifference = Number.MAX_SAFE_INTEGER;
       var bestFormatInfo = 0;
       try {
-        for (var _b = __values20(FormatInformation2.FORMAT_INFO_DECODE_LOOKUP), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values21(FormatInformation2.FORMAT_INFO_DECODE_LOOKUP), _c = _b.next(); !_c.done; _c = _b.next()) {
           var decodeInfo = _c.value;
           var targetInfo = decodeInfo[0];
           if (targetInfo === maskedFormatInfo1 || targetInfo === maskedFormatInfo2) {
@@ -12420,7 +13004,7 @@ var FormatInformation = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -12487,7 +13071,7 @@ var FormatInformation = (
 var FormatInformation_default = FormatInformation;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/decoder/ECBlocks.js
-var __values21 = function(o) {
+var __values22 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -12513,11 +13097,11 @@ var ECBlocks2 = (
       return this.ecCodewordsPerBlock;
     };
     ECBlocks3.prototype.getNumBlocks = function() {
-      var e_1, _a;
+      var e_1, _a2;
       var total = 0;
       var ecBlocks = this.ecBlocks;
       try {
-        for (var ecBlocks_1 = __values21(ecBlocks), ecBlocks_1_1 = ecBlocks_1.next(); !ecBlocks_1_1.done; ecBlocks_1_1 = ecBlocks_1.next()) {
+        for (var ecBlocks_1 = __values22(ecBlocks), ecBlocks_1_1 = ecBlocks_1.next(); !ecBlocks_1_1.done; ecBlocks_1_1 = ecBlocks_1.next()) {
           var ecBlock = ecBlocks_1_1.value;
           total += ecBlock.getCount();
         }
@@ -12525,7 +13109,7 @@ var ECBlocks2 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (ecBlocks_1_1 && !ecBlocks_1_1.done && (_a = ecBlocks_1.return)) _a.call(ecBlocks_1);
+          if (ecBlocks_1_1 && !ecBlocks_1_1.done && (_a2 = ecBlocks_1.return)) _a2.call(ecBlocks_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -12563,7 +13147,7 @@ var ECB2 = (
 var ECB_default = ECB2;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/decoder/Version.js
-var __values22 = function(o) {
+var __values23 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -12578,7 +13162,7 @@ var Version2 = (
   /** @class */
   function() {
     function Version3(versionNumber, alignmentPatternCenters) {
-      var e_1, _a;
+      var e_1, _a2;
       var ecBlocks = [];
       for (var _i = 2; _i < arguments.length; _i++) {
         ecBlocks[_i - 2] = arguments[_i];
@@ -12590,7 +13174,7 @@ var Version2 = (
       var ecCodewords = ecBlocks[0].getECCodewordsPerBlock();
       var ecbArray = ecBlocks[0].getECBlocks();
       try {
-        for (var ecbArray_1 = __values22(ecbArray), ecbArray_1_1 = ecbArray_1.next(); !ecbArray_1_1.done; ecbArray_1_1 = ecbArray_1.next()) {
+        for (var ecbArray_1 = __values23(ecbArray), ecbArray_1_1 = ecbArray_1.next(); !ecbArray_1_1.done; ecbArray_1_1 = ecbArray_1.next()) {
           var ecBlock = ecbArray_1_1.value;
           total += ecBlock.getCount() * (ecBlock.getDataCodewords() + ecCodewords);
         }
@@ -12598,7 +13182,7 @@ var Version2 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (ecbArray_1_1 && !ecbArray_1_1.done && (_a = ecbArray_1.return)) _a.call(ecbArray_1);
+          if (ecbArray_1_1 && !ecbArray_1_1.done && (_a2 = ecbArray_1.return)) _a2.call(ecbArray_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -12974,7 +13558,7 @@ var BitMatrixParser2 = (
       if (this.parsedFormatInfo === null) {
         return;
       }
-      var dataMask = DataMask_default.values[this.parsedFormatInfo.getDataMask()];
+      var dataMask = DataMask_default.values.get(this.parsedFormatInfo.getDataMask());
       var dimension = this.bitMatrix.getHeight();
       dataMask.unmaskBitMatrix(this.bitMatrix, dimension);
     };
@@ -13000,7 +13584,7 @@ var BitMatrixParser2 = (
 var BitMatrixParser_default2 = BitMatrixParser2;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/decoder/DataBlock.js
-var __values23 = function(o) {
+var __values24 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -13019,7 +13603,7 @@ var DataBlock2 = (
       this.codewords = codewords;
     }
     DataBlock3.getDataBlocks = function(rawCodewords, version, ecLevel) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       if (rawCodewords.length !== version.getTotalCodewords()) {
         throw new IllegalArgumentException_default();
       }
@@ -13027,7 +13611,7 @@ var DataBlock2 = (
       var totalBlocks = 0;
       var ecBlockArray = ecBlocks.getECBlocks();
       try {
-        for (var ecBlockArray_1 = __values23(ecBlockArray), ecBlockArray_1_1 = ecBlockArray_1.next(); !ecBlockArray_1_1.done; ecBlockArray_1_1 = ecBlockArray_1.next()) {
+        for (var ecBlockArray_1 = __values24(ecBlockArray), ecBlockArray_1_1 = ecBlockArray_1.next(); !ecBlockArray_1_1.done; ecBlockArray_1_1 = ecBlockArray_1.next()) {
           var ecBlock = ecBlockArray_1_1.value;
           totalBlocks += ecBlock.getCount();
         }
@@ -13035,7 +13619,7 @@ var DataBlock2 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (ecBlockArray_1_1 && !ecBlockArray_1_1.done && (_a = ecBlockArray_1.return)) _a.call(ecBlockArray_1);
+          if (ecBlockArray_1_1 && !ecBlockArray_1_1.done && (_a2 = ecBlockArray_1.return)) _a2.call(ecBlockArray_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -13043,7 +13627,7 @@ var DataBlock2 = (
       var result = new Array(totalBlocks);
       var numResultBlocks = 0;
       try {
-        for (var ecBlockArray_2 = __values23(ecBlockArray), ecBlockArray_2_1 = ecBlockArray_2.next(); !ecBlockArray_2_1.done; ecBlockArray_2_1 = ecBlockArray_2.next()) {
+        for (var ecBlockArray_2 = __values24(ecBlockArray), ecBlockArray_2_1 = ecBlockArray_2.next(); !ecBlockArray_2_1.done; ecBlockArray_2_1 = ecBlockArray_2.next()) {
           var ecBlock = ecBlockArray_2_1.value;
           for (var i = 0; i < ecBlock.getCount(); i++) {
             var numDataCodewords = ecBlock.getDataCodewords();
@@ -13117,22 +13701,22 @@ var ModeValues;
 var Mode2 = (
   /** @class */
   function() {
-    function Mode4(value, stringValue, characterCountBitsForVersions, bits) {
+    function Mode5(value, stringValue, characterCountBitsForVersions, bits) {
       this.value = value;
       this.stringValue = stringValue;
       this.characterCountBitsForVersions = characterCountBitsForVersions;
       this.bits = bits;
-      Mode4.FOR_BITS.set(bits, this);
-      Mode4.FOR_VALUE.set(value, this);
+      Mode5.FOR_BITS.set(bits, this);
+      Mode5.FOR_VALUE.set(value, this);
     }
-    Mode4.forBits = function(bits) {
-      var mode = Mode4.FOR_BITS.get(bits);
+    Mode5.forBits = function(bits) {
+      var mode = Mode5.FOR_BITS.get(bits);
       if (void 0 === mode) {
         throw new IllegalArgumentException_default();
       }
       return mode;
     };
-    Mode4.prototype.getCharacterCountBits = function(version) {
+    Mode5.prototype.getCharacterCountBits = function(version) {
       var versionNumber = version.getVersionNumber();
       var offset;
       if (versionNumber <= 9) {
@@ -13144,35 +13728,35 @@ var Mode2 = (
       }
       return this.characterCountBitsForVersions[offset];
     };
-    Mode4.prototype.getValue = function() {
+    Mode5.prototype.getValue = function() {
       return this.value;
     };
-    Mode4.prototype.getBits = function() {
+    Mode5.prototype.getBits = function() {
       return this.bits;
     };
-    Mode4.prototype.equals = function(o) {
-      if (!(o instanceof Mode4)) {
+    Mode5.prototype.equals = function(o) {
+      if (!(o instanceof Mode5)) {
         return false;
       }
       var other = o;
       return this.value === other.value;
     };
-    Mode4.prototype.toString = function() {
+    Mode5.prototype.toString = function() {
       return this.stringValue;
     };
-    Mode4.FOR_BITS = /* @__PURE__ */ new Map();
-    Mode4.FOR_VALUE = /* @__PURE__ */ new Map();
-    Mode4.TERMINATOR = new Mode4(ModeValues.TERMINATOR, "TERMINATOR", Int32Array.from([0, 0, 0]), 0);
-    Mode4.NUMERIC = new Mode4(ModeValues.NUMERIC, "NUMERIC", Int32Array.from([10, 12, 14]), 1);
-    Mode4.ALPHANUMERIC = new Mode4(ModeValues.ALPHANUMERIC, "ALPHANUMERIC", Int32Array.from([9, 11, 13]), 2);
-    Mode4.STRUCTURED_APPEND = new Mode4(ModeValues.STRUCTURED_APPEND, "STRUCTURED_APPEND", Int32Array.from([0, 0, 0]), 3);
-    Mode4.BYTE = new Mode4(ModeValues.BYTE, "BYTE", Int32Array.from([8, 16, 16]), 4);
-    Mode4.ECI = new Mode4(ModeValues.ECI, "ECI", Int32Array.from([0, 0, 0]), 7);
-    Mode4.KANJI = new Mode4(ModeValues.KANJI, "KANJI", Int32Array.from([8, 10, 12]), 8);
-    Mode4.FNC1_FIRST_POSITION = new Mode4(ModeValues.FNC1_FIRST_POSITION, "FNC1_FIRST_POSITION", Int32Array.from([0, 0, 0]), 5);
-    Mode4.FNC1_SECOND_POSITION = new Mode4(ModeValues.FNC1_SECOND_POSITION, "FNC1_SECOND_POSITION", Int32Array.from([0, 0, 0]), 9);
-    Mode4.HANZI = new Mode4(ModeValues.HANZI, "HANZI", Int32Array.from([8, 10, 12]), 13);
-    return Mode4;
+    Mode5.FOR_BITS = /* @__PURE__ */ new Map();
+    Mode5.FOR_VALUE = /* @__PURE__ */ new Map();
+    Mode5.TERMINATOR = new Mode5(ModeValues.TERMINATOR, "TERMINATOR", Int32Array.from([0, 0, 0]), 0);
+    Mode5.NUMERIC = new Mode5(ModeValues.NUMERIC, "NUMERIC", Int32Array.from([10, 12, 14]), 1);
+    Mode5.ALPHANUMERIC = new Mode5(ModeValues.ALPHANUMERIC, "ALPHANUMERIC", Int32Array.from([9, 11, 13]), 2);
+    Mode5.STRUCTURED_APPEND = new Mode5(ModeValues.STRUCTURED_APPEND, "STRUCTURED_APPEND", Int32Array.from([0, 0, 0]), 3);
+    Mode5.BYTE = new Mode5(ModeValues.BYTE, "BYTE", Int32Array.from([8, 16, 16]), 4);
+    Mode5.ECI = new Mode5(ModeValues.ECI, "ECI", Int32Array.from([0, 0, 0]), 7);
+    Mode5.KANJI = new Mode5(ModeValues.KANJI, "KANJI", Int32Array.from([8, 10, 12]), 8);
+    Mode5.FNC1_FIRST_POSITION = new Mode5(ModeValues.FNC1_FIRST_POSITION, "FNC1_FIRST_POSITION", Int32Array.from([0, 0, 0]), 5);
+    Mode5.FNC1_SECOND_POSITION = new Mode5(ModeValues.FNC1_SECOND_POSITION, "FNC1_SECOND_POSITION", Int32Array.from([0, 0, 0]), 9);
+    Mode5.HANZI = new Mode5(ModeValues.HANZI, "HANZI", Int32Array.from([8, 10, 12]), 13);
+    return Mode5;
   }()
 );
 var Mode_default = Mode2;
@@ -13446,7 +14030,7 @@ var QRCodeDecoderMetaData = (
 var QRCodeDecoderMetaData_default = QRCodeDecoderMetaData;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/decoder/Decoder.js
-var __values24 = function(o) {
+var __values25 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -13491,14 +14075,14 @@ var Decoder3 = (
       }
     };
     Decoder4.prototype.decodeBitMatrixParser = function(parser, hints) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       var version = parser.readVersion();
       var ecLevel = parser.readFormatInformation().getErrorCorrectionLevel();
       var codewords = parser.readCodewords();
       var dataBlocks = DataBlock_default2.getDataBlocks(codewords, version, ecLevel);
       var totalBytes = 0;
       try {
-        for (var dataBlocks_1 = __values24(dataBlocks), dataBlocks_1_1 = dataBlocks_1.next(); !dataBlocks_1_1.done; dataBlocks_1_1 = dataBlocks_1.next()) {
+        for (var dataBlocks_1 = __values25(dataBlocks), dataBlocks_1_1 = dataBlocks_1.next(); !dataBlocks_1_1.done; dataBlocks_1_1 = dataBlocks_1.next()) {
           var dataBlock = dataBlocks_1_1.value;
           totalBytes += dataBlock.getNumDataCodewords();
         }
@@ -13506,7 +14090,7 @@ var Decoder3 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (dataBlocks_1_1 && !dataBlocks_1_1.done && (_a = dataBlocks_1.return)) _a.call(dataBlocks_1);
+          if (dataBlocks_1_1 && !dataBlocks_1_1.done && (_a2 = dataBlocks_1.return)) _a2.call(dataBlocks_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -13514,7 +14098,7 @@ var Decoder3 = (
       var resultBytes = new Uint8Array(totalBytes);
       var resultOffset = 0;
       try {
-        for (var dataBlocks_2 = __values24(dataBlocks), dataBlocks_2_1 = dataBlocks_2.next(); !dataBlocks_2_1.done; dataBlocks_2_1 = dataBlocks_2.next()) {
+        for (var dataBlocks_2 = __values25(dataBlocks), dataBlocks_2_1 = dataBlocks_2.next(); !dataBlocks_2_1.done; dataBlocks_2_1 = dataBlocks_2.next()) {
           var dataBlock = dataBlocks_2_1.value;
           var codewordBytes = dataBlock.getCodewords();
           var numDataCodewords = dataBlock.getNumDataCodewords();
@@ -13552,7 +14136,7 @@ var Decoder3 = (
 var Decoder_default3 = Decoder3;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/detector/AlignmentPattern.js
-var __extends52 = /* @__PURE__ */ function() {
+var __extends54 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -13572,7 +14156,7 @@ var __extends52 = /* @__PURE__ */ function() {
 var AlignmentPattern = (
   /** @class */
   function(_super) {
-    __extends52(AlignmentPattern2, _super);
+    __extends54(AlignmentPattern2, _super);
     function AlignmentPattern2(posX, posY, estimatedModuleSize) {
       var _this = _super.call(this, posX, posY) || this;
       _this.estimatedModuleSize = estimatedModuleSize;
@@ -13597,7 +14181,7 @@ var AlignmentPattern = (
 var AlignmentPattern_default = AlignmentPattern;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/detector/AlignmentPatternFinder.js
-var __values25 = function(o) {
+var __values26 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -13737,7 +14321,7 @@ var AlignmentPatternFinder = (
       return this.foundPatternCross(stateCount) ? AlignmentPatternFinder2.centerFromEnd(stateCount, i) : NaN;
     };
     AlignmentPatternFinder2.prototype.handlePossibleCenter = function(stateCount, i, j) {
-      var e_1, _a;
+      var e_1, _a2;
       var stateCountTotal = stateCount[0] + stateCount[1] + stateCount[2];
       var centerJ = AlignmentPatternFinder2.centerFromEnd(stateCount, j);
       var centerI = this.crossCheckVertical(
@@ -13750,7 +14334,7 @@ var AlignmentPatternFinder = (
       if (!isNaN(centerI)) {
         var estimatedModuleSize = (stateCount[0] + stateCount[1] + stateCount[2]) / 3;
         try {
-          for (var _b = __values25(this.possibleCenters), _c = _b.next(); !_c.done; _c = _b.next()) {
+          for (var _b = __values26(this.possibleCenters), _c = _b.next(); !_c.done; _c = _b.next()) {
             var center = _c.value;
             if (center.aboutEquals(estimatedModuleSize, centerI, centerJ)) {
               return center.combineEstimate(centerI, centerJ, estimatedModuleSize);
@@ -13760,7 +14344,7 @@ var AlignmentPatternFinder = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -13779,7 +14363,7 @@ var AlignmentPatternFinder = (
 var AlignmentPatternFinder_default = AlignmentPatternFinder;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/detector/FinderPattern.js
-var __extends53 = /* @__PURE__ */ function() {
+var __extends55 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -13799,7 +14383,7 @@ var __extends53 = /* @__PURE__ */ function() {
 var FinderPattern2 = (
   /** @class */
   function(_super) {
-    __extends53(FinderPattern3, _super);
+    __extends55(FinderPattern3, _super);
     function FinderPattern3(posX, posY, estimatedModuleSize, count) {
       var _this = _super.call(this, posX, posY) || this;
       _this.estimatedModuleSize = estimatedModuleSize;
@@ -13858,7 +14442,7 @@ var FinderPatternInfo = (
 var FinderPatternInfo_default = FinderPatternInfo;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/detector/FinderPatternFinder.js
-var __values26 = function(o) {
+var __values27 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -14210,14 +14794,14 @@ var FinderPatternFinder = (
       return false;
     };
     FinderPatternFinder2.prototype.findRowSkip = function() {
-      var e_1, _a;
+      var e_1, _a2;
       var max = this.possibleCenters.length;
       if (max <= 1) {
         return 0;
       }
       var firstConfirmedCenter = null;
       try {
-        for (var _b = __values26(this.possibleCenters), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values27(this.possibleCenters), _c = _b.next(); !_c.done; _c = _b.next()) {
           var center = _c.value;
           if (center.getCount() >= FinderPatternFinder2.CENTER_QUORUM) {
             if (firstConfirmedCenter == null) {
@@ -14235,7 +14819,7 @@ var FinderPatternFinder = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -14243,12 +14827,12 @@ var FinderPatternFinder = (
       return 0;
     };
     FinderPatternFinder2.prototype.haveMultiplyConfirmedCenters = function() {
-      var e_2, _a, e_3, _b;
+      var e_2, _a2, e_3, _b;
       var confirmedCount = 0;
       var totalModuleSize = 0;
       var max = this.possibleCenters.length;
       try {
-        for (var _c = __values26(this.possibleCenters), _d = _c.next(); !_d.done; _d = _c.next()) {
+        for (var _c = __values27(this.possibleCenters), _d = _c.next(); !_d.done; _d = _c.next()) {
           var pattern = _d.value;
           if (pattern.getCount() >= FinderPatternFinder2.CENTER_QUORUM) {
             confirmedCount++;
@@ -14259,7 +14843,7 @@ var FinderPatternFinder = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+          if (_d && !_d.done && (_a2 = _c.return)) _a2.call(_c);
         } finally {
           if (e_2) throw e_2.error;
         }
@@ -14270,7 +14854,7 @@ var FinderPatternFinder = (
       var average = totalModuleSize / max;
       var totalDeviation = 0;
       try {
-        for (var _e = __values26(this.possibleCenters), _f = _e.next(); !_f.done; _f = _e.next()) {
+        for (var _e = __values27(this.possibleCenters), _f = _e.next(); !_f.done; _f = _e.next()) {
           var pattern = _f.value;
           totalDeviation += Math.abs(pattern.getEstimatedModuleSize() - average);
         }
@@ -14286,7 +14870,7 @@ var FinderPatternFinder = (
       return totalDeviation <= 0.05 * totalModuleSize;
     };
     FinderPatternFinder2.prototype.selectBestPatterns = function() {
-      var e_4, _a, e_5, _b;
+      var e_4, _a2, e_5, _b;
       var startSize = this.possibleCenters.length;
       if (startSize < 3) {
         throw new NotFoundException_default();
@@ -14297,7 +14881,7 @@ var FinderPatternFinder = (
         var totalModuleSize = 0;
         var square = 0;
         try {
-          for (var _c = __values26(this.possibleCenters), _d = _c.next(); !_d.done; _d = _c.next()) {
+          for (var _c = __values27(this.possibleCenters), _d = _c.next(); !_d.done; _d = _c.next()) {
             var center = _d.value;
             var size = center.getEstimatedModuleSize();
             totalModuleSize += size;
@@ -14307,7 +14891,7 @@ var FinderPatternFinder = (
           e_4 = { error: e_4_1 };
         } finally {
           try {
-            if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            if (_d && !_d.done && (_a2 = _c.return)) _a2.call(_c);
           } finally {
             if (e_4) throw e_4.error;
           }
@@ -14337,7 +14921,7 @@ var FinderPatternFinder = (
       if (possibleCenters.length > 3) {
         var totalModuleSize = 0;
         try {
-          for (var possibleCenters_1 = __values26(possibleCenters), possibleCenters_1_1 = possibleCenters_1.next(); !possibleCenters_1_1.done; possibleCenters_1_1 = possibleCenters_1.next()) {
+          for (var possibleCenters_1 = __values27(possibleCenters), possibleCenters_1_1 = possibleCenters_1.next(); !possibleCenters_1_1.done; possibleCenters_1_1 = possibleCenters_1.next()) {
             var possibleCenter = possibleCenters_1_1.value;
             totalModuleSize += possibleCenter.getEstimatedModuleSize();
           }
@@ -14751,7 +15335,7 @@ var QRCodeReader = (
 var QRCodeReader_default = QRCodeReader;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/PDF417Common.js
-var __values27 = function(o) {
+var __values28 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -14773,14 +15357,14 @@ var PDF417Common = (
       return MathUtils_default.sum(moduleBitCount);
     };
     PDF417Common2.toIntArray = function(list) {
-      var e_1, _a;
+      var e_1, _a2;
       if (list == null || !list.length) {
         return PDF417Common2.EMPTY_INT_ARRAY;
       }
       var result = new Int32Array(list.length);
       var i = 0;
       try {
-        for (var list_1 = __values27(list), list_1_1 = list_1.next(); !list_1_1.done; list_1_1 = list_1.next()) {
+        for (var list_1 = __values28(list), list_1_1 = list_1.next(); !list_1_1.done; list_1_1 = list_1.next()) {
           var integer = list_1_1.value;
           result[i++] = integer;
         }
@@ -14788,7 +15372,7 @@ var PDF417Common = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (list_1_1 && !list_1_1.done && (_a = list_1.return)) _a.call(list_1);
+          if (list_1_1 && !list_1_1.done && (_a2 = list_1.return)) _a2.call(list_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -20413,7 +20997,7 @@ var PDF417DetectorResult = (
 var PDF417DetectorResult_default = PDF417DetectorResult;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/detector/Detector.js
-var __values28 = function(o) {
+var __values29 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -20440,7 +21024,7 @@ var Detector4 = (
       return new PDF417DetectorResult_default(bitMatrix, barcodeCoordinates);
     };
     Detector5.detect = function(multiple, bitMatrix) {
-      var e_1, _a;
+      var e_1, _a2;
       var barcodeCoordinates = new Array();
       var row = 0;
       var column = 0;
@@ -20454,7 +21038,7 @@ var Detector4 = (
           foundBarcodeInRow = false;
           column = 0;
           try {
-            for (var barcodeCoordinates_1 = (e_1 = void 0, __values28(barcodeCoordinates)), barcodeCoordinates_1_1 = barcodeCoordinates_1.next(); !barcodeCoordinates_1_1.done; barcodeCoordinates_1_1 = barcodeCoordinates_1.next()) {
+            for (var barcodeCoordinates_1 = (e_1 = void 0, __values29(barcodeCoordinates)), barcodeCoordinates_1_1 = barcodeCoordinates_1.next(); !barcodeCoordinates_1_1.done; barcodeCoordinates_1_1 = barcodeCoordinates_1.next()) {
               var barcodeCoordinate = barcodeCoordinates_1_1.value;
               if (barcodeCoordinate[1] != null) {
                 row = Math.trunc(Math.max(row, barcodeCoordinate[1].getY()));
@@ -20467,7 +21051,7 @@ var Detector4 = (
             e_1 = { error: e_1_1 };
           } finally {
             try {
-              if (barcodeCoordinates_1_1 && !barcodeCoordinates_1_1.done && (_a = barcodeCoordinates_1.return)) _a.call(barcodeCoordinates_1);
+              if (barcodeCoordinates_1_1 && !barcodeCoordinates_1_1.done && (_a2 = barcodeCoordinates_1.return)) _a2.call(barcodeCoordinates_1);
             } finally {
               if (e_1) throw e_1.error;
             }
@@ -20639,7 +21223,7 @@ var Detector4 = (
 var Detector_default4 = Detector4;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/ec/ModulusPoly.js
-var __values29 = function(o) {
+var __values30 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -20693,7 +21277,7 @@ var ModulusPoly = (
       return this.coefficients[this.coefficients.length - 1 - degree];
     };
     ModulusPoly2.prototype.evaluateAt = function(a) {
-      var e_1, _a;
+      var e_1, _a2;
       if (a === 0) {
         return this.getCoefficient(0);
       }
@@ -20703,7 +21287,7 @@ var ModulusPoly = (
           0
         );
         try {
-          for (var _b = __values29(this.coefficients), _c = _b.next(); !_c.done; _c = _b.next()) {
+          for (var _b = __values30(this.coefficients), _c = _b.next(); !_c.done; _c = _b.next()) {
             var coefficient = _c.value;
             sum = this.field.add(sum, coefficient);
           }
@@ -20711,7 +21295,7 @@ var ModulusPoly = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -20931,7 +21515,7 @@ var ModulusBase = (
 var ModulusBase_default = ModulusBase;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/ec/ModulusGF.js
-var __extends54 = /* @__PURE__ */ function() {
+var __extends56 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -20951,7 +21535,7 @@ var __extends54 = /* @__PURE__ */ function() {
 var ModulusGF = (
   /** @class */
   function(_super) {
-    __extends54(ModulusGF2, _super);
+    __extends56(ModulusGF2, _super);
     function ModulusGF2(modulus, generator) {
       var _this = _super.call(this) || this;
       _this.modulus = modulus;
@@ -20996,7 +21580,7 @@ var ModulusGF = (
 var ModulusGF_default = ModulusGF;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/ec/ErrorCorrection.js
-var __values30 = function(o) {
+var __values31 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -21010,11 +21594,11 @@ var __values30 = function(o) {
 var ErrorCorrection = (
   /** @class */
   function() {
-    function ErrorCorrection2() {
+    function ErrorCorrection3() {
       this.field = ModulusGF_default.PDF417_GF;
     }
-    ErrorCorrection2.prototype.decode = function(received, numECCodewords, erasures) {
-      var e_1, _a;
+    ErrorCorrection3.prototype.decode = function(received, numECCodewords, erasures) {
+      var e_1, _a2;
       var poly = new ModulusPoly_default(this.field, received);
       var S = new Int32Array(numECCodewords);
       var error = false;
@@ -21031,7 +21615,7 @@ var ErrorCorrection = (
       var knownErrors = this.field.getOne();
       if (erasures != null) {
         try {
-          for (var erasures_1 = __values30(erasures), erasures_1_1 = erasures_1.next(); !erasures_1_1.done; erasures_1_1 = erasures_1.next()) {
+          for (var erasures_1 = __values31(erasures), erasures_1_1 = erasures_1.next(); !erasures_1_1.done; erasures_1_1 = erasures_1.next()) {
             var erasure = erasures_1_1.value;
             var b = this.field.exp(received.length - 1 - erasure);
             var term = new ModulusPoly_default(this.field, new Int32Array([this.field.subtract(0, b), 1]));
@@ -21041,7 +21625,7 @@ var ErrorCorrection = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (erasures_1_1 && !erasures_1_1.done && (_a = erasures_1.return)) _a.call(erasures_1);
+            if (erasures_1_1 && !erasures_1_1.done && (_a2 = erasures_1.return)) _a2.call(erasures_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -21062,7 +21646,7 @@ var ErrorCorrection = (
       }
       return errorLocations.length;
     };
-    ErrorCorrection2.prototype.runEuclideanAlgorithm = function(a, b, R) {
+    ErrorCorrection3.prototype.runEuclideanAlgorithm = function(a, b, R) {
       if (a.getDegree() < b.getDegree()) {
         var temp = a;
         a = b;
@@ -21101,7 +21685,7 @@ var ErrorCorrection = (
       var omega = r.multiply(inverse);
       return [sigma, omega];
     };
-    ErrorCorrection2.prototype.findErrorLocations = function(errorLocator) {
+    ErrorCorrection3.prototype.findErrorLocations = function(errorLocator) {
       var numErrors = errorLocator.getDegree();
       var result = new Int32Array(numErrors);
       var e = 0;
@@ -21116,7 +21700,7 @@ var ErrorCorrection = (
       }
       return result;
     };
-    ErrorCorrection2.prototype.findErrorMagnitudes = function(errorEvaluator, errorLocator, errorLocations) {
+    ErrorCorrection3.prototype.findErrorMagnitudes = function(errorEvaluator, errorLocator, errorLocations) {
       var errorLocatorDegree = errorLocator.getDegree();
       var formalDerivativeCoefficients = new Int32Array(errorLocatorDegree);
       for (var i = 1; i <= errorLocatorDegree; i++) {
@@ -21133,7 +21717,7 @@ var ErrorCorrection = (
       }
       return result;
     };
-    return ErrorCorrection2;
+    return ErrorCorrection3;
   }()
 );
 var ErrorCorrection_default = ErrorCorrection;
@@ -21351,7 +21935,7 @@ var Formatter = (
 var Formatter_default = Formatter;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/DetectionResultColumn.js
-var __values31 = function(o) {
+var __values32 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -21408,11 +21992,11 @@ var DetectionResultColumn = (
       return this.codewords;
     };
     DetectionResultColumn2.prototype.toString = function() {
-      var e_1, _a;
+      var e_1, _a2;
       var formatter = new Formatter_default();
       var row = 0;
       try {
-        for (var _b = __values31(this.codewords), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values32(this.codewords), _c = _b.next(); !_c.done; _c = _b.next()) {
           var codeword = _c.value;
           if (codeword == null) {
             formatter.format("%3d:    |   %n", row++);
@@ -21424,7 +22008,7 @@ var DetectionResultColumn = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -21438,7 +22022,7 @@ var DetectionResultColumn = (
 var DetectionResultColumn_default = DetectionResultColumn;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/BarcodeValue.js
-var __values32 = function(o) {
+var __values33 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -21482,7 +22066,7 @@ var BarcodeValue = (
       this.values.set(value, confidence);
     };
     BarcodeValue2.prototype.getValue = function() {
-      var e_1, _a;
+      var e_1, _a2;
       var maxConfidence = -1;
       var result = new Array();
       var _loop_1 = function(key2, value2) {
@@ -21503,7 +22087,7 @@ var BarcodeValue = (
         }
       };
       try {
-        for (var _b = __values32(this.values.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values33(this.values.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
           var _d = __read(_c.value, 2), key = _d[0], value = _d[1];
           _loop_1(key, value);
         }
@@ -21511,7 +22095,7 @@ var BarcodeValue = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -21527,7 +22111,7 @@ var BarcodeValue = (
 var BarcodeValue_default = BarcodeValue;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/DetectionResultRowIndicatorColumn.js
-var __extends55 = /* @__PURE__ */ function() {
+var __extends57 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -21544,7 +22128,7 @@ var __extends55 = /* @__PURE__ */ function() {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __values33 = function(o) {
+var __values34 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -21558,16 +22142,16 @@ var __values33 = function(o) {
 var DetectionResultRowIndicatorColumn = (
   /** @class */
   function(_super) {
-    __extends55(DetectionResultRowIndicatorColumn2, _super);
+    __extends57(DetectionResultRowIndicatorColumn2, _super);
     function DetectionResultRowIndicatorColumn2(boundingBox, isLeft) {
       var _this = _super.call(this, boundingBox) || this;
       _this._isLeft = isLeft;
       return _this;
     }
     DetectionResultRowIndicatorColumn2.prototype.setRowNumbers = function() {
-      var e_1, _a;
+      var e_1, _a2;
       try {
-        for (var _b = __values33(this.getCodewords()), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values34(this.getCodewords()), _c = _b.next(); !_c.done; _c = _b.next()) {
           var codeword = _c.value;
           if (codeword != null) {
             codeword.setRowNumberAsRowIndicatorColumn();
@@ -21577,7 +22161,7 @@ var DetectionResultRowIndicatorColumn = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -21630,7 +22214,7 @@ var DetectionResultRowIndicatorColumn = (
       }
     };
     DetectionResultRowIndicatorColumn2.prototype.getRowHeights = function() {
-      var e_2, _a;
+      var e_2, _a2;
       var barcodeMetadata = this.getBarcodeMetadata();
       if (barcodeMetadata == null) {
         return null;
@@ -21638,7 +22222,7 @@ var DetectionResultRowIndicatorColumn = (
       this.adjustIncompleteIndicatorColumnRowNumbers(barcodeMetadata);
       var result = new Int32Array(barcodeMetadata.getRowCount());
       try {
-        for (var _b = __values33(this.getCodewords()), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values34(this.getCodewords()), _c = _b.next(); !_c.done; _c = _b.next()) {
           var codeword = _c.value;
           if (codeword != null) {
             var rowNumber = codeword.getRowNumber();
@@ -21652,7 +22236,7 @@ var DetectionResultRowIndicatorColumn = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_2) throw e_2.error;
         }
@@ -21691,14 +22275,14 @@ var DetectionResultRowIndicatorColumn = (
       }
     };
     DetectionResultRowIndicatorColumn2.prototype.getBarcodeMetadata = function() {
-      var e_3, _a;
+      var e_3, _a2;
       var codewords = this.getCodewords();
       var barcodeColumnCount = new BarcodeValue_default();
       var barcodeRowCountUpperPart = new BarcodeValue_default();
       var barcodeRowCountLowerPart = new BarcodeValue_default();
       var barcodeECLevel = new BarcodeValue_default();
       try {
-        for (var codewords_1 = __values33(codewords), codewords_1_1 = codewords_1.next(); !codewords_1_1.done; codewords_1_1 = codewords_1.next()) {
+        for (var codewords_1 = __values34(codewords), codewords_1_1 = codewords_1.next(); !codewords_1_1.done; codewords_1_1 = codewords_1.next()) {
           var codeword = codewords_1_1.value;
           if (codeword == null) {
             continue;
@@ -21726,7 +22310,7 @@ var DetectionResultRowIndicatorColumn = (
         e_3 = { error: e_3_1 };
       } finally {
         try {
-          if (codewords_1_1 && !codewords_1_1.done && (_a = codewords_1.return)) _a.call(codewords_1);
+          if (codewords_1_1 && !codewords_1_1.done && (_a2 = codewords_1.return)) _a2.call(codewords_1);
         } finally {
           if (e_3) throw e_3.error;
         }
@@ -21784,7 +22368,7 @@ var DetectionResultRowIndicatorColumn = (
 var DetectionResultRowIndicatorColumn_default = DetectionResultRowIndicatorColumn;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/DetectionResult.js
-var __values34 = function(o) {
+var __values35 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -21928,7 +22512,10 @@ var DetectionResult = (
       return invalidRowCounts;
     };
     DetectionResult2.prototype.adjustRowNumbers = function(barcodeColumn, codewordsRow, codewords) {
-      var e_1, _a;
+      var e_1, _a2;
+      if (this.detectionResultColumns[barcodeColumn - 1] == null) {
+        return;
+      }
       var codeword = codewords[codewordsRow];
       var previousColumnCodewords = this.detectionResultColumns[barcodeColumn - 1].getCodewords();
       var nextColumnCodewords = previousColumnCodewords;
@@ -21959,7 +22546,7 @@ var DetectionResult = (
         otherCodewords[13] = nextColumnCodewords[codewordsRow + 2];
       }
       try {
-        for (var otherCodewords_1 = __values34(otherCodewords), otherCodewords_1_1 = otherCodewords_1.next(); !otherCodewords_1_1.done; otherCodewords_1_1 = otherCodewords_1.next()) {
+        for (var otherCodewords_1 = __values35(otherCodewords), otherCodewords_1_1 = otherCodewords_1.next(); !otherCodewords_1_1.done; otherCodewords_1_1 = otherCodewords_1.next()) {
           var otherCodeword = otherCodewords_1_1.value;
           if (DetectionResult2.adjustRowNumber(codeword, otherCodeword)) {
             return;
@@ -21969,7 +22556,7 @@ var DetectionResult = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (otherCodewords_1_1 && !otherCodewords_1_1.done && (_a = otherCodewords_1.return)) _a.call(otherCodewords_1);
+          if (otherCodewords_1_1 && !otherCodewords_1_1.done && (_a2 = otherCodewords_1.return)) _a2.call(otherCodewords_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -22286,7 +22873,7 @@ var Long = (
 var Long_default = Long;
 
 // front/node_modules/@zxing/library/esm/core/NullPointerException.js
-var __extends56 = /* @__PURE__ */ function() {
+var __extends58 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -22306,7 +22893,7 @@ var __extends56 = /* @__PURE__ */ function() {
 var NullPointerException = (
   /** @class */
   function(_super) {
-    __extends56(NullPointerException2, _super);
+    __extends58(NullPointerException2, _super);
     function NullPointerException2() {
       return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -22347,7 +22934,7 @@ var OutputStream = (
 var OutputStream_default = OutputStream;
 
 // front/node_modules/@zxing/library/esm/core/OutOfMemoryError.js
-var __extends57 = /* @__PURE__ */ function() {
+var __extends59 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -22367,7 +22954,7 @@ var __extends57 = /* @__PURE__ */ function() {
 var OutOfMemoryError = (
   /** @class */
   function(_super) {
-    __extends57(OutOfMemoryError2, _super);
+    __extends59(OutOfMemoryError2, _super);
     function OutOfMemoryError2() {
       return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -22377,7 +22964,7 @@ var OutOfMemoryError = (
 var OutOfMemoryError_default = OutOfMemoryError;
 
 // front/node_modules/@zxing/library/esm/core/util/ByteArrayOutputStream.js
-var __extends58 = /* @__PURE__ */ function() {
+var __extends60 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -22397,7 +22984,7 @@ var __extends58 = /* @__PURE__ */ function() {
 var ByteArrayOutputStream = (
   /** @class */
   function(_super) {
-    __extends58(ByteArrayOutputStream2, _super);
+    __extends60(ByteArrayOutputStream2, _super);
     function ByteArrayOutputStream2(size) {
       if (size === void 0) {
         size = 32;
@@ -22488,13 +23075,13 @@ var ByteArrayOutputStream_default = ByteArrayOutputStream;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/DecodedBitStreamParser.js
 var Mode3;
-(function(Mode4) {
-  Mode4[Mode4["ALPHA"] = 0] = "ALPHA";
-  Mode4[Mode4["LOWER"] = 1] = "LOWER";
-  Mode4[Mode4["MIXED"] = 2] = "MIXED";
-  Mode4[Mode4["PUNCT"] = 3] = "PUNCT";
-  Mode4[Mode4["ALPHA_SHIFT"] = 4] = "ALPHA_SHIFT";
-  Mode4[Mode4["PUNCT_SHIFT"] = 5] = "PUNCT_SHIFT";
+(function(Mode5) {
+  Mode5[Mode5["ALPHA"] = 0] = "ALPHA";
+  Mode5[Mode5["LOWER"] = 1] = "LOWER";
+  Mode5[Mode5["MIXED"] = 2] = "MIXED";
+  Mode5[Mode5["PUNCT"] = 3] = "PUNCT";
+  Mode5[Mode5["ALPHA_SHIFT"] = 4] = "ALPHA_SHIFT";
+  Mode5[Mode5["PUNCT_SHIFT"] = 5] = "PUNCT_SHIFT";
 })(Mode3 || (Mode3 = {}));
 function getBigIntConstructor() {
   if (typeof window !== "undefined") {
@@ -23042,7 +23629,7 @@ var DecodedBitStreamParser3 = (
 var DecodedBitStreamParser_default3 = DecodedBitStreamParser3;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/decoder/PDF417ScanningDecoder.js
-var __values35 = function(o) {
+var __values36 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -23132,7 +23719,7 @@ var PDF417ScanningDecoder = (
       return new DetectionResult_default(barcodeMetadata, boundingBox);
     };
     PDF417ScanningDecoder2.adjustBoundingBox = function(rowIndicatorColumn) {
-      var e_1, _a;
+      var e_1, _a2;
       if (rowIndicatorColumn == null) {
         return null;
       }
@@ -23143,7 +23730,7 @@ var PDF417ScanningDecoder = (
       var maxRowHeight = PDF417ScanningDecoder2.getMax(rowHeights);
       var missingStartRows = 0;
       try {
-        for (var rowHeights_1 = __values35(rowHeights), rowHeights_1_1 = rowHeights_1.next(); !rowHeights_1_1.done; rowHeights_1_1 = rowHeights_1.next()) {
+        for (var rowHeights_1 = __values36(rowHeights), rowHeights_1_1 = rowHeights_1.next(); !rowHeights_1_1.done; rowHeights_1_1 = rowHeights_1.next()) {
           var rowHeight = rowHeights_1_1.value;
           missingStartRows += maxRowHeight - rowHeight;
           if (rowHeight > 0) {
@@ -23154,7 +23741,7 @@ var PDF417ScanningDecoder = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (rowHeights_1_1 && !rowHeights_1_1.done && (_a = rowHeights_1.return)) _a.call(rowHeights_1);
+          if (rowHeights_1_1 && !rowHeights_1_1.done && (_a2 = rowHeights_1.return)) _a2.call(rowHeights_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -23176,10 +23763,10 @@ var PDF417ScanningDecoder = (
       return rowIndicatorColumn.getBoundingBox().addMissingRows(missingStartRows, missingEndRows, rowIndicatorColumn.isLeft());
     };
     PDF417ScanningDecoder2.getMax = function(values) {
-      var e_2, _a;
+      var e_2, _a2;
       var maxValue = -1;
       try {
-        for (var values_1 = __values35(values), values_1_1 = values_1.next(); !values_1_1.done; values_1_1 = values_1.next()) {
+        for (var values_1 = __values36(values), values_1_1 = values_1.next(); !values_1_1.done; values_1_1 = values_1.next()) {
           var value = values_1_1.value;
           maxValue = Math.max(maxValue, value);
         }
@@ -23187,7 +23774,7 @@ var PDF417ScanningDecoder = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (values_1_1 && !values_1_1.done && (_a = values_1.return)) _a.call(values_1);
+          if (values_1_1 && !values_1_1.done && (_a2 = values_1.return)) _a2.call(values_1);
         } finally {
           if (e_2) throw e_2.error;
         }
@@ -23306,7 +23893,7 @@ var PDF417ScanningDecoder = (
       throw ChecksumException_default.getChecksumInstance();
     };
     PDF417ScanningDecoder2.createBarcodeMatrix = function(detectionResult) {
-      var e_3, _a, e_4, _b;
+      var e_3, _a2, e_4, _b;
       var barcodeMatrix = Array.from({ length: detectionResult.getBarcodeRowCount() }, function() {
         return new Array(detectionResult.getBarcodeColumnCount() + 2);
       });
@@ -23317,11 +23904,11 @@ var PDF417ScanningDecoder = (
       }
       var column = 0;
       try {
-        for (var _c = __values35(detectionResult.getDetectionResultColumns()), _d = _c.next(); !_d.done; _d = _c.next()) {
+        for (var _c = __values36(detectionResult.getDetectionResultColumns()), _d = _c.next(); !_d.done; _d = _c.next()) {
           var detectionResultColumn = _d.value;
           if (detectionResultColumn != null) {
             try {
-              for (var _e = (e_4 = void 0, __values35(detectionResultColumn.getCodewords())), _f = _e.next(); !_f.done; _f = _e.next()) {
+              for (var _e = (e_4 = void 0, __values36(detectionResultColumn.getCodewords())), _f = _e.next(); !_f.done; _f = _e.next()) {
                 var codeword = _f.value;
                 if (codeword != null) {
                   var rowNumber = codeword.getRowNumber();
@@ -23349,7 +23936,7 @@ var PDF417ScanningDecoder = (
         e_3 = { error: e_3_1 };
       } finally {
         try {
-          if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+          if (_d && !_d.done && (_a2 = _c.return)) _a2.call(_c);
         } finally {
           if (e_3) throw e_3.error;
         }
@@ -23360,7 +23947,7 @@ var PDF417ScanningDecoder = (
       return barcodeColumn >= 0 && barcodeColumn <= detectionResult.getBarcodeColumnCount() + 1;
     };
     PDF417ScanningDecoder2.getStartColumn = function(detectionResult, barcodeColumn, imageRow, leftToRight) {
-      var e_5, _a;
+      var e_5, _a2;
       var offset = leftToRight ? 1 : -1;
       var codeword = null;
       if (PDF417ScanningDecoder2.isValidBarcodeColumn(detectionResult, barcodeColumn - offset)) {
@@ -23383,7 +23970,7 @@ var PDF417ScanningDecoder = (
       while (PDF417ScanningDecoder2.isValidBarcodeColumn(detectionResult, barcodeColumn - offset)) {
         barcodeColumn -= offset;
         try {
-          for (var _b = (e_5 = void 0, __values35(detectionResult.getDetectionResultColumn(barcodeColumn).getCodewords())), _c = _b.next(); !_c.done; _c = _b.next()) {
+          for (var _b = (e_5 = void 0, __values36(detectionResult.getDetectionResultColumn(barcodeColumn).getCodewords())), _c = _b.next(); !_c.done; _c = _b.next()) {
             var previousRowCodeword = _c.value;
             if (previousRowCodeword != null) {
               return (leftToRight ? previousRowCodeword.getEndX() : previousRowCodeword.getStartX()) + offset * skippedColumns * (previousRowCodeword.getEndX() - previousRowCodeword.getStartX());
@@ -23393,7 +23980,7 @@ var PDF417ScanningDecoder = (
           e_5 = { error: e_5_1 };
         } finally {
           try {
-            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
           } finally {
             if (e_5) throw e_5.error;
           }
@@ -23561,7 +24148,7 @@ var PDF417ScanningDecoder = (
 var PDF417ScanningDecoder_default = PDF417ScanningDecoder;
 
 // front/node_modules/@zxing/library/esm/core/pdf417/PDF417Reader.js
-var __values36 = function(o) {
+var __values37 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -23601,11 +24188,11 @@ var PDF417Reader = (
       }
     };
     PDF417Reader2.decode = function(image, hints, multiple) {
-      var e_1, _a;
+      var e_1, _a2;
       var results = new Array();
       var detectorResult = Detector_default4.detectMultiple(image, hints, multiple);
       try {
-        for (var _b = __values36(detectorResult.getPoints()), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values37(detectorResult.getPoints()), _c = _b.next(); !_c.done; _c = _b.next()) {
           var points = _c.value;
           var decoderResult = PDF417ScanningDecoder_default.decode(detectorResult.getBits(), points[4], points[5], points[6], points[7], PDF417Reader2.getMinCodewordWidth(points), PDF417Reader2.getMaxCodewordWidth(points));
           var result = new Result_default(decoderResult.getText(), decoderResult.getRawBytes(), void 0, points, BarcodeFormat_default.PDF_417);
@@ -23620,7 +24207,7 @@ var PDF417Reader = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -23655,7 +24242,7 @@ var PDF417Reader = (
 var PDF417Reader_default = PDF417Reader;
 
 // front/node_modules/@zxing/library/esm/core/ReaderException.js
-var __extends59 = /* @__PURE__ */ function() {
+var __extends61 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -23675,7 +24262,7 @@ var __extends59 = /* @__PURE__ */ function() {
 var ReaderException = (
   /** @class */
   function(_super) {
-    __extends59(ReaderException2, _super);
+    __extends61(ReaderException2, _super);
     function ReaderException2() {
       return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -23686,7 +24273,7 @@ var ReaderException = (
 var ReaderException_default = ReaderException;
 
 // front/node_modules/@zxing/library/esm/core/MultiFormatReader.js
-var __values37 = function(o) {
+var __values38 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -23755,10 +24342,10 @@ var MultiFormatReader = (
       this.readers = readers;
     };
     MultiFormatReader2.prototype.reset = function() {
-      var e_1, _a;
+      var e_1, _a2;
       if (this.readers !== null) {
         try {
-          for (var _b = __values37(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
+          for (var _b = __values38(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
             var reader = _c.value;
             reader.reset();
           }
@@ -23766,7 +24353,7 @@ var MultiFormatReader = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -23774,12 +24361,12 @@ var MultiFormatReader = (
       }
     };
     MultiFormatReader2.prototype.decodeInternal = function(image) {
-      var e_2, _a;
+      var e_2, _a2;
       if (this.readers === null) {
         throw new ReaderException_default("No readers where selected, nothing can be read.");
       }
       try {
-        for (var _b = __values37(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values38(this.readers), _c = _b.next(); !_c.done; _c = _b.next()) {
           var reader = _c.value;
           try {
             return reader.decode(image, this.hints);
@@ -23793,7 +24380,7 @@ var MultiFormatReader = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_2) throw e_2.error;
         }
@@ -23806,7 +24393,7 @@ var MultiFormatReader = (
 var MultiFormatReader_default = MultiFormatReader;
 
 // front/node_modules/@zxing/library/esm/browser/BrowserMultiFormatReader.js
-var __extends60 = /* @__PURE__ */ function() {
+var __extends62 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -23826,7 +24413,7 @@ var __extends60 = /* @__PURE__ */ function() {
 var BrowserMultiFormatReader = (
   /** @class */
   function(_super) {
-    __extends60(BrowserMultiFormatReader3, _super);
+    __extends62(BrowserMultiFormatReader3, _super);
     function BrowserMultiFormatReader3(hints, timeBetweenScansMillis) {
       if (hints === void 0) {
         hints = null;
@@ -23848,7 +24435,7 @@ var BrowserMultiFormatReader = (
 );
 
 // front/node_modules/@zxing/library/esm/browser/BrowserPDF417Reader.js
-var __extends61 = /* @__PURE__ */ function() {
+var __extends63 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -23868,7 +24455,7 @@ var __extends61 = /* @__PURE__ */ function() {
 var BrowserPDF417Reader = (
   /** @class */
   function(_super) {
-    __extends61(BrowserPDF417Reader3, _super);
+    __extends63(BrowserPDF417Reader3, _super);
     function BrowserPDF417Reader3(timeBetweenScansMillis) {
       if (timeBetweenScansMillis === void 0) {
         timeBetweenScansMillis = 500;
@@ -23880,7 +24467,7 @@ var BrowserPDF417Reader = (
 );
 
 // front/node_modules/@zxing/library/esm/browser/BrowserQRCodeReader.js
-var __extends62 = /* @__PURE__ */ function() {
+var __extends64 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -23900,7 +24487,7 @@ var __extends62 = /* @__PURE__ */ function() {
 var BrowserQRCodeReader = (
   /** @class */
   function(_super) {
-    __extends62(BrowserQRCodeReader3, _super);
+    __extends64(BrowserQRCodeReader3, _super);
     function BrowserQRCodeReader3(timeBetweenScansMillis) {
       if (timeBetweenScansMillis === void 0) {
         timeBetweenScansMillis = 500;
@@ -23917,14 +24504,17 @@ var EncodeHintType;
   EncodeHintType2[EncodeHintType2["ERROR_CORRECTION"] = 0] = "ERROR_CORRECTION";
   EncodeHintType2[EncodeHintType2["CHARACTER_SET"] = 1] = "CHARACTER_SET";
   EncodeHintType2[EncodeHintType2["DATA_MATRIX_SHAPE"] = 2] = "DATA_MATRIX_SHAPE";
-  EncodeHintType2[EncodeHintType2["MIN_SIZE"] = 3] = "MIN_SIZE";
-  EncodeHintType2[EncodeHintType2["MAX_SIZE"] = 4] = "MAX_SIZE";
-  EncodeHintType2[EncodeHintType2["MARGIN"] = 5] = "MARGIN";
-  EncodeHintType2[EncodeHintType2["PDF417_COMPACT"] = 6] = "PDF417_COMPACT";
-  EncodeHintType2[EncodeHintType2["PDF417_COMPACTION"] = 7] = "PDF417_COMPACTION";
-  EncodeHintType2[EncodeHintType2["PDF417_DIMENSIONS"] = 8] = "PDF417_DIMENSIONS";
-  EncodeHintType2[EncodeHintType2["AZTEC_LAYERS"] = 9] = "AZTEC_LAYERS";
-  EncodeHintType2[EncodeHintType2["QR_VERSION"] = 10] = "QR_VERSION";
+  EncodeHintType2[EncodeHintType2["DATA_MATRIX_COMPACT"] = 3] = "DATA_MATRIX_COMPACT";
+  EncodeHintType2[EncodeHintType2["MIN_SIZE"] = 4] = "MIN_SIZE";
+  EncodeHintType2[EncodeHintType2["MAX_SIZE"] = 5] = "MAX_SIZE";
+  EncodeHintType2[EncodeHintType2["MARGIN"] = 6] = "MARGIN";
+  EncodeHintType2[EncodeHintType2["PDF417_COMPACT"] = 7] = "PDF417_COMPACT";
+  EncodeHintType2[EncodeHintType2["PDF417_COMPACTION"] = 8] = "PDF417_COMPACTION";
+  EncodeHintType2[EncodeHintType2["PDF417_DIMENSIONS"] = 9] = "PDF417_DIMENSIONS";
+  EncodeHintType2[EncodeHintType2["AZTEC_LAYERS"] = 10] = "AZTEC_LAYERS";
+  EncodeHintType2[EncodeHintType2["QR_VERSION"] = 11] = "QR_VERSION";
+  EncodeHintType2[EncodeHintType2["GS1_FORMAT"] = 12] = "GS1_FORMAT";
+  EncodeHintType2[EncodeHintType2["FORCE_C40"] = 13] = "FORCE_C40";
 })(EncodeHintType || (EncodeHintType = {}));
 var EncodeHintType_default = EncodeHintType;
 
@@ -24128,7 +24718,7 @@ var MaskUtil = (
 var MaskUtil_default = MaskUtil;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/encoder/ByteMatrix.js
-var __values38 = function(o) {
+var __values39 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -24171,9 +24761,9 @@ var ByteMatrix = (
       value ? 1 : 0;
     };
     ByteMatrix2.prototype.clear = function(value) {
-      var e_1, _a;
+      var e_1, _a2;
       try {
-        for (var _b = __values38(this.bytes), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values39(this.bytes), _c = _b.next(); !_c.done; _c = _b.next()) {
           var aByte = _c.value;
           Arrays_default.fill(aByte, value);
         }
@@ -24181,7 +24771,7 @@ var ByteMatrix = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -24302,7 +24892,7 @@ var QRCode = (
 var QRCode_default = QRCode;
 
 // front/node_modules/@zxing/library/esm/core/WriterException.js
-var __extends63 = /* @__PURE__ */ function() {
+var __extends65 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -24322,7 +24912,7 @@ var __extends63 = /* @__PURE__ */ function() {
 var WriterException = (
   /** @class */
   function(_super) {
-    __extends63(WriterException2, _super);
+    __extends65(WriterException2, _super);
     function WriterException2() {
       return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -24655,7 +25245,7 @@ var BlockPair = (
 var BlockPair_default = BlockPair;
 
 // front/node_modules/@zxing/library/esm/core/qrcode/encoder/Encoder.js
-var __values39 = function(o) {
+var __values40 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -24869,7 +25459,7 @@ var Encoder = (
       }
     };
     Encoder3.interleaveWithECBytes = function(bits, numTotalBytes, numDataBytes, numRSBlocks) {
-      var e_1, _a, e_2, _b;
+      var e_1, _a2, e_2, _b;
       if (bits.getSizeInBytes() !== numDataBytes) {
         throw new WriterException_default("Number of bits and data bytes does not match");
       }
@@ -24896,7 +25486,7 @@ var Encoder = (
       var result = new BitArray_default();
       for (var i = 0; i < maxNumDataBytes; ++i) {
         try {
-          for (var blocks_1 = (e_1 = void 0, __values39(blocks)), blocks_1_1 = blocks_1.next(); !blocks_1_1.done; blocks_1_1 = blocks_1.next()) {
+          for (var blocks_1 = (e_1 = void 0, __values40(blocks)), blocks_1_1 = blocks_1.next(); !blocks_1_1.done; blocks_1_1 = blocks_1.next()) {
             var block = blocks_1_1.value;
             var dataBytes = block.getDataBytes();
             if (i < dataBytes.length) {
@@ -24907,7 +25497,7 @@ var Encoder = (
           e_1 = { error: e_1_1 };
         } finally {
           try {
-            if (blocks_1_1 && !blocks_1_1.done && (_a = blocks_1.return)) _a.call(blocks_1);
+            if (blocks_1_1 && !blocks_1_1.done && (_a2 = blocks_1.return)) _a2.call(blocks_1);
           } finally {
             if (e_1) throw e_1.error;
           }
@@ -24915,7 +25505,7 @@ var Encoder = (
       }
       for (var i = 0; i < maxNumEcBytes; ++i) {
         try {
-          for (var blocks_2 = (e_2 = void 0, __values39(blocks)), blocks_2_1 = blocks_2.next(); !blocks_2_1.done; blocks_2_1 = blocks_2.next()) {
+          for (var blocks_2 = (e_2 = void 0, __values40(blocks)), blocks_2_1 = blocks_2.next(); !blocks_2_1.done; blocks_2_1 = blocks_2.next()) {
             var block = blocks_2_1.value;
             var ecBytes = block.getErrorCorrectionBytes();
             if (i < ecBytes.length) {
@@ -25375,7 +25965,7 @@ var MultiFormatWriter = (
 );
 
 // front/node_modules/@zxing/library/esm/core/PlanarYUVLuminanceSource.js
-var __extends64 = /* @__PURE__ */ function() {
+var __extends66 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -25395,7 +25985,7 @@ var __extends64 = /* @__PURE__ */ function() {
 var PlanarYUVLuminanceSource = (
   /** @class */
   function(_super) {
-    __extends64(PlanarYUVLuminanceSource2, _super);
+    __extends66(PlanarYUVLuminanceSource2, _super);
     function PlanarYUVLuminanceSource2(yuvData, dataWidth, dataHeight, left, top, width, height, reverseHorizontal) {
       var _this = _super.call(this, width, height) || this;
       _this.yuvData = yuvData;
@@ -25491,7 +26081,7 @@ var PlanarYUVLuminanceSource = (
 );
 
 // front/node_modules/@zxing/library/esm/core/RGBLuminanceSource.js
-var __extends65 = /* @__PURE__ */ function() {
+var __extends67 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -25511,7 +26101,7 @@ var __extends65 = /* @__PURE__ */ function() {
 var RGBLuminanceSource = (
   /** @class */
   function(_super) {
-    __extends65(RGBLuminanceSource2, _super);
+    __extends67(RGBLuminanceSource2, _super);
     function RGBLuminanceSource2(luminances, width, height, dataWidth, dataHeight, left, top) {
       var _this = _super.call(this, width, height) || this;
       _this.dataWidth = dataWidth;
@@ -25596,7 +26186,7 @@ var RGBLuminanceSource = (
 );
 
 // front/node_modules/@zxing/library/esm/core/util/Charset.js
-var __extends66 = /* @__PURE__ */ function() {
+var __extends68 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -25616,7 +26206,7 @@ var __extends66 = /* @__PURE__ */ function() {
 var Charset = (
   /** @class */
   function(_super) {
-    __extends66(Charset2, _super);
+    __extends68(Charset2, _super);
     function Charset2() {
       return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -25639,6 +26229,3174 @@ var StandardCharsets = (
   }()
 );
 var StandardCharsets_default = StandardCharsets;
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/DefaultPlacement.js
+var DefaultPlacement = (
+  /** @class */
+  function() {
+    function DefaultPlacement2(codewords, numcols, numrows) {
+      this.codewords = codewords;
+      this.numcols = numcols;
+      this.numrows = numrows;
+      this.bits = new Uint8Array(numcols * numrows);
+      Arrays_default.fill(this.bits, 2);
+    }
+    DefaultPlacement2.prototype.getNumrows = function() {
+      return this.numrows;
+    };
+    DefaultPlacement2.prototype.getNumcols = function() {
+      return this.numcols;
+    };
+    DefaultPlacement2.prototype.getBits = function() {
+      return this.bits;
+    };
+    DefaultPlacement2.prototype.getBit = function(col, row) {
+      return this.bits[row * this.numcols + col] === 1;
+    };
+    DefaultPlacement2.prototype.setBit = function(col, row, bit) {
+      this.bits[row * this.numcols + col] = bit ? 1 : 0;
+    };
+    DefaultPlacement2.prototype.noBit = function(col, row) {
+      return this.bits[row * this.numcols + col] === 2;
+    };
+    DefaultPlacement2.prototype.place = function() {
+      var pos = 0;
+      var row = 4;
+      var col = 0;
+      do {
+        if (row === this.numrows && col === 0) {
+          this.corner1(pos++);
+        }
+        if (row === this.numrows - 2 && col === 0 && this.numcols % 4 !== 0) {
+          this.corner2(pos++);
+        }
+        if (row === this.numrows - 2 && col === 0 && this.numcols % 8 === 4) {
+          this.corner3(pos++);
+        }
+        if (row === this.numrows + 4 && col === 2 && this.numcols % 8 === 0) {
+          this.corner4(pos++);
+        }
+        do {
+          if (row < this.numrows && col >= 0 && this.noBit(col, row)) {
+            this.utah(row, col, pos++);
+          }
+          row -= 2;
+          col += 2;
+        } while (row >= 0 && col < this.numcols);
+        row++;
+        col += 3;
+        do {
+          if (row >= 0 && col < this.numcols && this.noBit(col, row)) {
+            this.utah(row, col, pos++);
+          }
+          row += 2;
+          col -= 2;
+        } while (row < this.numrows && col >= 0);
+        row += 3;
+        col++;
+      } while (row < this.numrows || col < this.numcols);
+      if (this.noBit(this.numcols - 1, this.numrows - 1)) {
+        this.setBit(this.numcols - 1, this.numrows - 1, true);
+        this.setBit(this.numcols - 2, this.numrows - 2, true);
+      }
+    };
+    DefaultPlacement2.prototype.module = function(row, col, pos, bit) {
+      if (row < 0) {
+        row += this.numrows;
+        col += 4 - (this.numrows + 4) % 8;
+      }
+      if (col < 0) {
+        col += this.numcols;
+        row += 4 - (this.numcols + 4) % 8;
+      }
+      var v = this.codewords.charCodeAt(pos);
+      v &= 1 << 8 - bit;
+      this.setBit(col, row, v !== 0);
+    };
+    DefaultPlacement2.prototype.utah = function(row, col, pos) {
+      this.module(row - 2, col - 2, pos, 1);
+      this.module(row - 2, col - 1, pos, 2);
+      this.module(row - 1, col - 2, pos, 3);
+      this.module(row - 1, col - 1, pos, 4);
+      this.module(row - 1, col, pos, 5);
+      this.module(row, col - 2, pos, 6);
+      this.module(row, col - 1, pos, 7);
+      this.module(row, col, pos, 8);
+    };
+    DefaultPlacement2.prototype.corner1 = function(pos) {
+      this.module(this.numrows - 1, 0, pos, 1);
+      this.module(this.numrows - 1, 1, pos, 2);
+      this.module(this.numrows - 1, 2, pos, 3);
+      this.module(0, this.numcols - 2, pos, 4);
+      this.module(0, this.numcols - 1, pos, 5);
+      this.module(1, this.numcols - 1, pos, 6);
+      this.module(2, this.numcols - 1, pos, 7);
+      this.module(3, this.numcols - 1, pos, 8);
+    };
+    DefaultPlacement2.prototype.corner2 = function(pos) {
+      this.module(this.numrows - 3, 0, pos, 1);
+      this.module(this.numrows - 2, 0, pos, 2);
+      this.module(this.numrows - 1, 0, pos, 3);
+      this.module(0, this.numcols - 4, pos, 4);
+      this.module(0, this.numcols - 3, pos, 5);
+      this.module(0, this.numcols - 2, pos, 6);
+      this.module(0, this.numcols - 1, pos, 7);
+      this.module(1, this.numcols - 1, pos, 8);
+    };
+    DefaultPlacement2.prototype.corner3 = function(pos) {
+      this.module(this.numrows - 3, 0, pos, 1);
+      this.module(this.numrows - 2, 0, pos, 2);
+      this.module(this.numrows - 1, 0, pos, 3);
+      this.module(0, this.numcols - 2, pos, 4);
+      this.module(0, this.numcols - 1, pos, 5);
+      this.module(1, this.numcols - 1, pos, 6);
+      this.module(2, this.numcols - 1, pos, 7);
+      this.module(3, this.numcols - 1, pos, 8);
+    };
+    DefaultPlacement2.prototype.corner4 = function(pos) {
+      this.module(this.numrows - 1, 0, pos, 1);
+      this.module(this.numrows - 1, this.numcols - 1, pos, 2);
+      this.module(0, this.numcols - 3, pos, 3);
+      this.module(0, this.numcols - 2, pos, 4);
+      this.module(0, this.numcols - 1, pos, 5);
+      this.module(1, this.numcols - 3, pos, 6);
+      this.module(1, this.numcols - 2, pos, 7);
+      this.module(1, this.numcols - 1, pos, 8);
+    };
+    return DefaultPlacement2;
+  }()
+);
+var DefaultPlacement_default = DefaultPlacement;
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/constants.js
+var _a;
+var FACTOR_SETS = [
+  5,
+  7,
+  10,
+  11,
+  12,
+  14,
+  18,
+  20,
+  24,
+  28,
+  36,
+  42,
+  48,
+  56,
+  62,
+  68
+];
+var FACTORS = [
+  [228, 48, 15, 111, 62],
+  [23, 68, 144, 134, 240, 92, 254],
+  [28, 24, 185, 166, 223, 248, 116, 255, 110, 61],
+  [175, 138, 205, 12, 194, 168, 39, 245, 60, 97, 120],
+  [41, 153, 158, 91, 61, 42, 142, 213, 97, 178, 100, 242],
+  [156, 97, 192, 252, 95, 9, 157, 119, 138, 45, 18, 186, 83, 185],
+  [
+    83,
+    195,
+    100,
+    39,
+    188,
+    75,
+    66,
+    61,
+    241,
+    213,
+    109,
+    129,
+    94,
+    254,
+    225,
+    48,
+    90,
+    188
+  ],
+  [
+    15,
+    195,
+    244,
+    9,
+    233,
+    71,
+    168,
+    2,
+    188,
+    160,
+    153,
+    145,
+    253,
+    79,
+    108,
+    82,
+    27,
+    174,
+    186,
+    172
+  ],
+  [
+    52,
+    190,
+    88,
+    205,
+    109,
+    39,
+    176,
+    21,
+    155,
+    197,
+    251,
+    223,
+    155,
+    21,
+    5,
+    172,
+    254,
+    124,
+    12,
+    181,
+    184,
+    96,
+    50,
+    193
+  ],
+  [
+    211,
+    231,
+    43,
+    97,
+    71,
+    96,
+    103,
+    174,
+    37,
+    151,
+    170,
+    53,
+    75,
+    34,
+    249,
+    121,
+    17,
+    138,
+    110,
+    213,
+    141,
+    136,
+    120,
+    151,
+    233,
+    168,
+    93,
+    255
+  ],
+  [
+    245,
+    127,
+    242,
+    218,
+    130,
+    250,
+    162,
+    181,
+    102,
+    120,
+    84,
+    179,
+    220,
+    251,
+    80,
+    182,
+    229,
+    18,
+    2,
+    4,
+    68,
+    33,
+    101,
+    137,
+    95,
+    119,
+    115,
+    44,
+    175,
+    184,
+    59,
+    25,
+    225,
+    98,
+    81,
+    112
+  ],
+  [
+    77,
+    193,
+    137,
+    31,
+    19,
+    38,
+    22,
+    153,
+    247,
+    105,
+    122,
+    2,
+    245,
+    133,
+    242,
+    8,
+    175,
+    95,
+    100,
+    9,
+    167,
+    105,
+    214,
+    111,
+    57,
+    121,
+    21,
+    1,
+    253,
+    57,
+    54,
+    101,
+    248,
+    202,
+    69,
+    50,
+    150,
+    177,
+    226,
+    5,
+    9,
+    5
+  ],
+  [
+    245,
+    132,
+    172,
+    223,
+    96,
+    32,
+    117,
+    22,
+    238,
+    133,
+    238,
+    231,
+    205,
+    188,
+    237,
+    87,
+    191,
+    106,
+    16,
+    147,
+    118,
+    23,
+    37,
+    90,
+    170,
+    205,
+    131,
+    88,
+    120,
+    100,
+    66,
+    138,
+    186,
+    240,
+    82,
+    44,
+    176,
+    87,
+    187,
+    147,
+    160,
+    175,
+    69,
+    213,
+    92,
+    253,
+    225,
+    19
+  ],
+  [
+    175,
+    9,
+    223,
+    238,
+    12,
+    17,
+    220,
+    208,
+    100,
+    29,
+    175,
+    170,
+    230,
+    192,
+    215,
+    235,
+    150,
+    159,
+    36,
+    223,
+    38,
+    200,
+    132,
+    54,
+    228,
+    146,
+    218,
+    234,
+    117,
+    203,
+    29,
+    232,
+    144,
+    238,
+    22,
+    150,
+    201,
+    117,
+    62,
+    207,
+    164,
+    13,
+    137,
+    245,
+    127,
+    67,
+    247,
+    28,
+    155,
+    43,
+    203,
+    107,
+    233,
+    53,
+    143,
+    46
+  ],
+  [
+    242,
+    93,
+    169,
+    50,
+    144,
+    210,
+    39,
+    118,
+    202,
+    188,
+    201,
+    189,
+    143,
+    108,
+    196,
+    37,
+    185,
+    112,
+    134,
+    230,
+    245,
+    63,
+    197,
+    190,
+    250,
+    106,
+    185,
+    221,
+    175,
+    64,
+    114,
+    71,
+    161,
+    44,
+    147,
+    6,
+    27,
+    218,
+    51,
+    63,
+    87,
+    10,
+    40,
+    130,
+    188,
+    17,
+    163,
+    31,
+    176,
+    170,
+    4,
+    107,
+    232,
+    7,
+    94,
+    166,
+    224,
+    124,
+    86,
+    47,
+    11,
+    204
+  ],
+  [
+    220,
+    228,
+    173,
+    89,
+    251,
+    149,
+    159,
+    56,
+    89,
+    33,
+    147,
+    244,
+    154,
+    36,
+    73,
+    127,
+    213,
+    136,
+    248,
+    180,
+    234,
+    197,
+    158,
+    177,
+    68,
+    122,
+    93,
+    213,
+    15,
+    160,
+    227,
+    236,
+    66,
+    139,
+    153,
+    185,
+    202,
+    167,
+    179,
+    25,
+    220,
+    232,
+    96,
+    210,
+    231,
+    136,
+    223,
+    239,
+    181,
+    241,
+    59,
+    52,
+    172,
+    25,
+    49,
+    232,
+    211,
+    189,
+    64,
+    54,
+    108,
+    153,
+    132,
+    63,
+    96,
+    103,
+    82,
+    186
+  ]
+];
+var MODULO_VALUE = 301;
+var static_LOG = function(LOG2, ALOG2) {
+  var p = 1;
+  for (var i = 0; i < 255; i++) {
+    ALOG2[i] = p;
+    LOG2[p] = i;
+    p *= 2;
+    if (p >= 256) {
+      p ^= MODULO_VALUE;
+    }
+  }
+  return {
+    LOG: LOG2,
+    ALOG: ALOG2
+  };
+};
+var LOG = (_a = static_LOG([], []), _a.LOG);
+var ALOG = _a.ALOG;
+var SymbolShapeHint;
+(function(SymbolShapeHint2) {
+  SymbolShapeHint2[SymbolShapeHint2["FORCE_NONE"] = 0] = "FORCE_NONE";
+  SymbolShapeHint2[SymbolShapeHint2["FORCE_SQUARE"] = 1] = "FORCE_SQUARE";
+  SymbolShapeHint2[SymbolShapeHint2["FORCE_RECTANGLE"] = 2] = "FORCE_RECTANGLE";
+})(SymbolShapeHint || (SymbolShapeHint = {}));
+var PAD = 129;
+var LATCH_TO_C40 = 230;
+var LATCH_TO_BASE256 = 231;
+var UPPER_SHIFT = 235;
+var MACRO_05 = 236;
+var MACRO_06 = 237;
+var LATCH_TO_ANSIX12 = 238;
+var LATCH_TO_TEXT = 239;
+var LATCH_TO_EDIFACT = 240;
+var C40_UNLATCH = 254;
+var X12_UNLATCH = 254;
+var MACRO_05_HEADER = "[)>05";
+var MACRO_06_HEADER = "[)>06";
+var MACRO_TRAILER = "";
+var ASCII_ENCODATION = 0;
+var C40_ENCODATION = 1;
+var TEXT_ENCODATION = 2;
+var X12_ENCODATION = 3;
+var EDIFACT_ENCODATION = 4;
+var BASE256_ENCODATION = 5;
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/ErrorCorrection.js
+var ErrorCorrection2 = (
+  /** @class */
+  function() {
+    function ErrorCorrection3() {
+    }
+    ErrorCorrection3.encodeECC200 = function(codewords, symbolInfo) {
+      if (codewords.length !== symbolInfo.getDataCapacity()) {
+        throw new Error("The number of codewords does not match the selected symbol");
+      }
+      var sb = new StringBuilder_default();
+      sb.append(codewords);
+      var blockCount = symbolInfo.getInterleavedBlockCount();
+      if (blockCount === 1) {
+        var ecc = this.createECCBlock(codewords, symbolInfo.getErrorCodewords());
+        sb.append(ecc);
+      } else {
+        var dataSizes = [];
+        var errorSizes = [];
+        for (var i = 0; i < blockCount; i++) {
+          dataSizes[i] = symbolInfo.getDataLengthForInterleavedBlock(i + 1);
+          errorSizes[i] = symbolInfo.getErrorLengthForInterleavedBlock(i + 1);
+        }
+        for (var block = 0; block < blockCount; block++) {
+          var temp = new StringBuilder_default();
+          for (var d = block; d < symbolInfo.getDataCapacity(); d += blockCount) {
+            temp.append(codewords.charAt(d));
+          }
+          var ecc = this.createECCBlock(temp.toString(), errorSizes[block]);
+          var pos = 0;
+          for (var e = block; e < errorSizes[block] * blockCount; e += blockCount) {
+            sb.setCharAt(symbolInfo.getDataCapacity() + e, ecc.charAt(pos++));
+          }
+        }
+      }
+      return sb.toString();
+    };
+    ErrorCorrection3.createECCBlock = function(codewords, numECWords) {
+      var table = -1;
+      for (var i = 0; i < FACTOR_SETS.length; i++) {
+        if (FACTOR_SETS[i] === numECWords) {
+          table = i;
+          break;
+        }
+      }
+      if (table < 0) {
+        throw new Error("Illegal number of error correction codewords specified: " + numECWords);
+      }
+      var poly = FACTORS[table];
+      var ecc = [];
+      for (var i = 0; i < numECWords; i++) {
+        ecc[i] = 0;
+      }
+      for (var i = 0; i < codewords.length; i++) {
+        var m = ecc[numECWords - 1] ^ codewords.charAt(i).charCodeAt(0);
+        for (var k = numECWords - 1; k > 0; k--) {
+          if (m !== 0 && poly[k] !== 0) {
+            ecc[k] = ecc[k - 1] ^ ALOG[(LOG[m] + LOG[poly[k]]) % 255];
+          } else {
+            ecc[k] = ecc[k - 1];
+          }
+        }
+        if (m !== 0 && poly[0] !== 0) {
+          ecc[0] = ALOG[(LOG[m] + LOG[poly[0]]) % 255];
+        } else {
+          ecc[0] = 0;
+        }
+      }
+      var eccReversed = [];
+      for (var i = 0; i < numECWords; i++) {
+        eccReversed[i] = ecc[numECWords - i - 1];
+      }
+      return eccReversed.map(function(c) {
+        return String.fromCharCode(c);
+      }).join("");
+    };
+    return ErrorCorrection3;
+  }()
+);
+var ErrorCorrection_default2 = ErrorCorrection2;
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/ASCIIEncoder.js
+var ASCIIEncoder = (
+  /** @class */
+  function() {
+    function ASCIIEncoder2() {
+    }
+    ASCIIEncoder2.prototype.getEncodingMode = function() {
+      return ASCII_ENCODATION;
+    };
+    ASCIIEncoder2.prototype.encode = function(context) {
+      var n = HighLevelEncoder_default.determineConsecutiveDigitCount(context.getMessage(), context.pos);
+      if (n >= 2) {
+        context.writeCodeword(this.encodeASCIIDigits(context.getMessage().charCodeAt(context.pos), context.getMessage().charCodeAt(context.pos + 1)));
+        context.pos += 2;
+      } else {
+        var c = context.getCurrentChar();
+        var newMode = HighLevelEncoder_default.lookAheadTest(context.getMessage(), context.pos, this.getEncodingMode());
+        if (newMode !== this.getEncodingMode()) {
+          switch (newMode) {
+            case BASE256_ENCODATION:
+              context.writeCodeword(LATCH_TO_BASE256);
+              context.signalEncoderChange(BASE256_ENCODATION);
+              return;
+            case C40_ENCODATION:
+              context.writeCodeword(LATCH_TO_C40);
+              context.signalEncoderChange(C40_ENCODATION);
+              return;
+            case X12_ENCODATION:
+              context.writeCodeword(LATCH_TO_ANSIX12);
+              context.signalEncoderChange(X12_ENCODATION);
+              break;
+            case TEXT_ENCODATION:
+              context.writeCodeword(LATCH_TO_TEXT);
+              context.signalEncoderChange(TEXT_ENCODATION);
+              break;
+            case EDIFACT_ENCODATION:
+              context.writeCodeword(LATCH_TO_EDIFACT);
+              context.signalEncoderChange(EDIFACT_ENCODATION);
+              break;
+            default:
+              throw new Error("Illegal mode: " + newMode);
+          }
+        } else if (HighLevelEncoder_default.isExtendedASCII(c)) {
+          context.writeCodeword(UPPER_SHIFT);
+          context.writeCodeword(c - 128 + 1);
+          context.pos++;
+        } else {
+          context.writeCodeword(c + 1);
+          context.pos++;
+        }
+      }
+    };
+    ASCIIEncoder2.prototype.encodeASCIIDigits = function(digit1, digit2) {
+      if (HighLevelEncoder_default.isDigit(digit1) && HighLevelEncoder_default.isDigit(digit2)) {
+        var num = (digit1 - 48) * 10 + (digit2 - 48);
+        return num + 130;
+      }
+      throw new Error("not digits: " + digit1 + digit2);
+    };
+    return ASCIIEncoder2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/Base256Encoder.js
+var Base256Encoder = (
+  /** @class */
+  function() {
+    function Base256Encoder2() {
+    }
+    Base256Encoder2.prototype.getEncodingMode = function() {
+      return BASE256_ENCODATION;
+    };
+    Base256Encoder2.prototype.encode = function(context) {
+      var buffer = new StringBuilder_default();
+      buffer.append(0);
+      while (context.hasMoreCharacters()) {
+        var c = context.getCurrentChar();
+        buffer.append(c);
+        context.pos++;
+        var newMode = HighLevelEncoder_default.lookAheadTest(context.getMessage(), context.pos, this.getEncodingMode());
+        if (newMode !== this.getEncodingMode()) {
+          context.signalEncoderChange(ASCII_ENCODATION);
+          break;
+        }
+      }
+      var dataCount = buffer.length() - 1;
+      var lengthFieldSize = 1;
+      var currentSize = context.getCodewordCount() + dataCount + lengthFieldSize;
+      context.updateSymbolInfo(currentSize);
+      var mustPad = context.getSymbolInfo().getDataCapacity() - currentSize > 0;
+      if (context.hasMoreCharacters() || mustPad) {
+        if (dataCount <= 249) {
+          buffer.setCharAt(0, StringUtils_default.getCharAt(dataCount));
+        } else if (dataCount <= 1555) {
+          buffer.setCharAt(0, StringUtils_default.getCharAt(Math.floor(dataCount / 250) + 249));
+          buffer.insert(1, StringUtils_default.getCharAt(dataCount % 250));
+        } else {
+          throw new Error("Message length not in valid ranges: " + dataCount);
+        }
+      }
+      for (var i = 0, c = buffer.length(); i < c; i++) {
+        context.writeCodeword(this.randomize255State(buffer.charAt(i).charCodeAt(0), context.getCodewordCount() + 1));
+      }
+    };
+    Base256Encoder2.prototype.randomize255State = function(ch, codewordPosition) {
+      var pseudoRandom = 149 * codewordPosition % 255 + 1;
+      var tempVariable = ch + pseudoRandom;
+      if (tempVariable <= 255) {
+        return tempVariable;
+      } else {
+        return tempVariable - 256;
+      }
+    };
+    return Base256Encoder2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/C40Encoder.js
+var C40Encoder = (
+  /** @class */
+  function() {
+    function C40Encoder2() {
+    }
+    C40Encoder2.prototype.getEncodingMode = function() {
+      return C40_ENCODATION;
+    };
+    C40Encoder2.prototype.encodeMaximal = function(context) {
+      var buffer = new StringBuilder_default();
+      var lastCharSize = 0;
+      var backtrackStartPosition = context.pos;
+      var backtrackBufferLength = 0;
+      while (context.hasMoreCharacters()) {
+        var c = context.getCurrentChar();
+        context.pos++;
+        lastCharSize = this.encodeChar(c, buffer);
+        if (buffer.length() % 3 === 0) {
+          backtrackStartPosition = context.pos;
+          backtrackBufferLength = buffer.length();
+        }
+      }
+      if (backtrackBufferLength !== buffer.length()) {
+        var unwritten = Math.floor(buffer.length() / 3 * 2);
+        var curCodewordCount = Math.floor(context.getCodewordCount() + unwritten + 1);
+        context.updateSymbolInfo(curCodewordCount);
+        var available = context.getSymbolInfo().getDataCapacity() - curCodewordCount;
+        var rest = Math.floor(buffer.length() % 3);
+        if (rest === 2 && available !== 2 || rest === 1 && (lastCharSize > 3 || available !== 1)) {
+          context.pos = backtrackStartPosition;
+        }
+      }
+      if (buffer.length() > 0) {
+        context.writeCodeword(LATCH_TO_C40);
+      }
+      this.handleEOD(context, buffer);
+    };
+    C40Encoder2.prototype.encode = function(context) {
+      var buffer = new StringBuilder_default();
+      while (context.hasMoreCharacters()) {
+        var c = context.getCurrentChar();
+        context.pos++;
+        var lastCharSize = this.encodeChar(c, buffer);
+        var unwritten = Math.floor(buffer.length() / 3) * 2;
+        var curCodewordCount = context.getCodewordCount() + unwritten;
+        context.updateSymbolInfo(curCodewordCount);
+        var available = context.getSymbolInfo().getDataCapacity() - curCodewordCount;
+        if (!context.hasMoreCharacters()) {
+          var removed = new StringBuilder_default();
+          if (buffer.length() % 3 === 2 && available !== 2) {
+            lastCharSize = this.backtrackOneCharacter(context, buffer, removed, lastCharSize);
+          }
+          while (buffer.length() % 3 === 1 && (lastCharSize > 3 || available !== 1)) {
+            lastCharSize = this.backtrackOneCharacter(context, buffer, removed, lastCharSize);
+          }
+          break;
+        }
+        var count = buffer.length();
+        if (count % 3 === 0) {
+          var newMode = HighLevelEncoder_default.lookAheadTest(context.getMessage(), context.pos, this.getEncodingMode());
+          if (newMode !== this.getEncodingMode()) {
+            context.signalEncoderChange(ASCII_ENCODATION);
+            break;
+          }
+        }
+      }
+      this.handleEOD(context, buffer);
+    };
+    C40Encoder2.prototype.backtrackOneCharacter = function(context, buffer, removed, lastCharSize) {
+      var count = buffer.length();
+      var test = buffer.toString().substring(0, count - lastCharSize);
+      buffer.setLengthToZero();
+      buffer.append(test);
+      context.pos--;
+      var c = context.getCurrentChar();
+      lastCharSize = this.encodeChar(c, removed);
+      context.resetSymbolInfo();
+      return lastCharSize;
+    };
+    C40Encoder2.prototype.writeNextTriplet = function(context, buffer) {
+      context.writeCodewords(this.encodeToCodewords(buffer.toString()));
+      var test = buffer.toString().substring(3);
+      buffer.setLengthToZero();
+      buffer.append(test);
+    };
+    C40Encoder2.prototype.handleEOD = function(context, buffer) {
+      var unwritten = Math.floor(buffer.length() / 3 * 2);
+      var rest = buffer.length() % 3;
+      var curCodewordCount = context.getCodewordCount() + unwritten;
+      context.updateSymbolInfo(curCodewordCount);
+      var available = context.getSymbolInfo().getDataCapacity() - curCodewordCount;
+      if (rest === 2) {
+        buffer.append("\0");
+        while (buffer.length() >= 3) {
+          this.writeNextTriplet(context, buffer);
+        }
+        if (context.hasMoreCharacters()) {
+          context.writeCodeword(C40_UNLATCH);
+        }
+      } else if (available === 1 && rest === 1) {
+        while (buffer.length() >= 3) {
+          this.writeNextTriplet(context, buffer);
+        }
+        if (context.hasMoreCharacters()) {
+          context.writeCodeword(C40_UNLATCH);
+        }
+        context.pos--;
+      } else if (rest === 0) {
+        while (buffer.length() >= 3) {
+          this.writeNextTriplet(context, buffer);
+        }
+        if (available > 0 || context.hasMoreCharacters()) {
+          context.writeCodeword(C40_UNLATCH);
+        }
+      } else {
+        throw new Error("Unexpected case. Please report!");
+      }
+      context.signalEncoderChange(ASCII_ENCODATION);
+    };
+    C40Encoder2.prototype.encodeChar = function(c, sb) {
+      if (c === " ".charCodeAt(0)) {
+        sb.append(3);
+        return 1;
+      }
+      if (c >= "0".charCodeAt(0) && c <= "9".charCodeAt(0)) {
+        sb.append(c - 48 + 4);
+        return 1;
+      }
+      if (c >= "A".charCodeAt(0) && c <= "Z".charCodeAt(0)) {
+        sb.append(c - 65 + 14);
+        return 1;
+      }
+      if (c < " ".charCodeAt(0)) {
+        sb.append(0);
+        sb.append(c);
+        return 2;
+      }
+      if (c <= "/".charCodeAt(0)) {
+        sb.append(1);
+        sb.append(c - 33);
+        return 2;
+      }
+      if (c <= "@".charCodeAt(0)) {
+        sb.append(1);
+        sb.append(c - 58 + 15);
+        return 2;
+      }
+      if (c <= "_".charCodeAt(0)) {
+        sb.append(1);
+        sb.append(c - 91 + 22);
+        return 2;
+      }
+      if (c <= 127) {
+        sb.append(2);
+        sb.append(c - 96);
+        return 2;
+      }
+      sb.append("1");
+      var len = 2;
+      len += this.encodeChar(c - 128, sb);
+      return len;
+    };
+    C40Encoder2.prototype.encodeToCodewords = function(sb) {
+      var v = 1600 * sb.charCodeAt(0) + 40 * sb.charCodeAt(1) + sb.charCodeAt(2) + 1;
+      var cw1 = v / 256;
+      var cw2 = v % 256;
+      var result = new StringBuilder_default();
+      result.append(cw1);
+      result.append(cw2);
+      return result.toString();
+    };
+    return C40Encoder2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/EdifactEncoder.js
+var EdifactEncoder = (
+  /** @class */
+  function() {
+    function EdifactEncoder2() {
+    }
+    EdifactEncoder2.prototype.getEncodingMode = function() {
+      return EDIFACT_ENCODATION;
+    };
+    EdifactEncoder2.prototype.encode = function(context) {
+      var buffer = new StringBuilder_default();
+      while (context.hasMoreCharacters()) {
+        var c = context.getCurrentChar();
+        this.encodeChar(c, buffer);
+        context.pos++;
+        var count = buffer.length();
+        if (count >= 4) {
+          context.writeCodewords(this.encodeToCodewords(buffer.toString()));
+          var test_1 = buffer.toString().substring(4);
+          buffer.setLengthToZero();
+          buffer.append(test_1);
+          var newMode = HighLevelEncoder_default.lookAheadTest(context.getMessage(), context.pos, this.getEncodingMode());
+          if (newMode !== this.getEncodingMode()) {
+            context.signalEncoderChange(ASCII_ENCODATION);
+            break;
+          }
+        }
+      }
+      buffer.append(StringUtils_default.getCharAt(31));
+      this.handleEOD(context, buffer);
+    };
+    EdifactEncoder2.prototype.handleEOD = function(context, buffer) {
+      try {
+        var count = buffer.length();
+        if (count === 0) {
+          return;
+        }
+        if (count === 1) {
+          context.updateSymbolInfo();
+          var available = context.getSymbolInfo().getDataCapacity() - context.getCodewordCount();
+          var remaining = context.getRemainingCharacters();
+          if (remaining > available) {
+            context.updateSymbolInfo(context.getCodewordCount() + 1);
+            available = context.getSymbolInfo().getDataCapacity() - context.getCodewordCount();
+          }
+          if (remaining <= available && available <= 2) {
+            return;
+          }
+        }
+        if (count > 4) {
+          throw new Error("Count must not exceed 4");
+        }
+        var restChars = count - 1;
+        var encoded = this.encodeToCodewords(buffer.toString());
+        var endOfSymbolReached = !context.hasMoreCharacters();
+        var restInAscii = endOfSymbolReached && restChars <= 2;
+        if (restChars <= 2) {
+          context.updateSymbolInfo(context.getCodewordCount() + restChars);
+          var available = context.getSymbolInfo().getDataCapacity() - context.getCodewordCount();
+          if (available >= 3) {
+            restInAscii = false;
+            context.updateSymbolInfo(context.getCodewordCount() + encoded.length);
+          }
+        }
+        if (restInAscii) {
+          context.resetSymbolInfo();
+          context.pos -= restChars;
+        } else {
+          context.writeCodewords(encoded);
+        }
+      } finally {
+        context.signalEncoderChange(ASCII_ENCODATION);
+      }
+    };
+    EdifactEncoder2.prototype.encodeChar = function(c, sb) {
+      if (c >= " ".charCodeAt(0) && c <= "?".charCodeAt(0)) {
+        sb.append(c);
+      } else if (c >= "@".charCodeAt(0) && c <= "^".charCodeAt(0)) {
+        sb.append(StringUtils_default.getCharAt(c - 64));
+      } else {
+        HighLevelEncoder_default.illegalCharacter(StringUtils_default.getCharAt(c));
+      }
+    };
+    EdifactEncoder2.prototype.encodeToCodewords = function(sb) {
+      var len = sb.length;
+      if (len === 0) {
+        throw new Error("StringBuilder must not be empty");
+      }
+      var c1 = sb.charAt(0).charCodeAt(0);
+      var c2 = len >= 2 ? sb.charAt(1).charCodeAt(0) : 0;
+      var c3 = len >= 3 ? sb.charAt(2).charCodeAt(0) : 0;
+      var c4 = len >= 4 ? sb.charAt(3).charCodeAt(0) : 0;
+      var v = (c1 << 18) + (c2 << 12) + (c3 << 6) + c4;
+      var cw1 = v >> 16 & 255;
+      var cw2 = v >> 8 & 255;
+      var cw3 = v & 255;
+      var res = new StringBuilder_default();
+      res.append(cw1);
+      if (len >= 2) {
+        res.append(cw2);
+      }
+      if (len >= 3) {
+        res.append(cw3);
+      }
+      return res.toString();
+    };
+    return EdifactEncoder2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/SymbolInfo.js
+var __extends69 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var __values41 = function(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function() {
+      if (o && i >= o.length) o = void 0;
+      return { value: o && o[i++], done: !o };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+var SymbolInfo = (
+  /** @class */
+  function() {
+    function SymbolInfo2(rectangular, dataCapacity, errorCodewords, matrixWidth, matrixHeight, dataRegions, rsBlockData, rsBlockError) {
+      if (rsBlockData === void 0) {
+        rsBlockData = 0;
+      }
+      if (rsBlockError === void 0) {
+        rsBlockError = 0;
+      }
+      this.rectangular = rectangular;
+      this.dataCapacity = dataCapacity;
+      this.errorCodewords = errorCodewords;
+      this.matrixWidth = matrixWidth;
+      this.matrixHeight = matrixHeight;
+      this.dataRegions = dataRegions;
+      this.rsBlockData = rsBlockData;
+      this.rsBlockError = rsBlockError;
+    }
+    SymbolInfo2.lookup = function(dataCodewords, shape, minSize, maxSize, fail) {
+      var e_1, _a2;
+      if (shape === void 0) {
+        shape = 0;
+      }
+      if (minSize === void 0) {
+        minSize = null;
+      }
+      if (maxSize === void 0) {
+        maxSize = null;
+      }
+      if (fail === void 0) {
+        fail = true;
+      }
+      try {
+        for (var PROD_SYMBOLS_1 = __values41(PROD_SYMBOLS), PROD_SYMBOLS_1_1 = PROD_SYMBOLS_1.next(); !PROD_SYMBOLS_1_1.done; PROD_SYMBOLS_1_1 = PROD_SYMBOLS_1.next()) {
+          var symbol = PROD_SYMBOLS_1_1.value;
+          if (shape === 1 && symbol.rectangular) {
+            continue;
+          }
+          if (shape === 2 && !symbol.rectangular) {
+            continue;
+          }
+          if (minSize != null && (symbol.getSymbolWidth() < minSize.getWidth() || symbol.getSymbolHeight() < minSize.getHeight())) {
+            continue;
+          }
+          if (maxSize != null && (symbol.getSymbolWidth() > maxSize.getWidth() || symbol.getSymbolHeight() > maxSize.getHeight())) {
+            continue;
+          }
+          if (dataCodewords <= symbol.dataCapacity) {
+            return symbol;
+          }
+        }
+      } catch (e_1_1) {
+        e_1 = { error: e_1_1 };
+      } finally {
+        try {
+          if (PROD_SYMBOLS_1_1 && !PROD_SYMBOLS_1_1.done && (_a2 = PROD_SYMBOLS_1.return)) _a2.call(PROD_SYMBOLS_1);
+        } finally {
+          if (e_1) throw e_1.error;
+        }
+      }
+      if (fail) {
+        throw new Error("Can't find a symbol arrangement that matches the message. Data codewords: " + dataCodewords);
+      }
+      return null;
+    };
+    SymbolInfo2.prototype.getHorizontalDataRegions = function() {
+      switch (this.dataRegions) {
+        case 1:
+          return 1;
+        case 2:
+        case 4:
+          return 2;
+        case 16:
+          return 4;
+        case 36:
+          return 6;
+        default:
+          throw new Error("Cannot handle this number of data regions");
+      }
+    };
+    SymbolInfo2.prototype.getVerticalDataRegions = function() {
+      switch (this.dataRegions) {
+        case 1:
+        case 2:
+          return 1;
+        case 4:
+          return 2;
+        case 16:
+          return 4;
+        case 36:
+          return 6;
+        default:
+          throw new Error("Cannot handle this number of data regions");
+      }
+    };
+    SymbolInfo2.prototype.getSymbolDataWidth = function() {
+      return this.getHorizontalDataRegions() * this.matrixWidth;
+    };
+    SymbolInfo2.prototype.getSymbolDataHeight = function() {
+      return this.getVerticalDataRegions() * this.matrixHeight;
+    };
+    SymbolInfo2.prototype.getSymbolWidth = function() {
+      return this.getSymbolDataWidth() + this.getHorizontalDataRegions() * 2;
+    };
+    SymbolInfo2.prototype.getSymbolHeight = function() {
+      return this.getSymbolDataHeight() + this.getVerticalDataRegions() * 2;
+    };
+    SymbolInfo2.prototype.getCodewordCount = function() {
+      return this.dataCapacity + this.errorCodewords;
+    };
+    SymbolInfo2.prototype.getInterleavedBlockCount = function() {
+      if (!this.rsBlockData)
+        return 1;
+      return this.dataCapacity / this.rsBlockData;
+    };
+    SymbolInfo2.prototype.getDataCapacity = function() {
+      return this.dataCapacity;
+    };
+    SymbolInfo2.prototype.getErrorCodewords = function() {
+      return this.errorCodewords;
+    };
+    SymbolInfo2.prototype.getDataLengthForInterleavedBlock = function(index) {
+      return this.rsBlockData;
+    };
+    SymbolInfo2.prototype.getErrorLengthForInterleavedBlock = function(index) {
+      return this.rsBlockError;
+    };
+    return SymbolInfo2;
+  }()
+);
+var SymbolInfo_default = SymbolInfo;
+var DataMatrixSymbolInfo144 = (
+  /** @class */
+  function(_super) {
+    __extends69(DataMatrixSymbolInfo1442, _super);
+    function DataMatrixSymbolInfo1442() {
+      return _super.call(this, false, 1558, 620, 22, 22, 36, -1, 62) || this;
+    }
+    DataMatrixSymbolInfo1442.prototype.getInterleavedBlockCount = function() {
+      return 10;
+    };
+    DataMatrixSymbolInfo1442.prototype.getDataLengthForInterleavedBlock = function(index) {
+      return index <= 8 ? 156 : 155;
+    };
+    return DataMatrixSymbolInfo1442;
+  }(SymbolInfo)
+);
+var PROD_SYMBOLS = [
+  new SymbolInfo(false, 3, 5, 8, 8, 1),
+  new SymbolInfo(false, 5, 7, 10, 10, 1),
+  /*rect*/
+  new SymbolInfo(true, 5, 7, 16, 6, 1),
+  new SymbolInfo(false, 8, 10, 12, 12, 1),
+  /*rect*/
+  new SymbolInfo(true, 10, 11, 14, 6, 2),
+  new SymbolInfo(false, 12, 12, 14, 14, 1),
+  /*rect*/
+  new SymbolInfo(true, 16, 14, 24, 10, 1),
+  new SymbolInfo(false, 18, 14, 16, 16, 1),
+  new SymbolInfo(false, 22, 18, 18, 18, 1),
+  /*rect*/
+  new SymbolInfo(true, 22, 18, 16, 10, 2),
+  new SymbolInfo(false, 30, 20, 20, 20, 1),
+  /*rect*/
+  new SymbolInfo(true, 32, 24, 16, 14, 2),
+  new SymbolInfo(false, 36, 24, 22, 22, 1),
+  new SymbolInfo(false, 44, 28, 24, 24, 1),
+  /*rect*/
+  new SymbolInfo(true, 49, 28, 22, 14, 2),
+  new SymbolInfo(false, 62, 36, 14, 14, 4),
+  new SymbolInfo(false, 86, 42, 16, 16, 4),
+  new SymbolInfo(false, 114, 48, 18, 18, 4),
+  new SymbolInfo(false, 144, 56, 20, 20, 4),
+  new SymbolInfo(false, 174, 68, 22, 22, 4),
+  new SymbolInfo(false, 204, 84, 24, 24, 4, 102, 42),
+  new SymbolInfo(false, 280, 112, 14, 14, 16, 140, 56),
+  new SymbolInfo(false, 368, 144, 16, 16, 16, 92, 36),
+  new SymbolInfo(false, 456, 192, 18, 18, 16, 114, 48),
+  new SymbolInfo(false, 576, 224, 20, 20, 16, 144, 56),
+  new SymbolInfo(false, 696, 272, 22, 22, 16, 174, 68),
+  new SymbolInfo(false, 816, 336, 24, 24, 16, 136, 56),
+  new SymbolInfo(false, 1050, 408, 18, 18, 36, 175, 68),
+  new SymbolInfo(false, 1304, 496, 20, 20, 36, 163, 62),
+  new DataMatrixSymbolInfo144()
+];
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/EncoderContext.js
+var EncoderContext = (
+  /** @class */
+  function() {
+    function EncoderContext2(msg) {
+      this.msg = msg;
+      this.pos = 0;
+      this.skipAtEnd = 0;
+      var msgBinary = msg.split("").map(function(c2) {
+        return c2.charCodeAt(0);
+      });
+      var sb = new StringBuilder_default();
+      for (var i = 0, c = msgBinary.length; i < c; i++) {
+        var ch = String.fromCharCode(msgBinary[i] & 255);
+        if (ch === "?" && msg.charAt(i) !== "?") {
+          throw new Error("Message contains characters outside ISO-8859-1 encoding.");
+        }
+        sb.append(ch);
+      }
+      this.msg = sb.toString();
+      this.shape = 0;
+      this.codewords = new StringBuilder_default();
+      this.newEncoding = -1;
+    }
+    EncoderContext2.prototype.setSymbolShape = function(shape) {
+      this.shape = shape;
+    };
+    EncoderContext2.prototype.setSizeConstraints = function(minSize, maxSize) {
+      this.minSize = minSize;
+      this.maxSize = maxSize;
+    };
+    EncoderContext2.prototype.getMessage = function() {
+      return this.msg;
+    };
+    EncoderContext2.prototype.setSkipAtEnd = function(count) {
+      this.skipAtEnd = count;
+    };
+    EncoderContext2.prototype.getCurrentChar = function() {
+      return this.msg.charCodeAt(this.pos);
+    };
+    EncoderContext2.prototype.getCurrent = function() {
+      return this.msg.charCodeAt(this.pos);
+    };
+    EncoderContext2.prototype.getCodewords = function() {
+      return this.codewords;
+    };
+    EncoderContext2.prototype.writeCodewords = function(codewords) {
+      this.codewords.append(codewords);
+    };
+    EncoderContext2.prototype.writeCodeword = function(codeword) {
+      this.codewords.append(codeword);
+    };
+    EncoderContext2.prototype.getCodewordCount = function() {
+      return this.codewords.length();
+    };
+    EncoderContext2.prototype.getNewEncoding = function() {
+      return this.newEncoding;
+    };
+    EncoderContext2.prototype.signalEncoderChange = function(encoding) {
+      this.newEncoding = encoding;
+    };
+    EncoderContext2.prototype.resetEncoderSignal = function() {
+      this.newEncoding = -1;
+    };
+    EncoderContext2.prototype.hasMoreCharacters = function() {
+      return this.pos < this.getTotalMessageCharCount();
+    };
+    EncoderContext2.prototype.getTotalMessageCharCount = function() {
+      return this.msg.length - this.skipAtEnd;
+    };
+    EncoderContext2.prototype.getRemainingCharacters = function() {
+      return this.getTotalMessageCharCount() - this.pos;
+    };
+    EncoderContext2.prototype.getSymbolInfo = function() {
+      return this.symbolInfo;
+    };
+    EncoderContext2.prototype.updateSymbolInfo = function(len) {
+      if (len === void 0) {
+        len = this.getCodewordCount();
+      }
+      if (this.symbolInfo == null || len > this.symbolInfo.getDataCapacity()) {
+        this.symbolInfo = SymbolInfo_default.lookup(len, this.shape, this.minSize, this.maxSize, true);
+      }
+    };
+    EncoderContext2.prototype.resetSymbolInfo = function() {
+      this.symbolInfo = null;
+    };
+    return EncoderContext2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/X12Encoder.js
+var __extends70 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var X12Encoder = (
+  /** @class */
+  function(_super) {
+    __extends70(X12Encoder2, _super);
+    function X12Encoder2() {
+      return _super !== null && _super.apply(this, arguments) || this;
+    }
+    X12Encoder2.prototype.getEncodingMode = function() {
+      return X12_ENCODATION;
+    };
+    X12Encoder2.prototype.encode = function(context) {
+      var buffer = new StringBuilder_default();
+      while (context.hasMoreCharacters()) {
+        var c = context.getCurrentChar();
+        context.pos++;
+        this.encodeChar(c, buffer);
+        var count = buffer.length();
+        if (count % 3 === 0) {
+          this.writeNextTriplet(context, buffer);
+          var newMode = HighLevelEncoder_default.lookAheadTest(context.getMessage(), context.pos, this.getEncodingMode());
+          if (newMode !== this.getEncodingMode()) {
+            context.signalEncoderChange(ASCII_ENCODATION);
+            break;
+          }
+        }
+      }
+      this.handleEOD(context, buffer);
+    };
+    X12Encoder2.prototype.encodeChar = function(c, sb) {
+      switch (c) {
+        case 13:
+          sb.append(0);
+          break;
+        case "*".charCodeAt(0):
+          sb.append(1);
+          break;
+        case ">".charCodeAt(0):
+          sb.append(2);
+          break;
+        case " ".charCodeAt(0):
+          sb.append(3);
+          break;
+        default:
+          if (c >= "0".charCodeAt(0) && c <= "9".charCodeAt(0)) {
+            sb.append(c - 48 + 4);
+          } else if (c >= "A".charCodeAt(0) && c <= "Z".charCodeAt(0)) {
+            sb.append(c - 65 + 14);
+          } else {
+            HighLevelEncoder_default.illegalCharacter(StringUtils_default.getCharAt(c));
+          }
+          break;
+      }
+      return 1;
+    };
+    X12Encoder2.prototype.handleEOD = function(context, buffer) {
+      context.updateSymbolInfo();
+      var available = context.getSymbolInfo().getDataCapacity() - context.getCodewordCount();
+      var count = buffer.length();
+      context.pos -= count;
+      if (context.getRemainingCharacters() > 1 || available > 1 || context.getRemainingCharacters() !== available) {
+        context.writeCodeword(X12_UNLATCH);
+      }
+      if (context.getNewEncoding() < 0) {
+        context.signalEncoderChange(ASCII_ENCODATION);
+      }
+    };
+    return X12Encoder2;
+  }(C40Encoder)
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/TextEncoder.js
+var __extends71 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var TextEncoder2 = (
+  /** @class */
+  function(_super) {
+    __extends71(TextEncoder3, _super);
+    function TextEncoder3() {
+      return _super !== null && _super.apply(this, arguments) || this;
+    }
+    TextEncoder3.prototype.getEncodingMode = function() {
+      return TEXT_ENCODATION;
+    };
+    TextEncoder3.prototype.encodeChar = function(c, sb) {
+      if (c === " ".charCodeAt(0)) {
+        sb.append(3);
+        return 1;
+      }
+      if (c >= "0".charCodeAt(0) && c <= "9".charCodeAt(0)) {
+        sb.append(c - 48 + 4);
+        return 1;
+      }
+      if (c >= "a".charCodeAt(0) && c <= "z".charCodeAt(0)) {
+        sb.append(c - 97 + 14);
+        return 1;
+      }
+      if (c < " ".charCodeAt(0)) {
+        sb.append(0);
+        sb.append(c);
+        return 2;
+      }
+      if (c <= "/".charCodeAt(0)) {
+        sb.append(1);
+        sb.append(c - 33);
+        return 2;
+      }
+      if (c <= "@".charCodeAt(0)) {
+        sb.append(1);
+        sb.append(c - 58 + 15);
+        return 2;
+      }
+      if (c >= "[".charCodeAt(0) && c <= "_".charCodeAt(0)) {
+        sb.append(1);
+        sb.append(c - 91 + 22);
+        return 2;
+      }
+      if (c === "`".charCodeAt(0)) {
+        sb.append(2);
+        sb.append(0);
+        return 2;
+      }
+      if (c <= "Z".charCodeAt(0)) {
+        sb.append(2);
+        sb.append(c - 65 + 1);
+        return 2;
+      }
+      if (c <= 127) {
+        sb.append(2);
+        sb.append(c - 123 + 27);
+        return 2;
+      }
+      sb.append("1");
+      var len = 2;
+      len += this.encodeChar(c - 128, sb);
+      return len;
+    };
+    return TextEncoder3;
+  }(C40Encoder)
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/HighLevelEncoder.js
+var HighLevelEncoder = (
+  /** @class */
+  function() {
+    function HighLevelEncoder3() {
+    }
+    HighLevelEncoder3.randomize253State = function(codewordPosition) {
+      var pseudoRandom = 149 * codewordPosition % 253 + 1;
+      var tempVariable = PAD + pseudoRandom;
+      return tempVariable <= 254 ? tempVariable : tempVariable - 254;
+    };
+    HighLevelEncoder3.encodeHighLevel = function(msg, shape, minSize, maxSize, forceC40) {
+      if (shape === void 0) {
+        shape = 0;
+      }
+      if (minSize === void 0) {
+        minSize = null;
+      }
+      if (maxSize === void 0) {
+        maxSize = null;
+      }
+      if (forceC40 === void 0) {
+        forceC40 = false;
+      }
+      var c40Encoder = new C40Encoder();
+      var encoders = [
+        new ASCIIEncoder(),
+        c40Encoder,
+        new TextEncoder2(),
+        new X12Encoder(),
+        new EdifactEncoder(),
+        new Base256Encoder()
+      ];
+      var context = new EncoderContext(msg);
+      context.setSymbolShape(shape);
+      context.setSizeConstraints(minSize, maxSize);
+      if (msg.startsWith(MACRO_05_HEADER) && msg.endsWith(MACRO_TRAILER)) {
+        context.writeCodeword(MACRO_05);
+        context.setSkipAtEnd(2);
+        context.pos += MACRO_05_HEADER.length;
+      } else if (msg.startsWith(MACRO_06_HEADER) && msg.endsWith(MACRO_TRAILER)) {
+        context.writeCodeword(MACRO_06);
+        context.setSkipAtEnd(2);
+        context.pos += MACRO_06_HEADER.length;
+      }
+      var encodingMode = ASCII_ENCODATION;
+      if (forceC40) {
+        c40Encoder.encodeMaximal(context);
+        encodingMode = context.getNewEncoding();
+        context.resetEncoderSignal();
+      }
+      while (context.hasMoreCharacters()) {
+        encoders[encodingMode].encode(context);
+        if (context.getNewEncoding() >= 0) {
+          encodingMode = context.getNewEncoding();
+          context.resetEncoderSignal();
+        }
+      }
+      var len = context.getCodewordCount();
+      context.updateSymbolInfo();
+      var capacity = context.getSymbolInfo().getDataCapacity();
+      if (len < capacity && encodingMode !== ASCII_ENCODATION && encodingMode !== BASE256_ENCODATION && encodingMode !== EDIFACT_ENCODATION) {
+        context.writeCodeword("þ");
+      }
+      var codewords = context.getCodewords();
+      if (codewords.length() < capacity) {
+        codewords.append(PAD);
+      }
+      while (codewords.length() < capacity) {
+        codewords.append(this.randomize253State(codewords.length() + 1));
+      }
+      return context.getCodewords().toString();
+    };
+    HighLevelEncoder3.lookAheadTest = function(msg, startpos, currentMode) {
+      var newMode = this.lookAheadTestIntern(msg, startpos, currentMode);
+      if (currentMode === X12_ENCODATION && newMode === X12_ENCODATION) {
+        var endpos = Math.min(startpos + 3, msg.length);
+        for (var i = startpos; i < endpos; i++) {
+          if (!this.isNativeX12(msg.charCodeAt(i))) {
+            return ASCII_ENCODATION;
+          }
+        }
+      } else if (currentMode === EDIFACT_ENCODATION && newMode === EDIFACT_ENCODATION) {
+        var endpos = Math.min(startpos + 4, msg.length);
+        for (var i = startpos; i < endpos; i++) {
+          if (!this.isNativeEDIFACT(msg.charCodeAt(i))) {
+            return ASCII_ENCODATION;
+          }
+        }
+      }
+      return newMode;
+    };
+    HighLevelEncoder3.lookAheadTestIntern = function(msg, startpos, currentMode) {
+      if (startpos >= msg.length) {
+        return currentMode;
+      }
+      var charCounts;
+      if (currentMode === ASCII_ENCODATION) {
+        charCounts = [0, 1, 1, 1, 1, 1.25];
+      } else {
+        charCounts = [1, 2, 2, 2, 2, 2.25];
+        charCounts[currentMode] = 0;
+      }
+      var charsProcessed = 0;
+      var mins = new Uint8Array(6);
+      var intCharCounts = [];
+      while (true) {
+        if (startpos + charsProcessed === msg.length) {
+          Arrays_default.fill(mins, 0);
+          Arrays_default.fill(intCharCounts, 0);
+          var min = this.findMinimums(charCounts, intCharCounts, Integer_default.MAX_VALUE, mins);
+          var minCount = this.getMinimumCount(mins);
+          if (intCharCounts[ASCII_ENCODATION] === min) {
+            return ASCII_ENCODATION;
+          }
+          if (minCount === 1) {
+            if (mins[BASE256_ENCODATION] > 0) {
+              return BASE256_ENCODATION;
+            }
+            if (mins[EDIFACT_ENCODATION] > 0) {
+              return EDIFACT_ENCODATION;
+            }
+            if (mins[TEXT_ENCODATION] > 0) {
+              return TEXT_ENCODATION;
+            }
+            if (mins[X12_ENCODATION] > 0) {
+              return X12_ENCODATION;
+            }
+          }
+          return C40_ENCODATION;
+        }
+        var c = msg.charCodeAt(startpos + charsProcessed);
+        charsProcessed++;
+        if (this.isDigit(c)) {
+          charCounts[ASCII_ENCODATION] += 0.5;
+        } else if (this.isExtendedASCII(c)) {
+          charCounts[ASCII_ENCODATION] = Math.ceil(charCounts[ASCII_ENCODATION]);
+          charCounts[ASCII_ENCODATION] += 2;
+        } else {
+          charCounts[ASCII_ENCODATION] = Math.ceil(charCounts[ASCII_ENCODATION]);
+          charCounts[ASCII_ENCODATION]++;
+        }
+        if (this.isNativeC40(c)) {
+          charCounts[C40_ENCODATION] += 2 / 3;
+        } else if (this.isExtendedASCII(c)) {
+          charCounts[C40_ENCODATION] += 8 / 3;
+        } else {
+          charCounts[C40_ENCODATION] += 4 / 3;
+        }
+        if (this.isNativeText(c)) {
+          charCounts[TEXT_ENCODATION] += 2 / 3;
+        } else if (this.isExtendedASCII(c)) {
+          charCounts[TEXT_ENCODATION] += 8 / 3;
+        } else {
+          charCounts[TEXT_ENCODATION] += 4 / 3;
+        }
+        if (this.isNativeX12(c)) {
+          charCounts[X12_ENCODATION] += 2 / 3;
+        } else if (this.isExtendedASCII(c)) {
+          charCounts[X12_ENCODATION] += 13 / 3;
+        } else {
+          charCounts[X12_ENCODATION] += 10 / 3;
+        }
+        if (this.isNativeEDIFACT(c)) {
+          charCounts[EDIFACT_ENCODATION] += 3 / 4;
+        } else if (this.isExtendedASCII(c)) {
+          charCounts[EDIFACT_ENCODATION] += 17 / 4;
+        } else {
+          charCounts[EDIFACT_ENCODATION] += 13 / 4;
+        }
+        if (this.isSpecialB256(c)) {
+          charCounts[BASE256_ENCODATION] += 4;
+        } else {
+          charCounts[BASE256_ENCODATION]++;
+        }
+        if (charsProcessed >= 4) {
+          Arrays_default.fill(mins, 0);
+          Arrays_default.fill(intCharCounts, 0);
+          this.findMinimums(charCounts, intCharCounts, Integer_default.MAX_VALUE, mins);
+          if (intCharCounts[ASCII_ENCODATION] < this.min(intCharCounts[BASE256_ENCODATION], intCharCounts[C40_ENCODATION], intCharCounts[TEXT_ENCODATION], intCharCounts[X12_ENCODATION], intCharCounts[EDIFACT_ENCODATION])) {
+            return ASCII_ENCODATION;
+          }
+          if (intCharCounts[BASE256_ENCODATION] < intCharCounts[ASCII_ENCODATION] || intCharCounts[BASE256_ENCODATION] + 1 < this.min(intCharCounts[C40_ENCODATION], intCharCounts[TEXT_ENCODATION], intCharCounts[X12_ENCODATION], intCharCounts[EDIFACT_ENCODATION])) {
+            return BASE256_ENCODATION;
+          }
+          if (intCharCounts[EDIFACT_ENCODATION] + 1 < this.min(intCharCounts[BASE256_ENCODATION], intCharCounts[C40_ENCODATION], intCharCounts[TEXT_ENCODATION], intCharCounts[X12_ENCODATION], intCharCounts[ASCII_ENCODATION])) {
+            return EDIFACT_ENCODATION;
+          }
+          if (intCharCounts[TEXT_ENCODATION] + 1 < this.min(intCharCounts[BASE256_ENCODATION], intCharCounts[C40_ENCODATION], intCharCounts[EDIFACT_ENCODATION], intCharCounts[X12_ENCODATION], intCharCounts[ASCII_ENCODATION])) {
+            return TEXT_ENCODATION;
+          }
+          if (intCharCounts[X12_ENCODATION] + 1 < this.min(intCharCounts[BASE256_ENCODATION], intCharCounts[C40_ENCODATION], intCharCounts[EDIFACT_ENCODATION], intCharCounts[TEXT_ENCODATION], intCharCounts[ASCII_ENCODATION])) {
+            return X12_ENCODATION;
+          }
+          if (intCharCounts[C40_ENCODATION] + 1 < this.min(intCharCounts[ASCII_ENCODATION], intCharCounts[BASE256_ENCODATION], intCharCounts[EDIFACT_ENCODATION], intCharCounts[TEXT_ENCODATION])) {
+            if (intCharCounts[C40_ENCODATION] < intCharCounts[X12_ENCODATION]) {
+              return C40_ENCODATION;
+            }
+            if (intCharCounts[C40_ENCODATION] === intCharCounts[X12_ENCODATION]) {
+              var p = startpos + charsProcessed + 1;
+              while (p < msg.length) {
+                var tc = msg.charCodeAt(p);
+                if (this.isX12TermSep(tc)) {
+                  return X12_ENCODATION;
+                }
+                if (!this.isNativeX12(tc)) {
+                  break;
+                }
+                p++;
+              }
+              return C40_ENCODATION;
+            }
+          }
+        }
+      }
+    };
+    HighLevelEncoder3.min = function(f1, f2, f3, f4, f5) {
+      var val = Math.min(f1, Math.min(f2, Math.min(f3, f4)));
+      if (f5 === void 0) {
+        return val;
+      } else {
+        return Math.min(val, f5);
+      }
+    };
+    HighLevelEncoder3.findMinimums = function(charCounts, intCharCounts, min, mins) {
+      for (var i = 0; i < 6; i++) {
+        var current = intCharCounts[i] = Math.ceil(charCounts[i]);
+        if (min > current) {
+          min = current;
+          Arrays_default.fill(mins, 0);
+        }
+        if (min === current) {
+          mins[i] = mins[i] + 1;
+        }
+      }
+      return min;
+    };
+    HighLevelEncoder3.getMinimumCount = function(mins) {
+      var minCount = 0;
+      for (var i = 0; i < 6; i++) {
+        minCount += mins[i];
+      }
+      return minCount || 0;
+    };
+    HighLevelEncoder3.isDigit = function(ch) {
+      return ch >= "0".charCodeAt(0) && ch <= "9".charCodeAt(0);
+    };
+    HighLevelEncoder3.isExtendedASCII = function(ch) {
+      return ch >= 128 && ch <= 255;
+    };
+    HighLevelEncoder3.isNativeC40 = function(ch) {
+      return ch === " ".charCodeAt(0) || ch >= "0".charCodeAt(0) && ch <= "9".charCodeAt(0) || ch >= "A".charCodeAt(0) && ch <= "Z".charCodeAt(0);
+    };
+    HighLevelEncoder3.isNativeText = function(ch) {
+      return ch === " ".charCodeAt(0) || ch >= "0".charCodeAt(0) && ch <= "9".charCodeAt(0) || ch >= "a".charCodeAt(0) && ch <= "z".charCodeAt(0);
+    };
+    HighLevelEncoder3.isNativeX12 = function(ch) {
+      return this.isX12TermSep(ch) || ch === " ".charCodeAt(0) || ch >= "0".charCodeAt(0) && ch <= "9".charCodeAt(0) || ch >= "A".charCodeAt(0) && ch <= "Z".charCodeAt(0);
+    };
+    HighLevelEncoder3.isX12TermSep = function(ch) {
+      return ch === 13 || // CR
+      ch === "*".charCodeAt(0) || ch === ">".charCodeAt(0);
+    };
+    HighLevelEncoder3.isNativeEDIFACT = function(ch) {
+      return ch >= " ".charCodeAt(0) && ch <= "^".charCodeAt(0);
+    };
+    HighLevelEncoder3.isSpecialB256 = function(ch) {
+      return false;
+    };
+    HighLevelEncoder3.determineConsecutiveDigitCount = function(msg, startpos) {
+      if (startpos === void 0) {
+        startpos = 0;
+      }
+      var len = msg.length;
+      var idx = startpos;
+      while (idx < len && this.isDigit(msg.charCodeAt(idx))) {
+        idx++;
+      }
+      return idx - startpos;
+    };
+    HighLevelEncoder3.illegalCharacter = function(singleCharacter) {
+      var hex = Integer_default.toHexString(singleCharacter.charCodeAt(0));
+      hex = "0000".substring(0, 4 - hex.length) + hex;
+      throw new Error("Illegal character: " + singleCharacter + " (0x" + hex + ")");
+    };
+    return HighLevelEncoder3;
+  }()
+);
+var HighLevelEncoder_default = HighLevelEncoder;
+
+// front/node_modules/@zxing/library/esm/core/common/ECIEncoderSet.js
+var __values42 = function(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function() {
+      if (o && i >= o.length) o = void 0;
+      return { value: o && o[i++], done: !o };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+var CharsetEncoder = (
+  /** @class */
+  function() {
+    function CharsetEncoder2(charset) {
+      this.charset = charset;
+      this.name = charset.name;
+    }
+    CharsetEncoder2.prototype.canEncode = function(c) {
+      try {
+        return StringEncoding_default.encode(c, this.charset) != null;
+      } catch (ex) {
+        return false;
+      }
+    };
+    return CharsetEncoder2;
+  }()
+);
+var ECIEncoderSet = (
+  /** @class */
+  function() {
+    function ECIEncoderSet2(stringToEncode, priorityCharset, fnc1) {
+      var e_1, _a2, e_2, _b, e_3, _c;
+      this.ENCODERS = [
+        "IBM437",
+        "ISO-8859-2",
+        "ISO-8859-3",
+        "ISO-8859-4",
+        "ISO-8859-5",
+        "ISO-8859-6",
+        "ISO-8859-7",
+        "ISO-8859-8",
+        "ISO-8859-9",
+        "ISO-8859-10",
+        "ISO-8859-11",
+        "ISO-8859-13",
+        "ISO-8859-14",
+        "ISO-8859-15",
+        "ISO-8859-16",
+        "windows-1250",
+        "windows-1251",
+        "windows-1252",
+        "windows-1256",
+        "Shift_JIS"
+      ].map(function(name) {
+        return new CharsetEncoder(Charset_default.forName(name));
+      });
+      this.encoders = [];
+      var neededEncoders = [];
+      neededEncoders.push(new CharsetEncoder(StandardCharsets_default.ISO_8859_1));
+      var needUnicodeEncoder = priorityCharset != null && priorityCharset.name.startsWith("UTF");
+      for (var i = 0; i < stringToEncode.length; i++) {
+        var canEncode = false;
+        try {
+          for (var neededEncoders_1 = (e_1 = void 0, __values42(neededEncoders)), neededEncoders_1_1 = neededEncoders_1.next(); !neededEncoders_1_1.done; neededEncoders_1_1 = neededEncoders_1.next()) {
+            var encoder = neededEncoders_1_1.value;
+            var singleCharacter = stringToEncode.charAt(i);
+            var c = singleCharacter.charCodeAt(0);
+            if (c === fnc1 || encoder.canEncode(singleCharacter)) {
+              canEncode = true;
+              break;
+            }
+          }
+        } catch (e_1_1) {
+          e_1 = { error: e_1_1 };
+        } finally {
+          try {
+            if (neededEncoders_1_1 && !neededEncoders_1_1.done && (_a2 = neededEncoders_1.return)) _a2.call(neededEncoders_1);
+          } finally {
+            if (e_1) throw e_1.error;
+          }
+        }
+        if (!canEncode) {
+          try {
+            for (var _d = (e_2 = void 0, __values42(this.ENCODERS)), _e = _d.next(); !_e.done; _e = _d.next()) {
+              var encoder = _e.value;
+              if (encoder.canEncode(stringToEncode.charAt(i))) {
+                neededEncoders.push(encoder);
+                canEncode = true;
+                break;
+              }
+            }
+          } catch (e_2_1) {
+            e_2 = { error: e_2_1 };
+          } finally {
+            try {
+              if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+            } finally {
+              if (e_2) throw e_2.error;
+            }
+          }
+        }
+        if (!canEncode) {
+          needUnicodeEncoder = true;
+        }
+      }
+      if (neededEncoders.length === 1 && !needUnicodeEncoder) {
+        this.encoders = [neededEncoders[0]];
+      } else {
+        this.encoders = [];
+        var index = 0;
+        try {
+          for (var neededEncoders_2 = __values42(neededEncoders), neededEncoders_2_1 = neededEncoders_2.next(); !neededEncoders_2_1.done; neededEncoders_2_1 = neededEncoders_2.next()) {
+            var encoder = neededEncoders_2_1.value;
+            this.encoders[index++] = encoder;
+          }
+        } catch (e_3_1) {
+          e_3 = { error: e_3_1 };
+        } finally {
+          try {
+            if (neededEncoders_2_1 && !neededEncoders_2_1.done && (_c = neededEncoders_2.return)) _c.call(neededEncoders_2);
+          } finally {
+            if (e_3) throw e_3.error;
+          }
+        }
+      }
+      var priorityEncoderIndexValue = -1;
+      if (priorityCharset != null) {
+        for (var i = 0; i < this.encoders.length; i++) {
+          if (this.encoders[i] != null && priorityCharset.name === this.encoders[i].name) {
+            priorityEncoderIndexValue = i;
+            break;
+          }
+        }
+      }
+      this.priorityEncoderIndex = priorityEncoderIndexValue;
+    }
+    ECIEncoderSet2.prototype.length = function() {
+      return this.encoders.length;
+    };
+    ECIEncoderSet2.prototype.getCharsetName = function(index) {
+      if (!(index < this.length())) {
+        throw new Error("index must be less than length");
+      }
+      return this.encoders[index].name;
+    };
+    ECIEncoderSet2.prototype.getCharset = function(index) {
+      if (!(index < this.length())) {
+        throw new Error("index must be less than length");
+      }
+      return this.encoders[index].charset;
+    };
+    ECIEncoderSet2.prototype.getECIValue = function(encoderIndex) {
+      return this.encoders[encoderIndex].charset.getValueIdentifier();
+    };
+    ECIEncoderSet2.prototype.getPriorityEncoderIndex = function() {
+      return this.priorityEncoderIndex;
+    };
+    ECIEncoderSet2.prototype.canEncode = function(c, encoderIndex) {
+      if (!(encoderIndex < this.length())) {
+        throw new Error("index must be less than length");
+      }
+      return true;
+    };
+    ECIEncoderSet2.prototype.encode = function(c, encoderIndex) {
+      if (!(encoderIndex < this.length())) {
+        throw new Error("index must be less than length");
+      }
+      return StringEncoding_default.encode(StringUtils_default.getCharAt(c), this.encoders[encoderIndex].name);
+    };
+    return ECIEncoderSet2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/common/MinimalECIInput.js
+var COST_PER_ECI = 3;
+var MinimalECIInput = (
+  /** @class */
+  function() {
+    function MinimalECIInput2(stringToEncode, priorityCharset, fnc1) {
+      this.fnc1 = fnc1;
+      var encoderSet = new ECIEncoderSet(stringToEncode, priorityCharset, fnc1);
+      if (encoderSet.length() === 1) {
+        for (var i = 0; i < this.bytes.length; i++) {
+          var c = stringToEncode.charAt(i).charCodeAt(0);
+          this.bytes[i] = c === fnc1 ? 1e3 : c;
+        }
+      } else {
+        this.bytes = this.encodeMinimally(stringToEncode, encoderSet, fnc1);
+      }
+    }
+    MinimalECIInput2.prototype.getFNC1Character = function() {
+      return this.fnc1;
+    };
+    MinimalECIInput2.prototype.length = function() {
+      return this.bytes.length;
+    };
+    MinimalECIInput2.prototype.haveNCharacters = function(index, n) {
+      if (index + n - 1 >= this.bytes.length) {
+        return false;
+      }
+      for (var i = 0; i < n; i++) {
+        if (this.isECI(index + i)) {
+          return false;
+        }
+      }
+      return true;
+    };
+    MinimalECIInput2.prototype.charAt = function(index) {
+      if (index < 0 || index >= this.length()) {
+        throw new Error("" + index);
+      }
+      if (this.isECI(index)) {
+        throw new Error("value at " + index + " is not a character but an ECI");
+      }
+      return this.isFNC1(index) ? this.fnc1 : this.bytes[index];
+    };
+    MinimalECIInput2.prototype.subSequence = function(start, end) {
+      if (start < 0 || start > end || end > this.length()) {
+        throw new Error("" + start);
+      }
+      var result = new StringBuilder_default();
+      for (var i = start; i < end; i++) {
+        if (this.isECI(i)) {
+          throw new Error("value at " + i + " is not a character but an ECI");
+        }
+        result.append(this.charAt(i));
+      }
+      return result.toString();
+    };
+    MinimalECIInput2.prototype.isECI = function(index) {
+      if (index < 0 || index >= this.length()) {
+        throw new Error("" + index);
+      }
+      return this.bytes[index] > 255 && this.bytes[index] <= 999;
+    };
+    MinimalECIInput2.prototype.isFNC1 = function(index) {
+      if (index < 0 || index >= this.length()) {
+        throw new Error("" + index);
+      }
+      return this.bytes[index] === 1e3;
+    };
+    MinimalECIInput2.prototype.getECIValue = function(index) {
+      if (index < 0 || index >= this.length()) {
+        throw new Error("" + index);
+      }
+      if (!this.isECI(index)) {
+        throw new Error("value at " + index + " is not an ECI but a character");
+      }
+      return this.bytes[index] - 256;
+    };
+    MinimalECIInput2.prototype.addEdge = function(edges, to, edge) {
+      if (edges[to][edge.encoderIndex] == null || edges[to][edge.encoderIndex].cachedTotalSize > edge.cachedTotalSize) {
+        edges[to][edge.encoderIndex] = edge;
+      }
+    };
+    MinimalECIInput2.prototype.addEdges = function(stringToEncode, encoderSet, edges, from, previous, fnc1) {
+      var ch = stringToEncode.charAt(from).charCodeAt(0);
+      var start = 0;
+      var end = encoderSet.length();
+      if (encoderSet.getPriorityEncoderIndex() >= 0 && (ch === fnc1 || encoderSet.canEncode(ch, encoderSet.getPriorityEncoderIndex()))) {
+        start = encoderSet.getPriorityEncoderIndex();
+        end = start + 1;
+      }
+      for (var i = start; i < end; i++) {
+        if (ch === fnc1 || encoderSet.canEncode(ch, i)) {
+          this.addEdge(edges, from + 1, new InputEdge(ch, encoderSet, i, previous, fnc1));
+        }
+      }
+    };
+    MinimalECIInput2.prototype.encodeMinimally = function(stringToEncode, encoderSet, fnc1) {
+      var inputLength = stringToEncode.length;
+      var edges = new InputEdge[inputLength + 1][encoderSet.length()]();
+      this.addEdges(stringToEncode, encoderSet, edges, 0, null, fnc1);
+      for (var i = 1; i <= inputLength; i++) {
+        for (var j = 0; j < encoderSet.length(); j++) {
+          if (edges[i][j] != null && i < inputLength) {
+            this.addEdges(stringToEncode, encoderSet, edges, i, edges[i][j], fnc1);
+          }
+        }
+        for (var j = 0; j < encoderSet.length(); j++) {
+          edges[i - 1][j] = null;
+        }
+      }
+      var minimalJ = -1;
+      var minimalSize = Integer_default.MAX_VALUE;
+      for (var j = 0; j < encoderSet.length(); j++) {
+        if (edges[inputLength][j] != null) {
+          var edge = edges[inputLength][j];
+          if (edge.cachedTotalSize < minimalSize) {
+            minimalSize = edge.cachedTotalSize;
+            minimalJ = j;
+          }
+        }
+      }
+      if (minimalJ < 0) {
+        throw new Error('Failed to encode "' + stringToEncode + '"');
+      }
+      var intsAL = [];
+      var current = edges[inputLength][minimalJ];
+      while (current != null) {
+        if (current.isFNC1()) {
+          intsAL.unshift(1e3);
+        } else {
+          var bytes = encoderSet.encode(current.c, current.encoderIndex);
+          for (var i = bytes.length - 1; i >= 0; i--) {
+            intsAL.unshift(bytes[i] & 255);
+          }
+        }
+        var previousEncoderIndex = current.previous === null ? 0 : current.previous.encoderIndex;
+        if (previousEncoderIndex !== current.encoderIndex) {
+          intsAL.unshift(256 + encoderSet.getECIValue(current.encoderIndex));
+        }
+        current = current.previous;
+      }
+      var ints = [];
+      for (var i = 0; i < ints.length; i++) {
+        ints[i] = intsAL[i];
+      }
+      return ints;
+    };
+    return MinimalECIInput2;
+  }()
+);
+var InputEdge = (
+  /** @class */
+  function() {
+    function InputEdge2(c, encoderSet, encoderIndex, previous, fnc1) {
+      this.c = c;
+      this.encoderSet = encoderSet;
+      this.encoderIndex = encoderIndex;
+      this.previous = previous;
+      this.fnc1 = fnc1;
+      this.c = c === fnc1 ? 1e3 : c;
+      var size = this.isFNC1() ? 1 : encoderSet.encode(c, encoderIndex).length;
+      var previousEncoderIndex = previous === null ? 0 : previous.encoderIndex;
+      if (previousEncoderIndex !== encoderIndex) {
+        size += COST_PER_ECI;
+      }
+      if (previous != null) {
+        size += previous.cachedTotalSize;
+      }
+      this.cachedTotalSize = size;
+    }
+    InputEdge2.prototype.isFNC1 = function() {
+      return this.c === 1e3;
+    };
+    return InputEdge2;
+  }()
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/encoder/MinimalEncoder.js
+var __extends72 = /* @__PURE__ */ function() {
+  var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
+      d2.__proto__ = b2;
+    } || function(d2, b2) {
+      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+    };
+    return extendStatics(d, b);
+  };
+  return function(d, b) {
+    extendStatics(d, b);
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+var __values43 = function(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function() {
+      if (o && i >= o.length) o = void 0;
+      return { value: o && o[i++], done: !o };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+var __read2 = function(o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o), r, ar = [], e;
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+  } catch (error) {
+    e = { error };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+  return ar;
+};
+var __spread = function() {
+  for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read2(arguments[i]));
+  return ar;
+};
+var Mode4;
+(function(Mode5) {
+  Mode5[Mode5["ASCII"] = 0] = "ASCII";
+  Mode5[Mode5["C40"] = 1] = "C40";
+  Mode5[Mode5["TEXT"] = 2] = "TEXT";
+  Mode5[Mode5["X12"] = 3] = "X12";
+  Mode5[Mode5["EDF"] = 4] = "EDF";
+  Mode5[Mode5["B256"] = 5] = "B256";
+})(Mode4 || (Mode4 = {}));
+var C40_SHIFT2_CHARS = [
+  "!",
+  '"',
+  "#",
+  "$",
+  "%",
+  "&",
+  "'",
+  "(",
+  ")",
+  "*",
+  "+",
+  ",",
+  "-",
+  ".",
+  "/",
+  ":",
+  ";",
+  "<",
+  "=",
+  ">",
+  "?",
+  "@",
+  "[",
+  "\\",
+  "]",
+  "^",
+  "_"
+];
+var MinimalEncoder = (
+  /** @class */
+  function() {
+    function MinimalEncoder2() {
+    }
+    MinimalEncoder2.isExtendedASCII = function(ch, fnc1) {
+      return ch !== fnc1 && ch >= 128 && ch <= 255;
+    };
+    MinimalEncoder2.isInC40Shift1Set = function(ch) {
+      return ch <= 31;
+    };
+    MinimalEncoder2.isInC40Shift2Set = function(ch, fnc1) {
+      var e_1, _a2;
+      try {
+        for (var C40_SHIFT2_CHARS_1 = __values43(C40_SHIFT2_CHARS), C40_SHIFT2_CHARS_1_1 = C40_SHIFT2_CHARS_1.next(); !C40_SHIFT2_CHARS_1_1.done; C40_SHIFT2_CHARS_1_1 = C40_SHIFT2_CHARS_1.next()) {
+          var c40Shift2Char = C40_SHIFT2_CHARS_1_1.value;
+          if (c40Shift2Char.charCodeAt(0) === ch) {
+            return true;
+          }
+        }
+      } catch (e_1_1) {
+        e_1 = { error: e_1_1 };
+      } finally {
+        try {
+          if (C40_SHIFT2_CHARS_1_1 && !C40_SHIFT2_CHARS_1_1.done && (_a2 = C40_SHIFT2_CHARS_1.return)) _a2.call(C40_SHIFT2_CHARS_1);
+        } finally {
+          if (e_1) throw e_1.error;
+        }
+      }
+      return ch === fnc1;
+    };
+    MinimalEncoder2.isInTextShift1Set = function(ch) {
+      return this.isInC40Shift1Set(ch);
+    };
+    MinimalEncoder2.isInTextShift2Set = function(ch, fnc1) {
+      return this.isInC40Shift2Set(ch, fnc1);
+    };
+    MinimalEncoder2.encodeHighLevel = function(msg, priorityCharset, fnc1, shape) {
+      if (priorityCharset === void 0) {
+        priorityCharset = null;
+      }
+      if (fnc1 === void 0) {
+        fnc1 = -1;
+      }
+      if (shape === void 0) {
+        shape = 0;
+      }
+      var macroId = 0;
+      if (msg.startsWith(MACRO_05_HEADER) && msg.endsWith(MACRO_TRAILER)) {
+        macroId = 5;
+        msg = msg.substring(MACRO_05_HEADER.length, msg.length - 2);
+      } else if (msg.startsWith(MACRO_06_HEADER) && msg.endsWith(MACRO_TRAILER)) {
+        macroId = 6;
+        msg = msg.substring(MACRO_06_HEADER.length, msg.length - 2);
+      }
+      return decodeURIComponent(escape(String.fromCharCode.apply(String, __spread(this.encode(msg, priorityCharset, fnc1, shape, macroId)))));
+    };
+    MinimalEncoder2.encode = function(input, priorityCharset, fnc1, shape, macroId) {
+      return this.encodeMinimally(new Input(input, priorityCharset, fnc1, shape, macroId)).getBytes();
+    };
+    MinimalEncoder2.addEdge = function(edges, edge) {
+      var vertexIndex = edge.fromPosition + edge.characterLength;
+      if (edges[vertexIndex][edge.getEndMode()] === null || edges[vertexIndex][edge.getEndMode()].cachedTotalSize > edge.cachedTotalSize) {
+        edges[vertexIndex][edge.getEndMode()] = edge;
+      }
+    };
+    MinimalEncoder2.getNumberOfC40Words = function(input, from, c40, characterLength) {
+      var thirdsCount = 0;
+      for (var i = from; i < input.length(); i++) {
+        if (input.isECI(i)) {
+          characterLength[0] = 0;
+          return 0;
+        }
+        var ci = input.charAt(i);
+        if (c40 && HighLevelEncoder_default.isNativeC40(ci) || !c40 && HighLevelEncoder_default.isNativeText(ci)) {
+          thirdsCount++;
+        } else if (!MinimalEncoder2.isExtendedASCII(ci, input.getFNC1Character())) {
+          thirdsCount += 2;
+        } else {
+          var asciiValue = ci & 255;
+          if (asciiValue >= 128 && (c40 && HighLevelEncoder_default.isNativeC40(asciiValue - 128) || !c40 && HighLevelEncoder_default.isNativeText(asciiValue - 128))) {
+            thirdsCount += 3;
+          } else {
+            thirdsCount += 4;
+          }
+        }
+        if (thirdsCount % 3 === 0 || (thirdsCount - 2) % 3 === 0 && i + 1 === input.length()) {
+          characterLength[0] = i - from + 1;
+          return Math.ceil(thirdsCount / 3);
+        }
+      }
+      characterLength[0] = 0;
+      return 0;
+    };
+    MinimalEncoder2.addEdges = function(input, edges, from, previous) {
+      var e_2, _a2;
+      if (input.isECI(from)) {
+        this.addEdge(edges, new Edge(input, Mode4.ASCII, from, 1, previous));
+        return;
+      }
+      var ch = input.charAt(from);
+      if (previous === null || previous.getEndMode() !== Mode4.EDF) {
+        if (HighLevelEncoder_default.isDigit(ch) && input.haveNCharacters(from, 2) && HighLevelEncoder_default.isDigit(input.charAt(from + 1))) {
+          this.addEdge(edges, new Edge(input, Mode4.ASCII, from, 2, previous));
+        } else {
+          this.addEdge(edges, new Edge(input, Mode4.ASCII, from, 1, previous));
+        }
+        var modes = [Mode4.C40, Mode4.TEXT];
+        try {
+          for (var modes_1 = __values43(modes), modes_1_1 = modes_1.next(); !modes_1_1.done; modes_1_1 = modes_1.next()) {
+            var mode = modes_1_1.value;
+            var characterLength = [];
+            if (MinimalEncoder2.getNumberOfC40Words(input, from, mode === Mode4.C40, characterLength) > 0) {
+              this.addEdge(edges, new Edge(input, mode, from, characterLength[0], previous));
+            }
+          }
+        } catch (e_2_1) {
+          e_2 = { error: e_2_1 };
+        } finally {
+          try {
+            if (modes_1_1 && !modes_1_1.done && (_a2 = modes_1.return)) _a2.call(modes_1);
+          } finally {
+            if (e_2) throw e_2.error;
+          }
+        }
+        if (input.haveNCharacters(from, 3) && HighLevelEncoder_default.isNativeX12(input.charAt(from)) && HighLevelEncoder_default.isNativeX12(input.charAt(from + 1)) && HighLevelEncoder_default.isNativeX12(input.charAt(from + 2))) {
+          this.addEdge(edges, new Edge(input, Mode4.X12, from, 3, previous));
+        }
+        this.addEdge(edges, new Edge(input, Mode4.B256, from, 1, previous));
+      }
+      var i;
+      for (i = 0; i < 3; i++) {
+        var pos = from + i;
+        if (input.haveNCharacters(pos, 1) && HighLevelEncoder_default.isNativeEDIFACT(input.charAt(pos))) {
+          this.addEdge(edges, new Edge(input, Mode4.EDF, from, i + 1, previous));
+        } else {
+          break;
+        }
+      }
+      if (i === 3 && input.haveNCharacters(from, 4) && HighLevelEncoder_default.isNativeEDIFACT(input.charAt(from + 3))) {
+        this.addEdge(edges, new Edge(input, Mode4.EDF, from, 4, previous));
+      }
+    };
+    MinimalEncoder2.encodeMinimally = function(input) {
+      var inputLength = input.length();
+      var edges = Array(inputLength + 1).fill(null).map(function() {
+        return Array(6).fill(0);
+      });
+      this.addEdges(input, edges, 0, null);
+      for (var i = 1; i <= inputLength; i++) {
+        for (var j = 0; j < 6; j++) {
+          if (edges[i][j] !== null && i < inputLength) {
+            this.addEdges(input, edges, i, edges[i][j]);
+          }
+        }
+        for (var j = 0; j < 6; j++) {
+          edges[i - 1][j] = null;
+        }
+      }
+      var minimalJ = -1;
+      var minimalSize = Integer_default.MAX_VALUE;
+      for (var j = 0; j < 6; j++) {
+        if (edges[inputLength][j] !== null) {
+          var edge = edges[inputLength][j];
+          var size = j >= 1 && j <= 3 ? edge.cachedTotalSize + 1 : edge.cachedTotalSize;
+          if (size < minimalSize) {
+            minimalSize = size;
+            minimalJ = j;
+          }
+        }
+      }
+      if (minimalJ < 0) {
+        throw new Error('Failed to encode "' + input + '"');
+      }
+      return new Result2(edges[inputLength][minimalJ]);
+    };
+    return MinimalEncoder2;
+  }()
+);
+var Result2 = (
+  /** @class */
+  function() {
+    function Result3(solution) {
+      var input = solution.input;
+      var size = 0;
+      var bytesAL = [];
+      var randomizePostfixLength = [];
+      var randomizeLengths = [];
+      if ((solution.mode === Mode4.C40 || solution.mode === Mode4.TEXT || solution.mode === Mode4.X12) && solution.getEndMode() !== Mode4.ASCII) {
+        size += this.prepend(Edge.getBytes(254), bytesAL);
+      }
+      var current = solution;
+      while (current !== null) {
+        size += this.prepend(current.getDataBytes(), bytesAL);
+        if (current.previous === null || current.getPreviousStartMode() !== current.getMode()) {
+          if (current.getMode() === Mode4.B256) {
+            if (size <= 249) {
+              bytesAL.unshift(size);
+              size++;
+            } else {
+              bytesAL.unshift(size % 250);
+              bytesAL.unshift(size / 250 + 249);
+              size += 2;
+            }
+            randomizePostfixLength.push(bytesAL.length);
+            randomizeLengths.push(size);
+          }
+          this.prepend(current.getLatchBytes(), bytesAL);
+          size = 0;
+        }
+        current = current.previous;
+      }
+      if (input.getMacroId() === 5) {
+        size += this.prepend(Edge.getBytes(236), bytesAL);
+      } else if (input.getMacroId() === 6) {
+        size += this.prepend(Edge.getBytes(237), bytesAL);
+      }
+      if (input.getFNC1Character() > 0) {
+        size += this.prepend(Edge.getBytes(232), bytesAL);
+      }
+      for (var i = 0; i < randomizePostfixLength.length; i++) {
+        this.applyRandomPattern(bytesAL, bytesAL.length - randomizePostfixLength[i], randomizeLengths[i]);
+      }
+      var capacity = solution.getMinSymbolSize(bytesAL.length);
+      if (bytesAL.length < capacity) {
+        bytesAL.push(129);
+      }
+      while (bytesAL.length < capacity) {
+        bytesAL.push(this.randomize253State(bytesAL.length + 1));
+      }
+      this.bytes = new Uint8Array(bytesAL.length);
+      for (var i = 0; i < this.bytes.length; i++) {
+        this.bytes[i] = bytesAL[i];
+      }
+    }
+    Result3.prototype.prepend = function(bytes, into) {
+      for (var i = bytes.length - 1; i >= 0; i--) {
+        into.unshift(bytes[i]);
+      }
+      return bytes.length;
+    };
+    Result3.prototype.randomize253State = function(codewordPosition) {
+      var pseudoRandom = 149 * codewordPosition % 253 + 1;
+      var tempVariable = 129 + pseudoRandom;
+      return tempVariable <= 254 ? tempVariable : tempVariable - 254;
+    };
+    Result3.prototype.applyRandomPattern = function(bytesAL, startPosition, length) {
+      for (var i = 0; i < length; i++) {
+        var Pad_codeword_position = startPosition + i;
+        var Pad_codeword_value = bytesAL[Pad_codeword_position] & 255;
+        var pseudo_random_number = 149 * (Pad_codeword_position + 1) % 255 + 1;
+        var temp_variable = Pad_codeword_value + pseudo_random_number;
+        bytesAL[Pad_codeword_position] = temp_variable <= 255 ? temp_variable : temp_variable - 256;
+      }
+    };
+    Result3.prototype.getBytes = function() {
+      return this.bytes;
+    };
+    return Result3;
+  }()
+);
+var Edge = (
+  /** @class */
+  function() {
+    function Edge2(input, mode, fromPosition, characterLength, previous) {
+      this.input = input;
+      this.mode = mode;
+      this.fromPosition = fromPosition;
+      this.characterLength = characterLength;
+      this.previous = previous;
+      this.allCodewordCapacities = [
+        3,
+        5,
+        8,
+        10,
+        12,
+        16,
+        18,
+        22,
+        30,
+        32,
+        36,
+        44,
+        49,
+        62,
+        86,
+        114,
+        144,
+        174,
+        204,
+        280,
+        368,
+        456,
+        576,
+        696,
+        816,
+        1050,
+        1304,
+        1558
+      ];
+      this.squareCodewordCapacities = [
+        3,
+        5,
+        8,
+        12,
+        18,
+        22,
+        30,
+        36,
+        44,
+        62,
+        86,
+        114,
+        144,
+        174,
+        204,
+        280,
+        368,
+        456,
+        576,
+        696,
+        816,
+        1050,
+        1304,
+        1558
+      ];
+      this.rectangularCodewordCapacities = [5, 10, 16, 33, 32, 49];
+      if (!(fromPosition + characterLength <= input.length())) {
+        throw new Error("Invalid edge");
+      }
+      var size = previous !== null ? previous.cachedTotalSize : 0;
+      var previousMode = this.getPreviousMode();
+      switch (mode) {
+        case Mode4.ASCII:
+          size++;
+          if (input.isECI(fromPosition) || MinimalEncoder.isExtendedASCII(input.charAt(fromPosition), input.getFNC1Character())) {
+            size++;
+          }
+          if (previousMode === Mode4.C40 || previousMode === Mode4.TEXT || previousMode === Mode4.X12) {
+            size++;
+          }
+          break;
+        case Mode4.B256:
+          size++;
+          if (previousMode !== Mode4.B256) {
+            size++;
+          } else if (this.getB256Size() === 250) {
+            size++;
+          }
+          if (previousMode === Mode4.ASCII) {
+            size++;
+          } else if (previousMode === Mode4.C40 || previousMode === Mode4.TEXT || previousMode === Mode4.X12) {
+            size += 2;
+          }
+          break;
+        case Mode4.C40:
+        case Mode4.TEXT:
+        case Mode4.X12:
+          if (mode === Mode4.X12) {
+            size += 2;
+          } else {
+            var charLen = [];
+            size += MinimalEncoder.getNumberOfC40Words(input, fromPosition, mode === Mode4.C40, charLen) * 2;
+          }
+          if (previousMode === Mode4.ASCII || previousMode === Mode4.B256) {
+            size++;
+          } else if (previousMode !== mode && (previousMode === Mode4.C40 || previousMode === Mode4.TEXT || previousMode === Mode4.X12)) {
+            size += 2;
+          }
+          break;
+        case Mode4.EDF:
+          size += 3;
+          if (previousMode === Mode4.ASCII || previousMode === Mode4.B256) {
+            size++;
+          } else if (previousMode === Mode4.C40 || previousMode === Mode4.TEXT || previousMode === Mode4.X12) {
+            size += 2;
+          }
+          break;
+      }
+      this.cachedTotalSize = size;
+    }
+    Edge2.prototype.getB256Size = function() {
+      var cnt = 0;
+      var current = this;
+      while (current !== null && current.mode === Mode4.B256 && cnt <= 250) {
+        cnt++;
+        current = current.previous;
+      }
+      return cnt;
+    };
+    Edge2.prototype.getPreviousStartMode = function() {
+      return this.previous === null ? Mode4.ASCII : this.previous.mode;
+    };
+    Edge2.prototype.getPreviousMode = function() {
+      return this.previous === null ? Mode4.ASCII : this.previous.getEndMode();
+    };
+    Edge2.prototype.getEndMode = function() {
+      if (this.mode === Mode4.EDF) {
+        if (this.characterLength < 4) {
+          return Mode4.ASCII;
+        }
+        var lastASCII = this.getLastASCII();
+        if (lastASCII > 0 && this.getCodewordsRemaining(this.cachedTotalSize + lastASCII) <= 2 - lastASCII) {
+          return Mode4.ASCII;
+        }
+      }
+      if (this.mode === Mode4.C40 || this.mode === Mode4.TEXT || this.mode === Mode4.X12) {
+        if (this.fromPosition + this.characterLength >= this.input.length() && this.getCodewordsRemaining(this.cachedTotalSize) === 0) {
+          return Mode4.ASCII;
+        }
+        var lastASCII = this.getLastASCII();
+        if (lastASCII === 1 && this.getCodewordsRemaining(this.cachedTotalSize + 1) === 0) {
+          return Mode4.ASCII;
+        }
+      }
+      return this.mode;
+    };
+    Edge2.prototype.getMode = function() {
+      return this.mode;
+    };
+    Edge2.prototype.getLastASCII = function() {
+      var length = this.input.length();
+      var from = this.fromPosition + this.characterLength;
+      if (length - from > 4 || from >= length) {
+        return 0;
+      }
+      if (length - from === 1) {
+        if (MinimalEncoder.isExtendedASCII(this.input.charAt(from), this.input.getFNC1Character())) {
+          return 0;
+        }
+        return 1;
+      }
+      if (length - from === 2) {
+        if (MinimalEncoder.isExtendedASCII(this.input.charAt(from), this.input.getFNC1Character()) || MinimalEncoder.isExtendedASCII(this.input.charAt(from + 1), this.input.getFNC1Character())) {
+          return 0;
+        }
+        if (HighLevelEncoder_default.isDigit(this.input.charAt(from)) && HighLevelEncoder_default.isDigit(this.input.charAt(from + 1))) {
+          return 1;
+        }
+        return 2;
+      }
+      if (length - from === 3) {
+        if (HighLevelEncoder_default.isDigit(this.input.charAt(from)) && HighLevelEncoder_default.isDigit(this.input.charAt(from + 1)) && !MinimalEncoder.isExtendedASCII(this.input.charAt(from + 2), this.input.getFNC1Character())) {
+          return 2;
+        }
+        if (HighLevelEncoder_default.isDigit(this.input.charAt(from + 1)) && HighLevelEncoder_default.isDigit(this.input.charAt(from + 2)) && !MinimalEncoder.isExtendedASCII(this.input.charAt(from), this.input.getFNC1Character())) {
+          return 2;
+        }
+        return 0;
+      }
+      if (HighLevelEncoder_default.isDigit(this.input.charAt(from)) && HighLevelEncoder_default.isDigit(this.input.charAt(from + 1)) && HighLevelEncoder_default.isDigit(this.input.charAt(from + 2)) && HighLevelEncoder_default.isDigit(this.input.charAt(from + 3))) {
+        return 2;
+      }
+      return 0;
+    };
+    Edge2.prototype.getMinSymbolSize = function(minimum) {
+      var e_3, _a2, e_4, _b, e_5, _c;
+      switch (this.input.getShapeHint()) {
+        case 1:
+          try {
+            for (var _d = __values43(this.squareCodewordCapacities), _e = _d.next(); !_e.done; _e = _d.next()) {
+              var capacity = _e.value;
+              if (capacity >= minimum) {
+                return capacity;
+              }
+            }
+          } catch (e_3_1) {
+            e_3 = { error: e_3_1 };
+          } finally {
+            try {
+              if (_e && !_e.done && (_a2 = _d.return)) _a2.call(_d);
+            } finally {
+              if (e_3) throw e_3.error;
+            }
+          }
+          break;
+        case 2:
+          try {
+            for (var _f = __values43(this.rectangularCodewordCapacities), _g = _f.next(); !_g.done; _g = _f.next()) {
+              var capacity = _g.value;
+              if (capacity >= minimum) {
+                return capacity;
+              }
+            }
+          } catch (e_4_1) {
+            e_4 = { error: e_4_1 };
+          } finally {
+            try {
+              if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+            } finally {
+              if (e_4) throw e_4.error;
+            }
+          }
+          break;
+      }
+      try {
+        for (var _h = __values43(this.allCodewordCapacities), _j = _h.next(); !_j.done; _j = _h.next()) {
+          var capacity = _j.value;
+          if (capacity >= minimum) {
+            return capacity;
+          }
+        }
+      } catch (e_5_1) {
+        e_5 = { error: e_5_1 };
+      } finally {
+        try {
+          if (_j && !_j.done && (_c = _h.return)) _c.call(_h);
+        } finally {
+          if (e_5) throw e_5.error;
+        }
+      }
+      return this.allCodewordCapacities[this.allCodewordCapacities.length - 1];
+    };
+    Edge2.prototype.getCodewordsRemaining = function(minimum) {
+      return this.getMinSymbolSize(minimum) - minimum;
+    };
+    Edge2.getBytes = function(c1, c2) {
+      var result = new Uint8Array(c2 ? 2 : 1);
+      result[0] = c1;
+      if (c2) {
+        result[1] = c2;
+      }
+      return result;
+    };
+    Edge2.prototype.setC40Word = function(bytes, offset, c1, c2, c3) {
+      var val16 = 1600 * (c1 & 255) + 40 * (c2 & 255) + (c3 & 255) + 1;
+      bytes[offset] = val16 / 256;
+      bytes[offset + 1] = val16 % 256;
+    };
+    Edge2.prototype.getX12Value = function(c) {
+      return c === 13 ? 0 : c === 42 ? 1 : c === 62 ? 2 : c === 32 ? 3 : c >= 48 && c <= 57 ? c - 44 : c >= 65 && c <= 90 ? c - 51 : c;
+    };
+    Edge2.prototype.getX12Words = function() {
+      if (!(this.characterLength % 3 === 0)) {
+        throw new Error("X12 words must be a multiple of 3");
+      }
+      var result = new Uint8Array(this.characterLength / 3 * 2);
+      for (var i = 0; i < result.length; i += 2) {
+        this.setC40Word(result, i, this.getX12Value(this.input.charAt(this.fromPosition + i / 2 * 3)), this.getX12Value(this.input.charAt(this.fromPosition + i / 2 * 3 + 1)), this.getX12Value(this.input.charAt(this.fromPosition + i / 2 * 3 + 2)));
+      }
+      return result;
+    };
+    Edge2.prototype.getShiftValue = function(c, c40, fnc1) {
+      return c40 && MinimalEncoder.isInC40Shift1Set(c) || !c40 && MinimalEncoder.isInTextShift1Set(c) ? 0 : c40 && MinimalEncoder.isInC40Shift2Set(c, fnc1) || !c40 && MinimalEncoder.isInTextShift2Set(c, fnc1) ? 1 : 2;
+    };
+    Edge2.prototype.getC40Value = function(c40, setIndex, c, fnc1) {
+      if (c === fnc1) {
+        if (!(setIndex === 2)) {
+          throw new Error("FNC1 cannot be used in C40 shift 2");
+        }
+        return 27;
+      }
+      if (c40) {
+        return c <= 31 ? c : c === 32 ? 3 : c <= 47 ? c - 33 : c <= 57 ? c - 44 : c <= 64 ? c - 43 : c <= 90 ? c - 51 : c <= 95 ? c - 69 : c <= 127 ? c - 96 : c;
+      } else {
+        return c === 0 ? 0 : setIndex === 0 && c <= 3 ? c - 1 : setIndex === 1 && c <= 31 ? c : c === 32 ? 3 : c >= 33 && c <= 47 ? c - 33 : c >= 48 && c <= 57 ? c - 44 : c >= 58 && c <= 64 ? c - 43 : c >= 65 && c <= 90 ? c - 64 : c >= 91 && c <= 95 ? c - 69 : c === 96 ? 0 : c >= 97 && c <= 122 ? c - 83 : c >= 123 && c <= 127 ? c - 96 : c;
+      }
+    };
+    Edge2.prototype.getC40Words = function(c40, fnc1) {
+      var c40Values = [];
+      for (var i = 0; i < this.characterLength; i++) {
+        var ci = this.input.charAt(this.fromPosition + i);
+        if (c40 && HighLevelEncoder_default.isNativeC40(ci) || !c40 && HighLevelEncoder_default.isNativeText(ci)) {
+          c40Values.push(this.getC40Value(c40, 0, ci, fnc1));
+        } else if (!MinimalEncoder.isExtendedASCII(ci, fnc1)) {
+          var shiftValue = this.getShiftValue(ci, c40, fnc1);
+          c40Values.push(shiftValue);
+          c40Values.push(this.getC40Value(c40, shiftValue, ci, fnc1));
+        } else {
+          var asciiValue = (ci & 255) - 128;
+          if (c40 && HighLevelEncoder_default.isNativeC40(asciiValue) || !c40 && HighLevelEncoder_default.isNativeText(asciiValue)) {
+            c40Values.push(1);
+            c40Values.push(30);
+            c40Values.push(this.getC40Value(c40, 0, asciiValue, fnc1));
+          } else {
+            c40Values.push(1);
+            c40Values.push(30);
+            var shiftValue = this.getShiftValue(asciiValue, c40, fnc1);
+            c40Values.push(shiftValue);
+            c40Values.push(this.getC40Value(c40, shiftValue, asciiValue, fnc1));
+          }
+        }
+      }
+      if (c40Values.length % 3 !== 0) {
+        if (!((c40Values.length - 2) % 3 === 0 && this.fromPosition + this.characterLength === this.input.length())) {
+          throw new Error("C40 words must be a multiple of 3");
+        }
+        c40Values.push(0);
+      }
+      var result = new Uint8Array(c40Values.length / 3 * 2);
+      var byteIndex = 0;
+      for (var i = 0; i < c40Values.length; i += 3) {
+        this.setC40Word(result, byteIndex, c40Values[i] & 255, c40Values[i + 1] & 255, c40Values[i + 2] & 255);
+        byteIndex += 2;
+      }
+      return result;
+    };
+    Edge2.prototype.getEDFBytes = function() {
+      var numberOfThirds = Math.ceil(this.characterLength / 4);
+      var result = new Uint8Array(numberOfThirds * 3);
+      var pos = this.fromPosition;
+      var endPos = Math.min(this.fromPosition + this.characterLength - 1, this.input.length() - 1);
+      for (var i = 0; i < numberOfThirds; i += 3) {
+        var edfValues = [];
+        for (var j = 0; j < 4; j++) {
+          if (pos <= endPos) {
+            edfValues[j] = this.input.charAt(pos++) & 63;
+          } else {
+            edfValues[j] = pos === endPos + 1 ? 31 : 0;
+          }
+        }
+        var val24 = edfValues[0] << 18;
+        val24 |= edfValues[1] << 12;
+        val24 |= edfValues[2] << 6;
+        val24 |= edfValues[3];
+        result[i] = val24 >> 16 & 255;
+        result[i + 1] = val24 >> 8 & 255;
+        result[i + 2] = val24 & 255;
+      }
+      return result;
+    };
+    Edge2.prototype.getLatchBytes = function() {
+      switch (this.getPreviousMode()) {
+        case Mode4.ASCII:
+        case Mode4.B256:
+          switch (this.mode) {
+            case Mode4.B256:
+              return Edge2.getBytes(231);
+            case Mode4.C40:
+              return Edge2.getBytes(230);
+            case Mode4.TEXT:
+              return Edge2.getBytes(239);
+            case Mode4.X12:
+              return Edge2.getBytes(238);
+            case Mode4.EDF:
+              return Edge2.getBytes(240);
+          }
+          break;
+        case Mode4.C40:
+        case Mode4.TEXT:
+        case Mode4.X12:
+          if (this.mode !== this.getPreviousMode()) {
+            switch (this.mode) {
+              case Mode4.ASCII:
+                return Edge2.getBytes(254);
+              case Mode4.B256:
+                return Edge2.getBytes(254, 231);
+              case Mode4.C40:
+                return Edge2.getBytes(254, 230);
+              case Mode4.TEXT:
+                return Edge2.getBytes(254, 239);
+              case Mode4.X12:
+                return Edge2.getBytes(254, 238);
+              case Mode4.EDF:
+                return Edge2.getBytes(254, 240);
+            }
+          }
+          break;
+        case Mode4.EDF:
+          if (this.mode !== Mode4.EDF) {
+            throw new Error("Cannot switch from EDF to " + this.mode);
+          }
+          break;
+      }
+      return new Uint8Array(0);
+    };
+    Edge2.prototype.getDataBytes = function() {
+      switch (this.mode) {
+        case Mode4.ASCII:
+          if (this.input.isECI(this.fromPosition)) {
+            return Edge2.getBytes(241, this.input.getECIValue(this.fromPosition) + 1);
+          } else if (MinimalEncoder.isExtendedASCII(this.input.charAt(this.fromPosition), this.input.getFNC1Character())) {
+            return Edge2.getBytes(235, this.input.charAt(this.fromPosition) - 127);
+          } else if (this.characterLength === 2) {
+            return Edge2.getBytes(this.input.charAt(this.fromPosition) * 10 + this.input.charAt(this.fromPosition + 1) + 130);
+          } else if (this.input.isFNC1(this.fromPosition)) {
+            return Edge2.getBytes(232);
+          } else {
+            return Edge2.getBytes(this.input.charAt(this.fromPosition) + 1);
+          }
+        case Mode4.B256:
+          return Edge2.getBytes(this.input.charAt(this.fromPosition));
+        case Mode4.C40:
+          return this.getC40Words(true, this.input.getFNC1Character());
+        case Mode4.TEXT:
+          return this.getC40Words(false, this.input.getFNC1Character());
+        case Mode4.X12:
+          return this.getX12Words();
+        case Mode4.EDF:
+          return this.getEDFBytes();
+      }
+    };
+    return Edge2;
+  }()
+);
+var Input = (
+  /** @class */
+  function(_super) {
+    __extends72(Input2, _super);
+    function Input2(stringToEncode, priorityCharset, fnc1, shape, macroId) {
+      var _this = _super.call(this, stringToEncode, priorityCharset, fnc1) || this;
+      _this.shape = shape;
+      _this.macroId = macroId;
+      return _this;
+    }
+    Input2.prototype.getMacroId = function() {
+      return this.macroId;
+    };
+    Input2.prototype.getShapeHint = function() {
+      return this.shape;
+    };
+    return Input2;
+  }(MinimalECIInput)
+);
+
+// front/node_modules/@zxing/library/esm/core/datamatrix/DataMatrixWriter.js
+var DataMatrixWriter = (
+  /** @class */
+  function() {
+    function DataMatrixWriter2() {
+    }
+    DataMatrixWriter2.prototype.encode = function(contents, format, width, height, hints) {
+      if (hints === void 0) {
+        hints = null;
+      }
+      if (contents.trim() === "") {
+        throw new Error("Found empty contents");
+      }
+      if (format !== BarcodeFormat_default.DATA_MATRIX) {
+        throw new Error("Can only encode DATA_MATRIX, but got " + format);
+      }
+      if (width < 0 || height < 0) {
+        throw new Error("Requested dimensions can't be negative: " + width + "x" + height);
+      }
+      var shape = 0;
+      var minSize = null;
+      var maxSize = null;
+      if (hints != null) {
+        var requestedShape = hints.get(EncodeHintType_default.DATA_MATRIX_SHAPE);
+        if (requestedShape != null) {
+          shape = requestedShape;
+        }
+        var requestedMinSize = hints.get(EncodeHintType_default.MIN_SIZE);
+        if (requestedMinSize != null) {
+          minSize = requestedMinSize;
+        }
+        var requestedMaxSize = hints.get(EncodeHintType_default.MAX_SIZE);
+        if (requestedMaxSize != null) {
+          maxSize = requestedMaxSize;
+        }
+      }
+      var encoded;
+      var hasCompactionHint = hints != null && hints.has(EncodeHintType_default.DATA_MATRIX_COMPACT) && Boolean(hints.get(EncodeHintType_default.DATA_MATRIX_COMPACT).toString());
+      if (hasCompactionHint) {
+        var hasGS1FormatHint = hints.has(EncodeHintType_default.GS1_FORMAT) && Boolean(hints.get(EncodeHintType_default.GS1_FORMAT).toString());
+        var charset = null;
+        var hasEncodingHint = hints.has(EncodeHintType_default.CHARACTER_SET);
+        if (hasEncodingHint) {
+          charset = Charset_default.forName(hints.get(EncodeHintType_default.CHARACTER_SET).toString());
+        }
+        encoded = MinimalEncoder.encodeHighLevel(contents, charset, hasGS1FormatHint ? 29 : -1, shape);
+      } else {
+        var hasForceC40Hint = hints != null && hints.has(EncodeHintType_default.FORCE_C40) && Boolean(hints.get(EncodeHintType_default.FORCE_C40).toString());
+        encoded = HighLevelEncoder_default.encodeHighLevel(contents, shape, minSize, maxSize, hasForceC40Hint);
+      }
+      var symbolInfo = SymbolInfo_default.lookup(encoded.length, shape, minSize, maxSize, true);
+      var codewords = ErrorCorrection_default2.encodeECC200(encoded, symbolInfo);
+      var placement = new DefaultPlacement_default(codewords, symbolInfo.getSymbolDataWidth(), symbolInfo.getSymbolDataHeight());
+      placement.place();
+      return this.encodeLowLevel(placement, symbolInfo, width, height);
+    };
+    DataMatrixWriter2.prototype.encodeLowLevel = function(placement, symbolInfo, width, height) {
+      var symbolWidth = symbolInfo.getSymbolDataWidth();
+      var symbolHeight = symbolInfo.getSymbolDataHeight();
+      var matrix = new ByteMatrix_default(symbolInfo.getSymbolWidth(), symbolInfo.getSymbolHeight());
+      var matrixY = 0;
+      for (var y = 0; y < symbolHeight; y++) {
+        var matrixX = void 0;
+        if (y % symbolInfo.matrixHeight === 0) {
+          matrixX = 0;
+          for (var x = 0; x < symbolInfo.getSymbolWidth(); x++) {
+            matrix.setBoolean(matrixX, matrixY, x % 2 === 0);
+            matrixX++;
+          }
+          matrixY++;
+        }
+        matrixX = 0;
+        for (var x = 0; x < symbolWidth; x++) {
+          if (x % symbolInfo.matrixWidth === 0) {
+            matrix.setBoolean(matrixX, matrixY, true);
+            matrixX++;
+          }
+          matrix.setBoolean(matrixX, matrixY, placement.getBit(x, y));
+          matrixX++;
+          if (x % symbolInfo.matrixWidth === symbolInfo.matrixWidth - 1) {
+            matrix.setBoolean(matrixX, matrixY, y % 2 === 0);
+            matrixX++;
+          }
+        }
+        matrixY++;
+        if (y % symbolInfo.matrixHeight === symbolInfo.matrixHeight - 1) {
+          matrixX = 0;
+          for (var x = 0; x < symbolInfo.getSymbolWidth(); x++) {
+            matrix.setBoolean(matrixX, matrixY, true);
+            matrixX++;
+          }
+          matrixY++;
+        }
+      }
+      return this.convertByteMatrixToBitMatrix(matrix, width, height);
+    };
+    DataMatrixWriter2.prototype.convertByteMatrixToBitMatrix = function(matrix, reqWidth, reqHeight) {
+      var matrixWidth = matrix.getWidth();
+      var matrixHeight = matrix.getHeight();
+      var outputWidth = Math.max(reqWidth, matrixWidth);
+      var outputHeight = Math.max(reqHeight, matrixHeight);
+      var multiple = Math.min(outputWidth / matrixWidth, outputHeight / matrixHeight);
+      var leftPadding = (outputWidth - matrixWidth * multiple) / 2;
+      var topPadding = (outputHeight - matrixHeight * multiple) / 2;
+      var output;
+      if (reqHeight < matrixHeight || reqWidth < matrixWidth) {
+        leftPadding = 0;
+        topPadding = 0;
+        output = new BitMatrix_default(matrixWidth, matrixHeight);
+      } else {
+        output = new BitMatrix_default(reqWidth, reqHeight);
+      }
+      output.clear();
+      for (var inputY = 0, outputY = topPadding; inputY < matrixHeight; inputY++, outputY += multiple) {
+        for (var inputX = 0, outputX = leftPadding; inputX < matrixWidth; inputX++, outputX += multiple) {
+          if (matrix.get(inputX, inputY) === 1) {
+            output.setRegion(outputX, outputY, multiple, multiple);
+          }
+        }
+      }
+      return output;
+    };
+    return DataMatrixWriter2;
+  }()
+);
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/AztecCode.js
 var AztecCode = (
@@ -25714,7 +29472,7 @@ var Token = (
 var Token_default = Token;
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/SimpleToken.js
-var __extends67 = /* @__PURE__ */ function() {
+var __extends73 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -25734,7 +29492,7 @@ var __extends67 = /* @__PURE__ */ function() {
 var SimpleToken = (
   /** @class */
   function(_super) {
-    __extends67(SimpleToken2, _super);
+    __extends73(SimpleToken2, _super);
     function SimpleToken2(previous, value, bitCount) {
       var _this = _super.call(this, previous) || this;
       _this.value = value;
@@ -25762,7 +29520,7 @@ var SimpleToken = (
 var SimpleToken_default = SimpleToken;
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/BinaryShiftToken.js
-var __extends68 = /* @__PURE__ */ function() {
+var __extends74 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -25782,7 +29540,7 @@ var __extends68 = /* @__PURE__ */ function() {
 var BinaryShiftToken = (
   /** @class */
   function(_super) {
-    __extends68(BinaryShiftToken2, _super);
+    __extends74(BinaryShiftToken2, _super);
     function BinaryShiftToken2(previous, binaryShiftStart, binaryShiftByteCount) {
       var _this = _super.call(this, previous, 0, 0) || this;
       _this.binaryShiftStart = binaryShiftStart;
@@ -25882,7 +29640,7 @@ var LATCH_TABLE = [
 ];
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/ShiftTable.js
-var __values40 = function(o) {
+var __values44 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -25894,9 +29652,9 @@ var __values40 = function(o) {
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 function static_SHIFT_TABLE(SHIFT_TABLE2) {
-  var e_1, _a;
+  var e_1, _a2;
   try {
-    for (var SHIFT_TABLE_1 = __values40(SHIFT_TABLE2), SHIFT_TABLE_1_1 = SHIFT_TABLE_1.next(); !SHIFT_TABLE_1_1.done; SHIFT_TABLE_1_1 = SHIFT_TABLE_1.next()) {
+    for (var SHIFT_TABLE_1 = __values44(SHIFT_TABLE2), SHIFT_TABLE_1_1 = SHIFT_TABLE_1.next(); !SHIFT_TABLE_1_1.done; SHIFT_TABLE_1_1 = SHIFT_TABLE_1.next()) {
       var table = SHIFT_TABLE_1_1.value;
       Arrays_default.fill(table, -1);
     }
@@ -25904,7 +29662,7 @@ function static_SHIFT_TABLE(SHIFT_TABLE2) {
     e_1 = { error: e_1_1 };
   } finally {
     try {
-      if (SHIFT_TABLE_1_1 && !SHIFT_TABLE_1_1.done && (_a = SHIFT_TABLE_1.return)) _a.call(SHIFT_TABLE_1);
+      if (SHIFT_TABLE_1_1 && !SHIFT_TABLE_1_1.done && (_a2 = SHIFT_TABLE_1.return)) _a2.call(SHIFT_TABLE_1);
     } finally {
       if (e_1) throw e_1.error;
     }
@@ -25920,7 +29678,7 @@ function static_SHIFT_TABLE(SHIFT_TABLE2) {
 var SHIFT_TABLE = static_SHIFT_TABLE(Arrays_default.createInt32Array(6, 6));
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/State.js
-var __values41 = function(o) {
+var __values45 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -26006,14 +29764,14 @@ var State = (
       return newModeBitCount <= other.bitCount;
     };
     State2.prototype.toBitArray = function(text) {
-      var e_1, _a;
+      var e_1, _a2;
       var symbols = [];
       for (var token = this.endBinaryShift(text.length).token; token !== null; token = token.getPrevious()) {
         symbols.unshift(token);
       }
       var bitArray = new BitArray_default();
       try {
-        for (var symbols_1 = __values41(symbols), symbols_1_1 = symbols_1.next(); !symbols_1_1.done; symbols_1_1 = symbols_1.next()) {
+        for (var symbols_1 = __values45(symbols), symbols_1_1 = symbols_1.next(); !symbols_1_1.done; symbols_1_1 = symbols_1.next()) {
           var symbol = symbols_1_1.value;
           symbol.appendTo(bitArray, text);
         }
@@ -26021,7 +29779,7 @@ var State = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (symbols_1_1 && !symbols_1_1.done && (_a = symbols_1.return)) _a.call(symbols_1);
+          if (symbols_1_1 && !symbols_1_1.done && (_a2 = symbols_1.return)) _a2.call(symbols_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -26150,7 +29908,7 @@ function static_CHAR_MAP(CHAR_MAP2) {
 var CHAR_MAP = static_CHAR_MAP(Arrays_default.createInt32Array(5, 256));
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/HighLevelEncoder.js
-var __values42 = function(o) {
+var __values46 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -26161,13 +29919,13 @@ var __values42 = function(o) {
   };
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-var HighLevelEncoder = (
+var HighLevelEncoder2 = (
   /** @class */
   function() {
-    function HighLevelEncoder2(text) {
+    function HighLevelEncoder3(text) {
       this.text = text;
     }
-    HighLevelEncoder2.prototype.encode = function() {
+    HighLevelEncoder3.prototype.encode = function() {
       var spaceCharCode = StringUtils_default.getCharCode(" ");
       var lineBreakCharCode = StringUtils_default.getCharCode("\n");
       var states = Collections_default.singletonList(State_default.INITIAL_STATE);
@@ -26191,7 +29949,7 @@ var HighLevelEncoder = (
             pairCode = 0;
         }
         if (pairCode > 0) {
-          states = HighLevelEncoder2.updateStateListForPair(states, index, pairCode);
+          states = HighLevelEncoder3.updateStateListForPair(states, index, pairCode);
           index++;
         } else {
           states = this.updateStateListForChar(states, index);
@@ -26202,11 +29960,11 @@ var HighLevelEncoder = (
       });
       return minState.toBitArray(this.text);
     };
-    HighLevelEncoder2.prototype.updateStateListForChar = function(states, index) {
-      var e_1, _a;
+    HighLevelEncoder3.prototype.updateStateListForChar = function(states, index) {
+      var e_1, _a2;
       var result = [];
       try {
-        for (var states_1 = __values42(states), states_1_1 = states_1.next(); !states_1_1.done; states_1_1 = states_1.next()) {
+        for (var states_1 = __values46(states), states_1_1 = states_1.next(); !states_1_1.done; states_1_1 = states_1.next()) {
           var state = states_1_1.value;
           this.updateStateForChar(state, index, result);
         }
@@ -26214,14 +29972,14 @@ var HighLevelEncoder = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (states_1_1 && !states_1_1.done && (_a = states_1.return)) _a.call(states_1);
+          if (states_1_1 && !states_1_1.done && (_a2 = states_1.return)) _a2.call(states_1);
         } finally {
           if (e_1) throw e_1.error;
         }
       }
-      return HighLevelEncoder2.simplifyStates(result);
+      return HighLevelEncoder3.simplifyStates(result);
     };
-    HighLevelEncoder2.prototype.updateStateForChar = function(state, index, result) {
+    HighLevelEncoder3.prototype.updateStateForChar = function(state, index, result) {
       var ch = this.text[index] & 255;
       var charInCurrentTable = CHAR_MAP[state.getMode()][ch] > 0;
       var stateNoBinary = null;
@@ -26246,11 +30004,11 @@ var HighLevelEncoder = (
         result.push(binaryState);
       }
     };
-    HighLevelEncoder2.updateStateListForPair = function(states, index, pairCode) {
-      var e_2, _a;
+    HighLevelEncoder3.updateStateListForPair = function(states, index, pairCode) {
+      var e_2, _a2;
       var result = [];
       try {
-        for (var states_2 = __values42(states), states_2_1 = states_2.next(); !states_2_1.done; states_2_1 = states_2.next()) {
+        for (var states_2 = __values46(states), states_2_1 = states_2.next(); !states_2_1.done; states_2_1 = states_2.next()) {
           var state = states_2_1.value;
           this.updateStateForPair(state, index, pairCode, result);
         }
@@ -26258,14 +30016,14 @@ var HighLevelEncoder = (
         e_2 = { error: e_2_1 };
       } finally {
         try {
-          if (states_2_1 && !states_2_1.done && (_a = states_2.return)) _a.call(states_2);
+          if (states_2_1 && !states_2_1.done && (_a2 = states_2.return)) _a2.call(states_2);
         } finally {
           if (e_2) throw e_2.error;
         }
       }
       return this.simplifyStates(result);
     };
-    HighLevelEncoder2.updateStateForPair = function(state, index, pairCode, result) {
+    HighLevelEncoder3.updateStateForPair = function(state, index, pairCode, result) {
       var stateNoBinary = state.endBinaryShift(index);
       result.push(stateNoBinary.latchAndAppend(MODE_PUNCT, pairCode));
       if (state.getMode() !== MODE_PUNCT) {
@@ -26280,11 +30038,11 @@ var HighLevelEncoder = (
         result.push(binaryState);
       }
     };
-    HighLevelEncoder2.simplifyStates = function(states) {
-      var e_3, _a, e_4, _b;
+    HighLevelEncoder3.simplifyStates = function(states) {
+      var e_3, _a2, e_4, _b;
       var result = [];
       try {
-        for (var states_3 = __values42(states), states_3_1 = states_3.next(); !states_3_1.done; states_3_1 = states_3.next()) {
+        for (var states_3 = __values46(states), states_3_1 = states_3.next(); !states_3_1.done; states_3_1 = states_3.next()) {
           var newState = states_3_1.value;
           var add2 = true;
           var _loop_1 = function(oldState2) {
@@ -26299,7 +30057,7 @@ var HighLevelEncoder = (
             }
           };
           try {
-            for (var result_1 = (e_4 = void 0, __values42(result)), result_1_1 = result_1.next(); !result_1_1.done; result_1_1 = result_1.next()) {
+            for (var result_1 = (e_4 = void 0, __values46(result)), result_1_1 = result_1.next(); !result_1_1.done; result_1_1 = result_1.next()) {
               var oldState = result_1_1.value;
               var state_1 = _loop_1(oldState);
               if (state_1 === "break")
@@ -26322,20 +30080,20 @@ var HighLevelEncoder = (
         e_3 = { error: e_3_1 };
       } finally {
         try {
-          if (states_3_1 && !states_3_1.done && (_a = states_3.return)) _a.call(states_3);
+          if (states_3_1 && !states_3_1.done && (_a2 = states_3.return)) _a2.call(states_3);
         } finally {
           if (e_3) throw e_3.error;
         }
       }
       return result;
     };
-    return HighLevelEncoder2;
+    return HighLevelEncoder3;
   }()
 );
-var HighLevelEncoder_default = HighLevelEncoder;
+var HighLevelEncoder_default2 = HighLevelEncoder2;
 
 // front/node_modules/@zxing/library/esm/core/aztec/encoder/Encoder.js
-var __values43 = function(o) {
+var __values47 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -26355,7 +30113,7 @@ var Encoder2 = (
       return Encoder3.encode(data, Encoder3.DEFAULT_EC_PERCENT, Encoder3.DEFAULT_AZTEC_LAYERS);
     };
     Encoder3.encode = function(data, minECCPercent, userSpecifiedLayers) {
-      var bits = new HighLevelEncoder_default(data).encode();
+      var bits = new HighLevelEncoder_default2(data).encode();
       var eccBits = Integer_default.truncDivision(bits.getSize() * minECCPercent, 100) + 11;
       var totalSizeBits = bits.getSize() + eccBits;
       var compact;
@@ -26536,7 +30294,7 @@ var Encoder2 = (
       }
     };
     Encoder3.generateCheckWords = function(bitArray, totalBits, wordSize) {
-      var e_1, _a;
+      var e_1, _a2;
       var messageSizeInWords = bitArray.getSize() / wordSize;
       var rs = new ReedSolomonEncoder_default(Encoder3.getGF(wordSize));
       var totalWords = Integer_default.truncDivision(totalBits, wordSize);
@@ -26546,7 +30304,7 @@ var Encoder2 = (
       var messageBits = new BitArray_default();
       messageBits.appendBits(0, startPad);
       try {
-        for (var _b = __values43(Array.from(messageWords)), _c = _b.next(); !_c.done; _c = _b.next()) {
+        for (var _b = __values47(Array.from(messageWords)), _c = _b.next(); !_c.done; _c = _b.next()) {
           var messageWord = _c.value;
           messageBits.appendBits(messageWord, wordSize);
         }
@@ -26554,7 +30312,7 @@ var Encoder2 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          if (_c && !_c.done && (_a2 = _b.return)) _a2.call(_b);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -26720,16 +30478,18 @@ var AztecWriter = (
 );
 
 // front/node_modules/@zxing/browser/esm/common/HTMLCanvasElementLuminanceSource.js
-var __extends69 = /* @__PURE__ */ function() {
+var __extends75 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -26740,15 +30500,21 @@ var __extends69 = /* @__PURE__ */ function() {
 var HTMLCanvasElementLuminanceSource2 = (
   /** @class */
   function(_super) {
-    __extends69(HTMLCanvasElementLuminanceSource3, _super);
+    __extends75(HTMLCanvasElementLuminanceSource3, _super);
     function HTMLCanvasElementLuminanceSource3(canvas) {
       var _this = _super.call(this, canvas.width, canvas.height) || this;
       _this.canvas = canvas;
+      _this.tempCanvasElement = null;
       _this.buffer = HTMLCanvasElementLuminanceSource3.makeBufferFromCanvasImageData(canvas);
       return _this;
     }
     HTMLCanvasElementLuminanceSource3.makeBufferFromCanvasImageData = function(canvas) {
-      var canvasCtx = canvas.getContext("2d");
+      var canvasCtx;
+      try {
+        canvasCtx = canvas.getContext("2d", { willReadFrequently: true });
+      } catch (e) {
+        canvasCtx = canvas.getContext("2d");
+      }
       if (!canvasCtx) {
         throw new Error("Couldn't get canvas context.");
       }
@@ -26835,7 +30601,7 @@ var HTMLCanvasElementLuminanceSource2 = (
       tempCanvasElement.height = newHeight;
       var tempContext = tempCanvasElement.getContext("2d");
       if (!tempContext) {
-        throw new Error("Could not create a Convas Context element.");
+        throw new Error("Could not create a Canvas Context element.");
       }
       tempContext.translate(newWidth / 2, newHeight / 2);
       tempContext.rotate(angleRadians);
@@ -26852,11 +30618,11 @@ var HTMLCanvasElementLuminanceSource2 = (
 function hasNavigator() {
   return typeof navigator !== "undefined";
 }
-function isMediaDevicesSuported() {
+function isMediaDevicesSupported() {
   return hasNavigator() && !!navigator.mediaDevices;
 }
 function canEnumerateDevices() {
-  return !!(isMediaDevicesSuported() && navigator.mediaDevices.enumerateDevices);
+  return !!(isMediaDevicesSupported() && navigator.mediaDevices.enumerateDevices);
 }
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserCodeReader.js
@@ -26967,7 +30733,7 @@ var __generator2 = function(thisArg, body) {
     return { value: op[0] ? op[1] : void 0, done: true };
   }
 };
-var __values44 = function(o) {
+var __values48 = function(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
@@ -27013,13 +30779,13 @@ var BrowserCodeReader2 = (
       try {
         videoElement.srcObject = stream;
       } catch (err) {
-        videoElement.src = URL.createObjectURL(stream);
+        console.error("got interrupted by new loading request");
       }
     };
     BrowserCodeReader3.mediaStreamSetTorch = function(track, onOff) {
       return __awaiter2(this, void 0, void 0, function() {
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, track.applyConstraints({
                 advanced: [{
@@ -27028,7 +30794,7 @@ var BrowserCodeReader2 = (
                 }]
               })];
             case 1:
-              _a.sent();
+              _a2.sent();
               return [
                 2
                 /*return*/
@@ -27038,10 +30804,10 @@ var BrowserCodeReader2 = (
       });
     };
     BrowserCodeReader3.mediaStreamIsTorchCompatible = function(params) {
-      var e_1, _a;
+      var e_1, _a2;
       var tracks = params.getVideoTracks();
       try {
-        for (var tracks_1 = __values44(tracks), tracks_1_1 = tracks_1.next(); !tracks_1_1.done; tracks_1_1 = tracks_1.next()) {
+        for (var tracks_1 = __values48(tracks), tracks_1_1 = tracks_1.next(); !tracks_1_1.done; tracks_1_1 = tracks_1.next()) {
           var track = tracks_1_1.value;
           if (BrowserCodeReader3.mediaStreamIsTorchCompatibleTrack(track)) {
             return true;
@@ -27051,7 +30817,7 @@ var BrowserCodeReader2 = (
         e_1 = { error: e_1_1 };
       } finally {
         try {
-          if (tracks_1_1 && !tracks_1_1.done && (_a = tracks_1.return)) _a.call(tracks_1);
+          if (tracks_1_1 && !tracks_1_1.done && (_a2 = tracks_1.return)) _a2.call(tracks_1);
         } finally {
           if (e_1) throw e_1.error;
         }
@@ -27074,10 +30840,10 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.getMediaElement = function(mediaElementId, type) {
       var mediaElement = document.getElementById(mediaElementId);
       if (!mediaElement) {
-        throw new ArgumentException_default("element with id '" + mediaElementId + "' not found");
+        throw new ArgumentException_default("element with id '".concat(mediaElementId, "' not found"));
       }
       if (mediaElement.nodeName.toLowerCase() !== type.toLowerCase()) {
-        throw new ArgumentException_default("element with id '" + mediaElementId + "' must be an " + type + " element");
+        throw new ArgumentException_default("element with id '".concat(mediaElementId, "' must be an ").concat(type, " element"));
       }
       return mediaElement;
     };
@@ -27148,7 +30914,7 @@ var BrowserCodeReader2 = (
           width: mediaElement.naturalWidth || mediaElement.width
         };
       }
-      throw new Error("Couldn't find the Source's dimentions!");
+      throw new Error("Couldn't find the Source's dimensions!");
     };
     BrowserCodeReader3.createCaptureCanvas = function(mediaElement) {
       if (!mediaElement) {
@@ -27158,7 +30924,7 @@ var BrowserCodeReader2 = (
         throw new Error(`The page "Document" is undefined, make sure you're running in a browser.`);
       }
       var canvasElement = document.createElement("canvas");
-      var _a = BrowserCodeReader3.getMediaElementDimensions(mediaElement), width = _a.width, height = _a.height;
+      var _a2 = BrowserCodeReader3.getMediaElementDimensions(mediaElement), width = _a2.width, height = _a2.height;
       canvasElement.style.width = width + "px";
       canvasElement.style.height = height + "px";
       canvasElement.width = width;
@@ -27168,8 +30934,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.tryPlayVideo = function(videoElement) {
       return __awaiter2(this, void 0, void 0, function() {
         var error_1;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (videoElement === null || videoElement === void 0 ? void 0 : videoElement.ended) {
                 console.error("Trying to play video that has ended.");
@@ -27179,15 +30945,15 @@ var BrowserCodeReader2 = (
                 console.warn("Trying to play video that is already playing.");
                 return [2, true];
               }
-              _a.label = 1;
+              _a2.label = 1;
             case 1:
-              _a.trys.push([1, 3, , 4]);
+              _a2.trys.push([1, 3, , 4]);
               return [4, videoElement.play()];
             case 2:
-              _a.sent();
+              _a2.sent();
               return [2, true];
             case 3:
-              error_1 = _a.sent();
+              error_1 = _a2.sent();
               console.warn("It was not possible to play the video.", error_1);
               return [2, false];
             case 4:
@@ -27220,7 +30986,7 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.listVideoInputDevices = function() {
       return __awaiter2(this, void 0, void 0, function() {
         var devices, videoDevices, devices_1, devices_1_1, device, kind, deviceId, label, groupId, videoDevice;
-        var e_2, _a;
+        var e_2, _a2;
         return __generator2(this, function(_b) {
           switch (_b.label) {
             case 0:
@@ -27235,14 +31001,14 @@ var BrowserCodeReader2 = (
               devices = _b.sent();
               videoDevices = [];
               try {
-                for (devices_1 = __values44(devices), devices_1_1 = devices_1.next(); !devices_1_1.done; devices_1_1 = devices_1.next()) {
+                for (devices_1 = __values48(devices), devices_1_1 = devices_1.next(); !devices_1_1.done; devices_1_1 = devices_1.next()) {
                   device = devices_1_1.value;
                   kind = device.kind === "video" ? "videoinput" : device.kind;
                   if (kind !== "videoinput") {
                     continue;
                   }
                   deviceId = device.deviceId || device.id;
-                  label = device.label || "Video device " + (videoDevices.length + 1);
+                  label = device.label || "Video device ".concat(videoDevices.length + 1);
                   groupId = device.groupId;
                   videoDevice = { deviceId, label, kind, groupId };
                   videoDevices.push(videoDevice);
@@ -27251,7 +31017,7 @@ var BrowserCodeReader2 = (
                 e_2 = { error: e_2_1 };
               } finally {
                 try {
-                  if (devices_1_1 && !devices_1_1.done && (_a = devices_1.return)) _a.call(devices_1);
+                  if (devices_1_1 && !devices_1_1.done && (_a2 = devices_1.return)) _a2.call(devices_1);
                 } finally {
                   if (e_2) throw e_2.error;
                 }
@@ -27264,12 +31030,12 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.findDeviceById = function(deviceId) {
       return __awaiter2(this, void 0, void 0, function() {
         var devices;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, BrowserCodeReader3.listVideoInputDevices()];
             case 1:
-              devices = _a.sent();
+              devices = _a2.sent();
               if (!devices) {
                 return [
                   2
@@ -27296,15 +31062,25 @@ var BrowserCodeReader2 = (
         videoElement.removeAttribute("src");
       }
     };
+    BrowserCodeReader3.releaseAllStreams = function() {
+      if (BrowserCodeReader3.streamTracker.length !== 0) {
+        BrowserCodeReader3.streamTracker.forEach(function(mediaStream) {
+          mediaStream.getTracks().forEach(function(track) {
+            return track.stop();
+          });
+        });
+      }
+      BrowserCodeReader3.streamTracker = [];
+    };
     BrowserCodeReader3.playVideoOnLoadAsync = function(element, timeout) {
       return __awaiter2(this, void 0, void 0, function() {
         var isPlaying;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               return [4, BrowserCodeReader3.tryPlayVideo(element)];
             case 1:
-              isPlaying = _a.sent();
+              isPlaying = _a2.sent();
               if (isPlaying) {
                 return [2, true];
               }
@@ -27335,14 +31111,14 @@ var BrowserCodeReader2 = (
       }
       return __awaiter2(this, void 0, void 0, function() {
         var videoElement;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               videoElement = BrowserCodeReader3.prepareVideoElement(preview);
               BrowserCodeReader3.addVideoSource(videoElement, stream);
               return [4, BrowserCodeReader3.playVideoOnLoadAsync(videoElement, previewPlayTimeout)];
             case 1:
-              _a.sent();
+              _a2.sent();
               return [2, videoElement];
           }
         });
@@ -27391,8 +31167,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeFromImageElement = function(source) {
       return __awaiter2(this, void 0, void 0, function() {
         var element;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (!source) {
                 throw new ArgumentException_default("An image element must be provided.");
@@ -27400,7 +31176,7 @@ var BrowserCodeReader2 = (
               element = BrowserCodeReader3.prepareImageElement(source);
               return [4, this._decodeOnLoadImage(element)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -27408,20 +31184,20 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeFromImageUrl = function(url) {
       return __awaiter2(this, void 0, void 0, function() {
         var element;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (!url) {
                 throw new ArgumentException_default("An URL must be provided.");
               }
               element = BrowserCodeReader3.prepareImageElement();
               element.src = url;
-              _a.label = 1;
+              _a2.label = 1;
             case 1:
-              _a.trys.push([1, , 3, 4]);
+              _a2.trys.push([1, , 3, 4]);
               return [4, this.decodeFromImageElement(element)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
             case 3:
               BrowserCodeReader3.destroyImageElement(element);
               return [
@@ -27440,21 +31216,21 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeFromConstraints = function(constraints, previewElem, callbackFn) {
       return __awaiter2(this, void 0, void 0, function() {
         var stream, error_2;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               BrowserCodeReader3.checkCallbackFnOrThrow(callbackFn);
-              return [4, navigator.mediaDevices.getUserMedia(constraints)];
+              return [4, this.getUserMedia(constraints)];
             case 1:
-              stream = _a.sent();
-              _a.label = 2;
+              stream = _a2.sent();
+              _a2.label = 2;
             case 2:
-              _a.trys.push([2, 4, , 5]);
+              _a2.trys.push([2, 4, , 5]);
               return [4, this.decodeFromStream(stream, previewElem, callbackFn)];
             case 3:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
             case 4:
-              error_2 = _a.sent();
+              error_2 = _a2.sent();
               BrowserCodeReader3.disposeMediaStream(stream);
               throw error_2;
             case 5:
@@ -27468,84 +31244,78 @@ var BrowserCodeReader2 = (
     };
     BrowserCodeReader3.prototype.decodeFromStream = function(stream, preview, callbackFn) {
       return __awaiter2(this, void 0, void 0, function() {
-        var timeout, video, finalizeCallback, originalControls, videoTracks, controls, isTorchAvailable, torchTrack_1, switchTorch_1, stop_1;
+        var timeout, video, finalizeCallback, originalControls, videoTracks, controls, isTorchAvailable, torchTrack_1, switchTorch_1;
         var _this = this;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               BrowserCodeReader3.checkCallbackFnOrThrow(callbackFn);
               timeout = this.options.tryPlayVideoTimeout;
               return [4, BrowserCodeReader3.attachStreamToVideo(stream, preview, timeout)];
             case 1:
-              video = _a.sent();
+              video = _a2.sent();
               finalizeCallback = function() {
                 BrowserCodeReader3.disposeMediaStream(stream);
                 BrowserCodeReader3.cleanVideoSource(video);
               };
               originalControls = this.scan(video, callbackFn, finalizeCallback);
               videoTracks = stream.getVideoTracks();
-              controls = __assign(__assign({}, originalControls), {
-                stop: function() {
-                  originalControls.stop();
-                },
-                streamVideoConstraintsApply: function(constraints, trackFilter) {
-                  return __awaiter2(this, void 0, void 0, function() {
-                    var tracks, tracks_2, tracks_2_1, track, e_3_1;
-                    var e_3, _a2;
-                    return __generator2(this, function(_b) {
-                      switch (_b.label) {
-                        case 0:
-                          tracks = trackFilter ? videoTracks.filter(trackFilter) : videoTracks;
-                          _b.label = 1;
-                        case 1:
-                          _b.trys.push([1, 6, 7, 8]);
-                          tracks_2 = __values44(tracks), tracks_2_1 = tracks_2.next();
-                          _b.label = 2;
-                        case 2:
-                          if (!!tracks_2_1.done) return [3, 5];
-                          track = tracks_2_1.value;
-                          return [4, track.applyConstraints(constraints)];
-                        case 3:
-                          _b.sent();
-                          _b.label = 4;
-                        case 4:
-                          tracks_2_1 = tracks_2.next();
-                          return [3, 2];
-                        case 5:
-                          return [3, 8];
-                        case 6:
-                          e_3_1 = _b.sent();
-                          e_3 = { error: e_3_1 };
-                          return [3, 8];
-                        case 7:
-                          try {
-                            if (tracks_2_1 && !tracks_2_1.done && (_a2 = tracks_2.return)) _a2.call(tracks_2);
-                          } finally {
-                            if (e_3) throw e_3.error;
-                          }
-                          return [
-                            7
-                            /*endfinally*/
-                          ];
-                        case 8:
-                          return [
-                            2
-                            /*return*/
-                          ];
-                      }
-                    });
+              controls = __assign(__assign({}, originalControls), { stop: function() {
+                originalControls.stop();
+              }, streamVideoConstraintsApply: function(constraints, trackFilter) {
+                return __awaiter2(this, void 0, void 0, function() {
+                  var tracks, tracks_2, tracks_2_1, track, e_3_1;
+                  var e_3, _a3;
+                  return __generator2(this, function(_b) {
+                    switch (_b.label) {
+                      case 0:
+                        tracks = trackFilter ? videoTracks.filter(trackFilter) : videoTracks;
+                        _b.label = 1;
+                      case 1:
+                        _b.trys.push([1, 6, 7, 8]);
+                        tracks_2 = __values48(tracks), tracks_2_1 = tracks_2.next();
+                        _b.label = 2;
+                      case 2:
+                        if (!!tracks_2_1.done) return [3, 5];
+                        track = tracks_2_1.value;
+                        return [4, track.applyConstraints(constraints)];
+                      case 3:
+                        _b.sent();
+                        _b.label = 4;
+                      case 4:
+                        tracks_2_1 = tracks_2.next();
+                        return [3, 2];
+                      case 5:
+                        return [3, 8];
+                      case 6:
+                        e_3_1 = _b.sent();
+                        e_3 = { error: e_3_1 };
+                        return [3, 8];
+                      case 7:
+                        try {
+                          if (tracks_2_1 && !tracks_2_1.done && (_a3 = tracks_2.return)) _a3.call(tracks_2);
+                        } finally {
+                          if (e_3) throw e_3.error;
+                        }
+                        return [
+                          7
+                          /*endfinally*/
+                        ];
+                      case 8:
+                        return [
+                          2
+                          /*return*/
+                        ];
+                    }
                   });
-                },
-                streamVideoConstraintsGet: function(trackFilter) {
-                  return videoTracks.find(trackFilter).getConstraints();
-                },
-                streamVideoSettingsGet: function(trackFilter) {
-                  return videoTracks.find(trackFilter).getSettings();
-                },
-                streamVideoCapabilitiesGet: function(trackFilter) {
-                  return videoTracks.find(trackFilter).getCapabilities();
-                }
-              });
+                });
+              }, streamVideoConstraintsGet: function(trackFilter) {
+                return videoTracks.find(trackFilter).getConstraints();
+              }, streamVideoSettingsGet: function(trackFilter) {
+                return videoTracks.find(trackFilter).getSettings();
+              }, streamVideoCapabilitiesGet: function(trackFilter) {
+                return videoTracks.find(trackFilter).getCapabilities();
+              } });
               isTorchAvailable = BrowserCodeReader3.mediaStreamIsTorchCompatible(stream);
               if (isTorchAvailable) {
                 torchTrack_1 = videoTracks === null || videoTracks === void 0 ? void 0 : videoTracks.find(function(t) {
@@ -27553,12 +31323,12 @@ var BrowserCodeReader2 = (
                 });
                 switchTorch_1 = function(onOff) {
                   return __awaiter2(_this, void 0, void 0, function() {
-                    return __generator2(this, function(_a2) {
-                      switch (_a2.label) {
+                    return __generator2(this, function(_a3) {
+                      switch (_a3.label) {
                         case 0:
                           return [4, BrowserCodeReader3.mediaStreamSetTorch(torchTrack_1, onOff)];
                         case 1:
-                          _a2.sent();
+                          _a3.sent();
                           return [
                             2
                             /*return*/
@@ -27568,11 +31338,23 @@ var BrowserCodeReader2 = (
                   });
                 };
                 controls.switchTorch = switchTorch_1;
-                stop_1 = function() {
-                  originalControls.stop();
-                  switchTorch_1(false);
+                controls.stop = function() {
+                  return __awaiter2(_this, void 0, void 0, function() {
+                    return __generator2(this, function(_a3) {
+                      switch (_a3.label) {
+                        case 0:
+                          originalControls.stop();
+                          return [4, switchTorch_1(false)];
+                        case 1:
+                          _a3.sent();
+                          return [
+                            2
+                            /*return*/
+                          ];
+                      }
+                    });
+                  });
                 };
-                controls.stop = stop_1;
               }
               return [2, controls];
           }
@@ -27582,8 +31364,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeFromVideoDevice = function(deviceId, previewElem, callbackFn) {
       return __awaiter2(this, void 0, void 0, function() {
         var videoConstraints, constraints;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               BrowserCodeReader3.checkCallbackFnOrThrow(callbackFn);
               if (!deviceId) {
@@ -27594,7 +31376,7 @@ var BrowserCodeReader2 = (
               constraints = { video: videoConstraints };
               return [4, this.decodeFromConstraints(constraints, previewElem, callbackFn)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -27602,8 +31384,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeFromVideoElement = function(source, callbackFn) {
       return __awaiter2(this, void 0, void 0, function() {
         var element, timeout;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               BrowserCodeReader3.checkCallbackFnOrThrow(callbackFn);
               if (!source) {
@@ -27613,7 +31395,7 @@ var BrowserCodeReader2 = (
               timeout = this.options.tryPlayVideoTimeout;
               return [4, BrowserCodeReader3.playVideoOnLoadAsync(element, timeout)];
             case 1:
-              _a.sent();
+              _a2.sent();
               return [2, this.scan(element, callbackFn)];
           }
         });
@@ -27622,8 +31404,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeFromVideoUrl = function(url, callbackFn) {
       return __awaiter2(this, void 0, void 0, function() {
         var element, finalizeCallback, timeout, controls;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               BrowserCodeReader3.checkCallbackFnOrThrow(callbackFn);
               if (!url) {
@@ -27637,7 +31419,7 @@ var BrowserCodeReader2 = (
               timeout = this.options.tryPlayVideoTimeout;
               return [4, BrowserCodeReader3.playVideoOnLoadAsync(element, timeout)];
             case 1:
-              _a.sent();
+              _a2.sent();
               controls = this.scan(element, callbackFn, finalizeCallback);
               return [2, controls];
           }
@@ -27647,15 +31429,15 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeOnceFromConstraints = function(constraints, videoSource) {
       return __awaiter2(this, void 0, void 0, function() {
         var stream;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
-              return [4, navigator.mediaDevices.getUserMedia(constraints)];
+              return [4, this.getUserMedia(constraints)];
             case 1:
-              stream = _a.sent();
+              stream = _a2.sent();
               return [4, this.decodeOnceFromStream(stream, videoSource)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -27663,19 +31445,19 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeOnceFromStream = function(stream, preview) {
       return __awaiter2(this, void 0, void 0, function() {
         var receivedPreview, video, result;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               receivedPreview = Boolean(preview);
               return [4, BrowserCodeReader3.attachStreamToVideo(stream, preview)];
             case 1:
-              video = _a.sent();
-              _a.label = 2;
+              video = _a2.sent();
+              _a2.label = 2;
             case 2:
-              _a.trys.push([2, , 4, 5]);
+              _a2.trys.push([2, , 4, 5]);
               return [4, this.scanOneResult(video)];
             case 3:
-              result = _a.sent();
+              result = _a2.sent();
               return [2, result];
             case 4:
               if (!receivedPreview) {
@@ -27697,8 +31479,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeOnceFromVideoDevice = function(deviceId, videoSource) {
       return __awaiter2(this, void 0, void 0, function() {
         var videoConstraints, constraints;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (!deviceId) {
                 videoConstraints = { facingMode: "environment" };
@@ -27708,7 +31490,7 @@ var BrowserCodeReader2 = (
               constraints = { video: videoConstraints };
               return [4, this.decodeOnceFromConstraints(constraints, videoSource)];
             case 1:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -27716,8 +31498,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeOnceFromVideoElement = function(source) {
       return __awaiter2(this, void 0, void 0, function() {
         var element, timeout;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (!source) {
                 throw new ArgumentException_default("A video element must be provided.");
@@ -27726,10 +31508,10 @@ var BrowserCodeReader2 = (
               timeout = this.options.tryPlayVideoTimeout;
               return [4, BrowserCodeReader3.playVideoOnLoadAsync(element, timeout)];
             case 1:
-              _a.sent();
+              _a2.sent();
               return [4, this.scanOneResult(element)];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
           }
         });
       });
@@ -27737,8 +31519,8 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype.decodeOnceFromVideoUrl = function(url) {
       return __awaiter2(this, void 0, void 0, function() {
         var element, task;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               if (!url) {
                 throw new ArgumentException_default("An URL must be provided.");
@@ -27746,12 +31528,12 @@ var BrowserCodeReader2 = (
               element = BrowserCodeReader3.prepareVideoElement();
               element.src = url;
               task = this.decodeOnceFromVideoElement(element);
-              _a.label = 1;
+              _a2.label = 1;
             case 1:
-              _a.trys.push([1, , 3, 4]);
+              _a2.trys.push([1, , 3, 4]);
               return [4, task];
             case 2:
-              return [2, _a.sent()];
+              return [2, _a2.sent()];
             case 3:
               BrowserCodeReader3.cleanVideoSource(element);
               return [
@@ -27805,7 +31587,12 @@ var BrowserCodeReader2 = (
       var _this = this;
       BrowserCodeReader3.checkCallbackFnOrThrow(callbackFn);
       var captureCanvas = BrowserCodeReader3.createCaptureCanvas(element);
-      var captureCanvasContext = captureCanvas.getContext("2d");
+      var captureCanvasContext;
+      try {
+        captureCanvasContext = captureCanvas.getContext("2d", { willReadFrequently: true });
+      } catch (e) {
+        captureCanvasContext = captureCanvas.getContext("2d");
+      }
       if (!captureCanvasContext) {
         throw new Error("Couldn't create canvas for visual element scan.");
       }
@@ -27854,36 +31641,54 @@ var BrowserCodeReader2 = (
     BrowserCodeReader3.prototype._decodeOnLoadImage = function(element) {
       return __awaiter2(this, void 0, void 0, function() {
         var isImageLoaded;
-        return __generator2(this, function(_a) {
-          switch (_a.label) {
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
             case 0:
               isImageLoaded = BrowserCodeReader3.isImageLoaded(element);
               if (!!isImageLoaded) return [3, 2];
               return [4, BrowserCodeReader3._waitImageLoad(element)];
             case 1:
-              _a.sent();
-              _a.label = 2;
+              _a2.sent();
+              _a2.label = 2;
             case 2:
               return [2, this.decode(element)];
           }
         });
       });
     };
+    BrowserCodeReader3.prototype.getUserMedia = function(constraints) {
+      return __awaiter2(this, void 0, void 0, function() {
+        var stream;
+        return __generator2(this, function(_a2) {
+          switch (_a2.label) {
+            case 0:
+              return [4, navigator.mediaDevices.getUserMedia(constraints)];
+            case 1:
+              stream = _a2.sent();
+              BrowserCodeReader3.streamTracker.push(stream);
+              return [2, stream];
+          }
+        });
+      });
+    };
+    BrowserCodeReader3.streamTracker = [];
     return BrowserCodeReader3;
   }()
 );
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserAztecCodeReader.js
-var __extends70 = /* @__PURE__ */ function() {
+var __extends76 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -27894,7 +31699,7 @@ var __extends70 = /* @__PURE__ */ function() {
 var BrowserAztecCodeReader2 = (
   /** @class */
   function(_super) {
-    __extends70(BrowserAztecCodeReader3, _super);
+    __extends76(BrowserAztecCodeReader3, _super);
     function BrowserAztecCodeReader3(hints, options) {
       return _super.call(this, new AztecReader_default(), hints, options) || this;
     }
@@ -27903,16 +31708,18 @@ var BrowserAztecCodeReader2 = (
 );
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserMultiFormatOneDReader.js
-var __extends71 = /* @__PURE__ */ function() {
+var __extends77 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -27923,7 +31730,7 @@ var __extends71 = /* @__PURE__ */ function() {
 var BrowserMultiFormatOneDReader = (
   /** @class */
   function(_super) {
-    __extends71(BrowserMultiFormatOneDReader2, _super);
+    __extends77(BrowserMultiFormatOneDReader2, _super);
     function BrowserMultiFormatOneDReader2(hints, options) {
       return _super.call(this, new MultiFormatOneDReader_default(hints), hints, options) || this;
     }
@@ -27932,16 +31739,18 @@ var BrowserMultiFormatOneDReader = (
 );
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserDatamatrixCodeReader.js
-var __extends72 = /* @__PURE__ */ function() {
+var __extends78 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -27952,7 +31761,7 @@ var __extends72 = /* @__PURE__ */ function() {
 var BrowserDatamatrixCodeReader2 = (
   /** @class */
   function(_super) {
-    __extends72(BrowserDatamatrixCodeReader3, _super);
+    __extends78(BrowserDatamatrixCodeReader3, _super);
     function BrowserDatamatrixCodeReader3(hints, options) {
       return _super.call(this, new DataMatrixReader_default(), hints, options) || this;
     }
@@ -27961,16 +31770,18 @@ var BrowserDatamatrixCodeReader2 = (
 );
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserMultiFormatReader.js
-var __extends73 = /* @__PURE__ */ function() {
+var __extends79 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -27981,7 +31792,7 @@ var __extends73 = /* @__PURE__ */ function() {
 var BrowserMultiFormatReader2 = (
   /** @class */
   function(_super) {
-    __extends73(BrowserMultiFormatReader3, _super);
+    __extends79(BrowserMultiFormatReader3, _super);
     function BrowserMultiFormatReader3(hints, options) {
       var _this = this;
       var reader = new MultiFormatReader_default();
@@ -28010,16 +31821,18 @@ var BrowserMultiFormatReader2 = (
 );
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserPDF417Reader.js
-var __extends74 = /* @__PURE__ */ function() {
+var __extends80 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -28030,7 +31843,7 @@ var __extends74 = /* @__PURE__ */ function() {
 var BrowserPDF417Reader2 = (
   /** @class */
   function(_super) {
-    __extends74(BrowserPDF417Reader3, _super);
+    __extends80(BrowserPDF417Reader3, _super);
     function BrowserPDF417Reader3(hints, options) {
       return _super.call(this, new PDF417Reader_default(), hints, options) || this;
     }
@@ -28039,16 +31852,18 @@ var BrowserPDF417Reader2 = (
 );
 
 // front/node_modules/@zxing/browser/esm/readers/BrowserQRCodeReader.js
-var __extends75 = /* @__PURE__ */ function() {
+var __extends81 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2) if (b2.hasOwnProperty(p)) d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
   return function(d, b) {
+    if (typeof b !== "function" && b !== null)
+      throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() {
       this.constructor = d;
@@ -28059,7 +31874,7 @@ var __extends75 = /* @__PURE__ */ function() {
 var BrowserQRCodeReader2 = (
   /** @class */
   function(_super) {
-    __extends75(BrowserQRCodeReader3, _super);
+    __extends81(BrowserQRCodeReader3, _super);
     function BrowserQRCodeReader3(hints, options) {
       return _super.call(this, new QRCodeReader_default(), hints, options) || this;
     }
@@ -28076,7 +31891,7 @@ var BrowserCodeSvgWriter = (
       if (typeof containerElement === "string") {
         var container = document.getElementById(containerElement);
         if (!container) {
-          throw new Error("Could not find a Container element with '" + containerElement + "'.");
+          throw new Error("Could not find a Container element with '".concat(containerElement, "'."));
         }
         this.containerElement = container;
       } else {
@@ -28102,7 +31917,7 @@ var BrowserCodeSvgWriter = (
     };
     BrowserCodeSvgWriter2.prototype.createSvgPathPlaceholderElement = function(w, h) {
       var el = document.createElementNS(BrowserCodeSvgWriter2.SVG_NS, "path");
-      el.setAttributeNS(svgNs, "d", "M0 0h" + w + "v" + h + "H0z");
+      el.setAttributeNS(svgNs, "d", "M0 0h".concat(w, "v").concat(h, "H0z"));
       el.setAttributeNS(svgNs, "fill", "none");
       return el;
     };
@@ -28226,8 +32041,11 @@ var BrowserQRCodeSvgWriter2 = (
     };
     BrowserQRCodeSvgWriter3.prototype.createSVGElement = function(w, h) {
       var svgElement = document.createElementNS(svgNs2, "svg");
-      svgElement.setAttribute("height", w.toString());
-      svgElement.setAttribute("width", h.toString());
+      var width = w.toString();
+      var height = h.toString();
+      svgElement.setAttribute("height", height);
+      svgElement.setAttribute("width", width);
+      svgElement.setAttribute("viewBox", "0 0 " + width + " " + height);
       return svgElement;
     };
     BrowserQRCodeSvgWriter3.prototype.createSvgRectElement = function(x, y, w, h) {
@@ -28256,4 +32074,4 @@ export {
   BrowserQRCodeSvgWriter2 as BrowserQRCodeSvgWriter,
   HTMLCanvasElementLuminanceSource2 as HTMLCanvasElementLuminanceSource
 };
-//# sourceMappingURL=esm-NUDK3WF7.js.map
+//# sourceMappingURL=esm-PWM52CDK.js.map

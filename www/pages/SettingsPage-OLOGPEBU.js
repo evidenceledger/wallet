@@ -1,4 +1,4 @@
-import "../chunks/chunk-WYI3LR6R.js";
+import "../chunks/chunk-SQXV5JUG.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/SettingsPage.js
@@ -42,4 +42,4 @@ var mainPage = html`
       </ion-item>
    </ion-card>
 `;
-//# sourceMappingURL=SettingsPage-OA2AEHSF.js.map
+//# sourceMappingURL=SettingsPage-OLOGPEBU.js.map

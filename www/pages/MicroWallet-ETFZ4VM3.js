@@ -1,10 +1,10 @@
 import {
   credentialsSave
-} from "../chunks/chunk-RXHT3X2B.js";
+} from "../chunks/chunk-LSEA562B.js";
 import {
   decodeUnsafeJWT,
   renderAnyCredentialCard
-} from "../chunks/chunk-WYI3LR6R.js";
+} from "../chunks/chunk-SQXV5JUG.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/components/crypto_ec.js
@@ -356,7 +356,7 @@ async function pasteImage() {
       }
       const blob = await item.getType("image/png");
       var destinationImage = URL.createObjectURL(blob);
-      const zxing = await import("../chunks/esm-NUDK3WF7.js");
+      const zxing = await import("../chunks/esm-PWM52CDK.js");
       const zxingReader = new zxing.BrowserQRCodeReader();
       const resultImage = await zxingReader.decodeFromImageUrl(destinationImage);
       mylog(resultImage.getText());
@@ -403,4 +403,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-JVJOTNKL.js.map
+//# sourceMappingURL=MicroWallet-ETFZ4VM3.js.map

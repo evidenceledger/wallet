@@ -1,6 +1,6 @@
 import {
   html
-} from "../chunks/chunk-THCKPUYZ.js";
+} from "../chunks/chunk-K7R3KOTQ.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/SWNotify.js
@@ -38,4 +38,4 @@ window.MHR.register("SWNotify", class SWNotify extends window.MHR.AbstractPage {
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=SWNotify-BFGJT5Z3.js.map
+//# sourceMappingURL=SWNotify-7VTD2HKH.js.map
