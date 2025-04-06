@@ -21,8 +21,8 @@
 
 
 .mobile-centered {
-  margin: auto;
-  max-width: 600px;
+  margin: auto!important;
+  max-width: 576px!important;
 }
 
 .half-centered {
