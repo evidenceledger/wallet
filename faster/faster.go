@@ -269,7 +269,7 @@ func postprocess(r api.BuildResult, config *Config) error {
 	// Build an array with the relative path of the main entrypoints
 	var entryPoints []string
 	for _, k := range config.EntryPoints {
-		entryPoints = append(entryPoints, filepath.Join(sourceDir, k))
+		entryPoints = append(entryPoints, path.Join(sourceDir, k))
 	}
 
 	// Get a map of the source entrypoints full path, by getting the list in the config file
@@ -343,10 +343,10 @@ func postprocess(r api.BuildResult, config *Config) error {
 		if pageSourceFileNames[outEntryPoint] {
 
 			// Get the page pageName (the pageName of the file without path or extension)
-			pageName := strings.TrimSuffix(filepath.Base(outEntryPoint), filepath.Ext(filepath.Base(outEntryPoint)))
+			pageName := strings.TrimSuffix(path.Base(outEntryPoint), path.Ext(path.Base(outEntryPoint)))
 
 			// Get the path of the file in the output, relative to the target directory for serving the file
-			targetPageFilePath := filepath.Join(targetFullDir, outFileBaseName)
+			targetPageFilePath := path.Join(targetFullDir, outFileBaseName)
 
 			// Add an entry in the page mapping
 			pageNamesMapping[pageName] = targetPageFilePath
@@ -414,7 +414,7 @@ func buildDeps(config *Config) api.BuildResult {
 func pageEntryPointsAsMap(config *Config) map[string]bool {
 
 	// The directory where the pages are located
-	pageDir := filepath.Join(config.Sourcedir, config.PageDir)
+	pageDir := path.Join(config.Sourcedir, config.PageDir)
 
 	// Get the files in the directory
 	files, err := os.ReadDir(pageDir)
@@ -425,7 +425,7 @@ func pageEntryPointsAsMap(config *Config) map[string]bool {
 	// Create the list of pages with the full path (relative to the sourcedir directory)
 	pageMap := map[string]bool{}
 	for _, file := range files {
-		pageMap[filepath.Join(pageDir, file.Name())] = true
+		pageMap[path.Join(pageDir, file.Name())] = true
 	}
 
 	return pageMap

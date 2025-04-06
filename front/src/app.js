@@ -50,6 +50,7 @@ const fullPath = parsedUrl.pathname;
 console.log("Fullpath of app:", fullPath);
 const basePath = fullPath.substring(0, fullPath.lastIndexOf("/"));
 console.log("Base path:", basePath);
+debugger
 
 // Prepend the base path of the application to each page module name
 // We do it only if the base path contains more than a '/', which means we are running under a base path
