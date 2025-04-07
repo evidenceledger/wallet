@@ -19,7 +19,7 @@ var debug = localStorage.getItem("MHRdebug") == "true";
 
 // Make all requests via the server instead of from the JavaScript client
 const viaServer = "https://wallet.mycredential.eu/serverhandler";
-var proxyIssuer = true
+var proxyIssuer = true;
 
 // We will perform SIOP/OpenID4VP Authentication flow
 MHR.register(
@@ -37,8 +37,7 @@ MHR.register(
        */
       async enter(openIdUrl) {
          let html = this.html;
-         proxyIssuer = (localStorage.getItem("proxyIssuer") == "true");
-
+         proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
 
          if (debug) {
             alert(`SelectCredential: ${openIdUrl}`);
@@ -251,7 +250,7 @@ MHR.register(
 
             ${credentials.map(
                (cred) =>
-                  html`${vcToHtml(
+                  html`${this.vcToHtml(
                      cred,
                      ar.nonce,
                      ar.response_uri,
@@ -262,129 +261,138 @@ MHR.register(
          `;
          this.render(theHtml);
       }
+
+      // Render the credential with buttons so the user can select it for authentication
+      vcToHtml(cc, nonce, response_uri, state, webAuthnSupported) {
+         // TODO: retrieve the holder and its private key from DB
+
+         // Get the holder that will present the credential
+         // We get this from the credential subject
+         mylog("in VCToHTML");
+         const vc = cc.decoded;
+         mylog(vc);
+         const holder = vc.credentialSubject?.mandate?.mandatee?.id;
+         mylog("holder:", holder);
+
+         // A Verifiable Presentation can send more than one credential. We only send one.
+         var credentials = [cc.encoded];
+
+         // Each credential has a button to allow the user to send it to the Verifier
+         const div = html`
+            <ion-card>
+               ${renderAnyCredentialCard(vc)}
+
+               <div class="ion-margin-start ion-margin-bottom">
+                  <ion-button @click=${() => MHR.cleanReload()}>
+                     <ion-icon slot="start" name="chevron-back"></ion-icon>
+                     ${T("Cancel")}
+                  </ion-button>
+
+                  <ion-button
+                     @click=${(e) =>
+                        this.sendAuthenticationResponse(
+                           e,
+                           holder,
+                           response_uri,
+                           credentials,
+                           state,
+                           nonce,
+                           webAuthnSupported
+                        )}
+                  >
+                     <ion-icon slot="start" name="paper-plane"></ion-icon>
+                     ${T("Send Credential")}
+                  </ion-button>
+               </div>
+            </ion-card>
+         `;
+
+         return div;
+      }
+
+      // sendAuthenticationResponse prepares an Authentication Response and sends it to the server as specified in the endpoint
+      async sendAuthenticationResponse(
+         e,
+         holder,
+         response_uri,
+         credentials,
+         state,
+         nonce,
+         webAuthnSupported
+      ) {
+         e.preventDefault();
+         debugger;
+
+         var domedid = localStorage.getItem("domedid");
+         domedid = JSON.parse(domedid);
+
+         const endpointURL = new URL(response_uri);
+         const origin = endpointURL.origin;
+
+         mylog("sending AuthenticationResponse to:", response_uri);
+
+         const uuid = globalThis.crypto.randomUUID();
+         const now = Math.floor(Date.now() / 1000);
+
+         const didIdentifier = holder.substring("did:key:".length);
+
+         var jwtHeaders = {
+            kid: holder + "#" + didIdentifier,
+            typ: "JWT",
+            alg: "ES256",
+         };
+
+         // Create the vp_token structure
+         var vpClaim = {
+            context: ["https://www.w3.org/ns/credentials/v2"],
+            type: ["VerifiablePresentation"],
+            id: uuid,
+            verifiableCredential: credentials,
+            holder: holder,
+         };
+
+         var vp_token_payload = {
+            jti: uuid,
+            sub: holder,
+            aud: "https://self-issued.me/v2",
+            iat: now,
+            nbf: now,
+            exp: now + 480,
+            iss: holder,
+            nonce: nonce,
+            vp: vpClaim,
+         };
+
+         const jwt = await signJWT(jwtHeaders, vp_token_payload, domedid.privateKey);
+         const vp_token = Base64.encodeURI(jwt);
+         mylog("The encoded vpToken ", vp_token);
+
+         // var formBody =
+         //    "vp_token=" +
+         //    vp_token +
+         //    "&state=" +
+         //    state +
+         //    "&presentation_submission=" +
+         //    Base64.encodeURI(JSON.stringify(presentationSubmissionJSON()));
+         var formBody = "vp_token=" + vp_token + "&state=" + state;
+         mylog(formBody);
+
+         debugger;
+         try {
+            const response = await doPOST(
+               response_uri,
+               formBody,
+               "application/x-www-form-urlencoded"
+            );
+            await gotoPage("AuthenticationResponseSuccess");
+         } catch (error) {
+            myerror(error);
+            this.showError("Error authenticating", error.message);
+         }
+         return;
+      }
    }
 );
-
-// Render the credential with buttons so the user can select it for authentication
-function vcToHtml(cc, nonce, response_uri, state, webAuthnSupported) {
-   // TODO: retrieve the holder and its private key from DB
-
-   // Get the holder that will present the credential
-   // We get this from the credential subject
-   mylog("in VCToHTML");
-   const vc = cc.decoded;
-   mylog(vc);
-   const holder = vc.credentialSubject?.mandate?.mandatee?.id;
-   mylog("holder:", holder);
-
-   // A Verifiable Presentation can send more than one credential. We only send one.
-   var credentials = [cc.encoded];
-
-   // Each credential has a button to allow the user to send it to the Verifier
-   const div = html`
-      <ion-card>
-         ${renderAnyCredentialCard(vc)}
-
-         <div class="ion-margin-start ion-margin-bottom">
-            <ion-button @click=${() => MHR.cleanReload()}>
-               <ion-icon slot="start" name="chevron-back"></ion-icon>
-               ${T("Cancel")}
-            </ion-button>
-
-            <ion-button
-               @click=${(e) =>
-                  sendAuthenticationResponse(
-                     e,
-                     holder,
-                     response_uri,
-                     credentials,
-                     state,
-                     nonce,
-                     webAuthnSupported
-                  )}
-            >
-               <ion-icon slot="start" name="paper-plane"></ion-icon>
-               ${T("Send Credential")}
-            </ion-button>
-         </div>
-      </ion-card>
-   `;
-
-   return div;
-}
-
-// sendAuthenticationResponse prepares an Authentication Response and sends it to the server as specified in the endpoint
-async function sendAuthenticationResponse(
-   e,
-   holder,
-   response_uri,
-   credentials,
-   state,
-   nonce,
-   webAuthnSupported
-) {
-   e.preventDefault();
-   debugger
-
-   var domedid = localStorage.getItem("domedid");
-   domedid = JSON.parse(domedid);
-
-   const endpointURL = new URL(response_uri);
-   const origin = endpointURL.origin;
-
-   mylog("sending AuthenticationResponse to:", response_uri);
-
-   const uuid = globalThis.crypto.randomUUID();
-   const now = Math.floor(Date.now() / 1000);
-
-   const didIdentifier = holder.substring("did:key:".length);
-
-   var jwtHeaders = {
-      kid: holder + "#" + didIdentifier,
-      typ: "JWT",
-      alg: "ES256",
-   };
-
-   // Create the vp_token structure
-   var vpClaim = {
-      context: ["https://www.w3.org/ns/credentials/v2"],
-      type: ["VerifiablePresentation"],
-      id: uuid,
-      verifiableCredential: credentials,
-      holder: holder,
-   };
-
-   var vp_token_payload = {
-      jti: uuid,
-      sub: holder,
-      aud: "https://self-issued.me/v2",
-      iat: now,
-      nbf: now,
-      exp: now + 480,
-      iss: holder,
-      nonce: nonce,
-      vp: vpClaim,
-   };
-
-   const jwt = await signJWT(jwtHeaders, vp_token_payload, domedid.privateKey);
-   const vp_token = Base64.encodeURI(jwt);
-   mylog("The encoded vpToken ", vp_token);
-
-   // var formBody =
-   //    "vp_token=" +
-   //    vp_token +
-   //    "&state=" +
-   //    state +
-   //    "&presentation_submission=" +
-   //    Base64.encodeURI(JSON.stringify(presentationSubmissionJSON()));
-   var formBody = "vp_token=" + vp_token + "&state=" + state;
-   mylog(formBody);
-
-   debugger;
-   const response = await doPOST(response_uri, formBody, "application/x-www-form-urlencoded");
-   await gotoPage("AuthenticationResponseSuccess");
-   return;
-}
 
 window.MHR.register(
    "AuthenticationResponseSuccess",
@@ -750,9 +758,10 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
       } catch (error) {
          return;
       }
+   } else if (response.status == 401) {
+      throw new Error("Unauthorized");
    } else {
-      const errormsg = `doPOST ${serverURL}: ${response.status}`;
-      myerror(errormsg, body);
-      throw new Error(errormsg);
+      myerror(`Error in request to server (${serverURL}): ${response.statusText}`, body);
+      throw new Error("Error in request to server");
    }
 }

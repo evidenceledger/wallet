@@ -339,7 +339,7 @@ MHR.register(
             </ion-card>
 
             ${credentials.map(
-        (cred) => html`${vcToHtml(
+        (cred) => html`${this.vcToHtml(
           cred,
           ar.nonce,
           ar.response_uri,
@@ -350,88 +350,99 @@ MHR.register(
          `;
       this.render(theHtml);
     }
+    // Render the credential with buttons so the user can select it for authentication
+    vcToHtml(cc, nonce, response_uri, state, webAuthnSupported) {
+      mylog("in VCToHTML");
+      const vc = cc.decoded;
+      mylog(vc);
+      const holder = vc.credentialSubject?.mandate?.mandatee?.id;
+      mylog("holder:", holder);
+      var credentials = [cc.encoded];
+      const div = html`
+            <ion-card>
+               ${renderAnyCredentialCard(vc)}
+
+               <div class="ion-margin-start ion-margin-bottom">
+                  <ion-button @click=${() => MHR.cleanReload()}>
+                     <ion-icon slot="start" name="chevron-back"></ion-icon>
+                     ${T("Cancel")}
+                  </ion-button>
+
+                  <ion-button
+                     @click=${(e) => this.sendAuthenticationResponse(
+        e,
+        holder,
+        response_uri,
+        credentials,
+        state,
+        nonce,
+        webAuthnSupported
+      )}
+                  >
+                     <ion-icon slot="start" name="paper-plane"></ion-icon>
+                     ${T("Send Credential")}
+                  </ion-button>
+               </div>
+            </ion-card>
+         `;
+      return div;
+    }
+    // sendAuthenticationResponse prepares an Authentication Response and sends it to the server as specified in the endpoint
+    async sendAuthenticationResponse(e, holder, response_uri, credentials, state, nonce, webAuthnSupported) {
+      e.preventDefault();
+      debugger;
+      var domedid = localStorage.getItem("domedid");
+      domedid = JSON.parse(domedid);
+      const endpointURL = new URL(response_uri);
+      const origin = endpointURL.origin;
+      mylog("sending AuthenticationResponse to:", response_uri);
+      const uuid = globalThis.crypto.randomUUID();
+      const now = Math.floor(Date.now() / 1e3);
+      const didIdentifier = holder.substring("did:key:".length);
+      var jwtHeaders = {
+        kid: holder + "#" + didIdentifier,
+        typ: "JWT",
+        alg: "ES256"
+      };
+      var vpClaim = {
+        context: ["https://www.w3.org/ns/credentials/v2"],
+        type: ["VerifiablePresentation"],
+        id: uuid,
+        verifiableCredential: credentials,
+        holder
+      };
+      var vp_token_payload = {
+        jti: uuid,
+        sub: holder,
+        aud: "https://self-issued.me/v2",
+        iat: now,
+        nbf: now,
+        exp: now + 480,
+        iss: holder,
+        nonce,
+        vp: vpClaim
+      };
+      const jwt = await signJWT(jwtHeaders, vp_token_payload, domedid.privateKey);
+      const vp_token = gBase64.encodeURI(jwt);
+      mylog("The encoded vpToken ", vp_token);
+      var formBody = "vp_token=" + vp_token + "&state=" + state;
+      mylog(formBody);
+      debugger;
+      try {
+        const response = await doPOST(
+          response_uri,
+          formBody,
+          "application/x-www-form-urlencoded"
+        );
+        await gotoPage("AuthenticationResponseSuccess");
+      } catch (error) {
+        myerror(error);
+        this.showError("Error authenticating", error.message);
+      }
+      return;
+    }
   }
 );
-function vcToHtml(cc, nonce, response_uri, state, webAuthnSupported) {
-  mylog("in VCToHTML");
-  const vc = cc.decoded;
-  mylog(vc);
-  const holder = vc.credentialSubject?.mandate?.mandatee?.id;
-  mylog("holder:", holder);
-  var credentials = [cc.encoded];
-  const div = html`
-      <ion-card>
-         ${renderAnyCredentialCard(vc)}
-
-         <div class="ion-margin-start ion-margin-bottom">
-            <ion-button @click=${() => MHR.cleanReload()}>
-               <ion-icon slot="start" name="chevron-back"></ion-icon>
-               ${T("Cancel")}
-            </ion-button>
-
-            <ion-button
-               @click=${(e) => sendAuthenticationResponse(
-    e,
-    holder,
-    response_uri,
-    credentials,
-    state,
-    nonce,
-    webAuthnSupported
-  )}
-            >
-               <ion-icon slot="start" name="paper-plane"></ion-icon>
-               ${T("Send Credential")}
-            </ion-button>
-         </div>
-      </ion-card>
-   `;
-  return div;
-}
-async function sendAuthenticationResponse(e, holder, response_uri, credentials, state, nonce, webAuthnSupported) {
-  e.preventDefault();
-  debugger;
-  var domedid = localStorage.getItem("domedid");
-  domedid = JSON.parse(domedid);
-  const endpointURL = new URL(response_uri);
-  const origin = endpointURL.origin;
-  mylog("sending AuthenticationResponse to:", response_uri);
-  const uuid = globalThis.crypto.randomUUID();
-  const now = Math.floor(Date.now() / 1e3);
-  const didIdentifier = holder.substring("did:key:".length);
-  var jwtHeaders = {
-    kid: holder + "#" + didIdentifier,
-    typ: "JWT",
-    alg: "ES256"
-  };
-  var vpClaim = {
-    context: ["https://www.w3.org/ns/credentials/v2"],
-    type: ["VerifiablePresentation"],
-    id: uuid,
-    verifiableCredential: credentials,
-    holder
-  };
-  var vp_token_payload = {
-    jti: uuid,
-    sub: holder,
-    aud: "https://self-issued.me/v2",
-    iat: now,
-    nbf: now,
-    exp: now + 480,
-    iss: holder,
-    nonce,
-    vp: vpClaim
-  };
-  const jwt = await signJWT(jwtHeaders, vp_token_payload, domedid.privateKey);
-  const vp_token = gBase64.encodeURI(jwt);
-  mylog("The encoded vpToken ", vp_token);
-  var formBody = "vp_token=" + vp_token + "&state=" + state;
-  mylog(formBody);
-  debugger;
-  const response = await doPOST(response_uri, formBody, "application/x-www-form-urlencoded");
-  await gotoPage("AuthenticationResponseSuccess");
-  return;
-}
 window.MHR.register(
   "AuthenticationResponseSuccess",
   class extends window.MHR.AbstractPage {
@@ -517,10 +528,11 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     } catch (error) {
       return;
     }
+  } else if (response.status == 401) {
+    throw new Error("Unauthorized");
   } else {
-    const errormsg = `doPOST ${serverURL}: ${response.status}`;
-    myerror(errormsg, body);
-    throw new Error(errormsg);
+    myerror(`Error in request to server (${serverURL}): ${response.statusText}`, body);
+    throw new Error("Error in request to server");
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage-PVKQP53W.js.map
+//# sourceMappingURL=AuthenticationRequestPage-ONDTLH6P.js.map
