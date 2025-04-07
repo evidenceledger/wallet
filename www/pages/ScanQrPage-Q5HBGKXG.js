@@ -99,16 +99,17 @@ MHR.register(
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia(constraints);
+        mylog("getUserMedia stream", stream);
         let videoTracks = stream.getVideoTracks();
         for (let i = 0; i < videoTracks.length; i++) {
           let caps = videoTracks[i].getCapabilities();
-          mylog(caps);
+          mylog("videotrack capabilities", caps);
         }
         this.videoElement.current.setAttribute("autoplay", "true");
         this.videoElement.current.setAttribute("muted", "true");
         this.videoElement.current.setAttribute("playsinline", "true");
         this.videoElement.current.srcObject = stream;
-        mylog(stream);
+        this.videoElement.current.style.display = "block";
       } catch (error) {
         log.error("Error getting stream", error);
         window.MHR.gotoPage("ErrorPage", {
@@ -146,13 +147,14 @@ MHR.register(
     }
     // canPlay is called when the video element is ready, so we can start detecting QR codes
     async canPlay() {
-      mylog("Video can play, try to detect QR");
+      mylog("Video can play event fired, try to detect QR");
       this.videoElement.current.style.display = "block";
       this.videoElement.current.play();
       this.detectCode();
     }
     // Detect code function
     async detectCode() {
+      mylog("detectCode method on ScanQrPage");
       let qrType = QR_UNKNOWN;
       let qrData;
       if (this.nativeBarcodeDetector) {
@@ -224,12 +226,16 @@ MHR.register(
       }
     }
     async exit() {
+      mylog("Exit method on ScanQrPage");
       if (!this.videoElement.current) {
+        mylog("No video element found");
         return;
       }
       this.videoElement.current.style.display = "none";
       if (this.videoElement.current.srcObject !== void 0) {
+        mylog("releasing resources");
         this.videoElement.current.srcObject.getVideoTracks().forEach((track) => {
+          mylog("releasing track");
           track.stop();
         });
       }
@@ -466,4 +472,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-FHEO772S.js.map
+//# sourceMappingURL=ScanQrPage-Q5HBGKXG.js.map

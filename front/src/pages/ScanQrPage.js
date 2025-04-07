@@ -120,10 +120,11 @@ MHR.register(
          try {
             // Request a stream which forces the system to ask permission to the user
             stream = await navigator.mediaDevices.getUserMedia(constraints);
+            mylog("getUserMedia stream", stream);
             let videoTracks = stream.getVideoTracks();
             for (let i = 0; i < videoTracks.length; i++) {
                let caps = videoTracks[i].getCapabilities();
-               mylog(caps);
+               mylog("videotrack capabilities", caps);
             }
 
             // Assign the camera stream to the video element in the page
@@ -132,7 +133,8 @@ MHR.register(
             this.videoElement.current.setAttribute("muted", "true");
             this.videoElement.current.setAttribute("playsinline", "true");
             this.videoElement.current.srcObject = stream;
-            mylog(stream);
+
+            this.videoElement.current.style.display = "block";
          } catch (error) {
             log.error("Error getting stream", error);
             window.MHR.gotoPage("ErrorPage", {
@@ -181,7 +183,7 @@ MHR.register(
 
       // canPlay is called when the video element is ready, so we can start detecting QR codes
       async canPlay() {
-         mylog("Video can play, try to detect QR");
+         mylog("Video can play event fired, try to detect QR");
          // The video stream is ready, show the 'video' element
          this.videoElement.current.style.display = "block";
 
@@ -194,6 +196,7 @@ MHR.register(
 
       // Detect code function
       async detectCode() {
+         mylog("detectCode method on ScanQrPage")
          let qrType = QR_UNKNOWN;
          let qrData;
 
@@ -297,7 +300,9 @@ MHR.register(
       }
 
       async exit() {
+         mylog("Exit method on ScanQrPage")
          if (!this.videoElement.current) {
+            mylog("No video element found")
             return;
          }
 
@@ -306,7 +311,9 @@ MHR.register(
 
          // Release resources
          if (this.videoElement.current.srcObject !== undefined) {
+            mylog("releasing resources")
             this.videoElement.current.srcObject.getVideoTracks().forEach((track) => {
+               mylog("releasing track")
                track.stop();
             });
          }
