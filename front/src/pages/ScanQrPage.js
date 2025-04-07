@@ -90,7 +90,8 @@ MHR.register(
             <video
                style="max-width:500px"
                ref=${this.videoElement}
-               oncanPlay=${() => this.canPlay()}
+               @canplay=${() => this.canPlay()}
+               @playing=${() => this.playing()}
             ></video>
          </div>`;
          this.render(theHtml);
@@ -192,6 +193,11 @@ MHR.register(
 
          // Start the detector of QR codes directly in the video element
          this.detectCode();
+      }
+      // canPlay is called when the video element is ready, so we can start detecting QR codes
+      async playing() {
+         mylog("Video is playing");
+
       }
 
       // Detect code function

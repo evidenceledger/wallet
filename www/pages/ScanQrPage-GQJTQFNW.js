@@ -72,7 +72,8 @@ MHR.register(
             <video
                style="max-width:500px"
                ref=${this.videoElement}
-               oncanPlay=${() => this.canPlay()}
+               @canplay=${() => this.canPlay()}
+               @playing=${() => this.playing()}
             ></video>
          </div>`;
       this.render(theHtml);
@@ -151,6 +152,10 @@ MHR.register(
       this.videoElement.current.style.display = "block";
       this.videoElement.current.play();
       this.detectCode();
+    }
+    // canPlay is called when the video element is ready, so we can start detecting QR codes
+    async playing() {
+      mylog("Video is playing");
     }
     // Detect code function
     async detectCode() {
@@ -472,4 +477,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-Q5HBGKXG.js.map
+//# sourceMappingURL=ScanQrPage-GQJTQFNW.js.map
