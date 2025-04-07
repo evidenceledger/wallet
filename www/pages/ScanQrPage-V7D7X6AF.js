@@ -224,9 +224,9 @@ MHR.register(
         return true;
       }
       if (qrType === QR_Verifiable_Issuance) {
-        mylog("Going to ", "LoadAndSaveQRVC");
+        mylog("Going to ", "CredentialIssuance");
         qrData = qrData.replace("openid-credential-offer://", "https://www.example.com/");
-        window.MHR.gotoPage("LoadAndSaveQRVC", qrData);
+        window.MHR.gotoPage("CredentialIssuance", qrData);
         return true;
       }
     }
@@ -477,4 +477,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-GQJTQFNW.js.map
+//# sourceMappingURL=ScanQrPage-V7D7X6AF.js.map

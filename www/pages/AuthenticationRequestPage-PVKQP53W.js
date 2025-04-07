@@ -1,8 +1,10 @@
 import {
-  decodeUnsafeJWT,
   renderAnyCredentialCard,
   signJWT
-} from "../chunks/chunk-SQXV5JUG.js";
+} from "../chunks/chunk-OJQE5ZEL.js";
+import {
+  decodeUnsafeJWT
+} from "../chunks/chunk-YYYCQVE2.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/node_modules/js-base64/base64.mjs
@@ -170,6 +172,7 @@ var mylog = globalThis.MHR.storage.mylog;
 var html = MHR.html;
 var debug = localStorage.getItem("MHRdebug") == "true";
 var viaServer = "https://wallet.mycredential.eu/serverhandler";
+var proxyIssuer = true;
 MHR.register(
   "AuthenticationRequestPage",
   class extends MHR.AbstractPage {
@@ -183,6 +186,7 @@ MHR.register(
      */
     async enter(openIdUrl) {
       let html2 = this.html;
+      proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
       if (debug) {
         alert(`SelectCredential: ${openIdUrl}`);
       }
@@ -475,7 +479,7 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error("No serverURL");
   }
   var response;
-  if (viaServer) {
+  if (proxyIssuer) {
     let forwardBody = {
       method: "POST",
       url: serverURL,
@@ -519,4 +523,4 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error(errormsg);
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage-3UK3C2KF.js.map
+//# sourceMappingURL=AuthenticationRequestPage-PVKQP53W.js.map

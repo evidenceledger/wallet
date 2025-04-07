@@ -297,10 +297,10 @@ MHR.register(
 
          // We scanned a QR for VC Issuance (OIDC4VCI)
          if (qrType === QR_Verifiable_Issuance) {
-            mylog("Going to ", "LoadAndSaveQRVC");
+            mylog("Going to ", "CredentialIssuance");
             // Create a valid URL
             qrData = qrData.replace("openid-credential-offer://", "https://www.example.com/");
-            window.MHR.gotoPage("LoadAndSaveQRVC", qrData);
+            window.MHR.gotoPage("CredentialIssuance", qrData);
             return true;
          }
       }

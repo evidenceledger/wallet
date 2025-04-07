@@ -2,23 +2,26 @@ import {
   credentialsSave
 } from "../chunks/chunk-LSEA562B.js";
 import {
-  decodeUnsafeJWT,
   getOrCreateDidKey,
   renderAnyCredentialCard,
   signJWT
-} from "../chunks/chunk-SQXV5JUG.js";
+} from "../chunks/chunk-OJQE5ZEL.js";
+import {
+  decodeUnsafeJWT
+} from "../chunks/chunk-YYYCQVE2.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
-// front/src/pages/LoadAndSaveQRVC.js
+// front/src/pages/CredentialIssuance.js
 var gotoPage = window.MHR.gotoPage;
 var goHome = window.MHR.goHome;
 var storage = window.MHR.storage;
 var myerror = window.MHR.storage.myerror;
 var mylog = window.MHR.storage.mylog;
 var viaServer = "https://wallet.mycredential.eu/serverhandler";
+var proxyIssuer = false;
 var PRE_AUTHORIZED_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:pre-authorized_code";
 window.MHR.register(
-  "LoadAndSaveQRVC",
+  "CredentialIssuance",
   class extends window.MHR.AbstractPage {
     constructor(id) {
       super(id);
@@ -37,6 +40,7 @@ window.MHR.register(
       debugger;
       this.qrData = qrData;
       mylog(`LoadAndSaveQRVC: ${qrData}`);
+      proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
       let html = this.html;
       if (qrData == null || !qrData.startsWith) {
         myerror("The qrData parameter is not a string");
@@ -1020,7 +1024,7 @@ async function doGETJSON(serverURL) {
     throw new Error("No serverURL");
   }
   var response;
-  if (viaServer) {
+  if (proxyIssuer) {
     let forwardBody = {
       method: "GET",
       url: serverURL
@@ -1052,7 +1056,7 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error("No serverURL");
   }
   var response;
-  if (viaServer) {
+  if (proxyIssuer) {
     let forwardBody = {
       method: "POST",
       url: serverURL,
@@ -1130,4 +1134,4 @@ window.MHR.register(
     }
   }
 );
-//# sourceMappingURL=LoadAndSaveQRVC-A4T57KBG.js.map
+//# sourceMappingURL=CredentialIssuance-ZC5YL2MH.js.map

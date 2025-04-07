@@ -19,11 +19,12 @@ let mylog = window.MHR.storage.mylog;
 
 // Make all requests via the server instead of from the JavaScript client
 const viaServer = "https://wallet.mycredential.eu/serverhandler";
+var proxyIssuer = false
 
 const PRE_AUTHORIZED_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:pre-authorized_code";
 
 window.MHR.register(
-   "LoadAndSaveQRVC",
+   "CredentialIssuance",
    class extends window.MHR.AbstractPage {
       constructor(id) {
          super(id);
@@ -44,6 +45,9 @@ window.MHR.register(
          this.qrData = qrData;
 
          mylog(`LoadAndSaveQRVC: ${qrData}`);
+
+         proxyIssuer = (localStorage.getItem("proxyIssuer") == "true");
+
 
          let html = this.html;
 
@@ -1529,7 +1533,7 @@ async function doGETJSON(serverURL) {
    }
 
    var response;
-   if (viaServer) {
+   if (proxyIssuer) {
       let forwardBody = {
          method: "GET",
          url: serverURL,
@@ -1564,7 +1568,7 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
    }
 
    var response;
-   if (viaServer) {
+   if (proxyIssuer) {
       let forwardBody = {
          method: "POST",
          url: serverURL,

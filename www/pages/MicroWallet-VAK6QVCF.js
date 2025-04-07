@@ -2,9 +2,11 @@ import {
   credentialsSave
 } from "../chunks/chunk-LSEA562B.js";
 import {
-  decodeUnsafeJWT,
   renderAnyCredentialCard
-} from "../chunks/chunk-SQXV5JUG.js";
+} from "../chunks/chunk-OJQE5ZEL.js";
+import {
+  decodeUnsafeJWT
+} from "../chunks/chunk-YYYCQVE2.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/components/crypto_ec.js
@@ -94,6 +96,9 @@ MHR.register(
     async enter() {
       mylog("MicroWallet", globalThis.document.location);
       debug = localStorage.getItem("MHRdebug") == "true";
+      if (localStorage.getItem("proxyIssuer") === null) {
+        localStorage.setItem("proxyIssuer", "true");
+      }
       var domedid;
       domedid = localStorage.getItem("domedid");
       if (domedid == null) {
@@ -107,12 +112,12 @@ MHR.register(
       let params = new URL(globalThis.document.location.href).searchParams;
       if (document.URL.includes("state=") && document.URL.includes("auth-mock")) {
         mylog("Redirected with state:", document.URL);
-        MHR.gotoPage("LoadAndSaveQRVC", document.URL);
+        MHR.gotoPage("CredentialIssuance", document.URL);
         return;
       }
       if (document.URL.includes("code=")) {
         mylog("Redirected with code:", document.URL);
-        MHR.gotoPage("LoadAndSaveQRVC", document.URL);
+        MHR.gotoPage("CredentialIssuance", document.URL);
         return;
       }
       let scope = params.get("scope");
@@ -131,7 +136,7 @@ MHR.register(
       let credential_offer_uri = params.get("credential_offer_uri");
       if (credential_offer_uri) {
         mylog("MicroWallet credential_offer_uri", credential_offer_uri);
-        MHR.gotoPage("LoadAndSaveQRVC", document.location.href);
+        MHR.gotoPage("CredentialIssuance", document.location.href);
         return;
       }
       let command = params.get("command");
@@ -140,7 +145,7 @@ MHR.register(
         switch (command) {
           case "getvc":
             var vc_id = params.get("vcid");
-            await MHR.gotoPage("LoadAndSaveQRVC", vc_id);
+            await MHR.gotoPage("CredentialIssuance", vc_id);
             return;
           default:
             break;
@@ -379,12 +384,12 @@ function detectQRtype(qrData) {
   } else if (qrData.startsWith("openid-credential-offer://")) {
     mylog("Credential Issuance");
     qrData = qrData.replace("openid-credential-offer://", "https://www.example.com/");
-    window.MHR.gotoPage("LoadAndSaveQRVC", qrData);
+    window.MHR.gotoPage("CredentialIssuance", qrData);
     return;
   } else if (qrData.includes("credential_offer_uri=")) {
     mylog("Credential Issuance");
     qrData = qrData.replace("openid-credential-offer://", "https://www.example.com/");
-    window.MHR.gotoPage("LoadAndSaveQRVC", qrData);
+    window.MHR.gotoPage("CredentialIssuance", qrData);
     return;
   } else if (qrData.startsWith("https")) {
     let params = new URL(qrData).searchParams;
@@ -403,4 +408,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-ETFZ4VM3.js.map
+//# sourceMappingURL=MicroWallet-VAK6QVCF.js.map
