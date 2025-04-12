@@ -9,8 +9,7 @@
 
 import { renderAnyCredentialCard } from "../components/aggregated.js";
 import { generateDidKeyDOME } from "../components/aggregated.js";
-import { verifyJWT, signJWT } from "../components/aggregated.js";
-import { decodeUnsafeJWT } from "../components/aggregated.js";
+import { verifyJWT, signJWT, decodeUnsafeJWT } from "../components/aggregated.js";
 import { credentialsSave } from "../components/aggregated.js";
 
 // Enable to debug the application

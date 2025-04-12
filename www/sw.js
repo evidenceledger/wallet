@@ -1,7 +1,7 @@
 // sw.js - Vanilla JavaScript Service Worker for Precaching Hashed Assets
 
 // Version is just informative
-const ver = "1.0.2";
+const ver = "1.0.4";
 
 // This controls resetting the cache to solve problems with past buggy Service Workers
 const reset = false
@@ -27,7 +27,7 @@ const MUST_BE_CACHED_ARRAY = [
    { url: "/icon-152.png", revision: "3BDE98AB7A5F7CF" },
    { url: "/icon-192.png", revision: "6A656C4FF1D80F73" },
    { url: "/icon-512.png", revision: "6DA77461D6A97AE5" },
-   { url: "/index.html", revision: "5C455C7A8C116E00" },
+   { url: "/index.html", revision: "1E1C7899AEBD5E3D" },
    { url: "/pages/AuthenticationRequestPage-GTAJZBAX.js", revision: "3D2A8FD7168A8796" },
    { url: "/pages/AuthenticatorPage-ZQ5LL26K.js", revision: "79D20D94F91D695E" },
    { url: "/pages/ConfirmDeleteAll-S25O3FTI.js", revision: "3F3C482AD45527BA" },
@@ -39,8 +39,8 @@ const MUST_BE_CACHED_ARRAY = [
    { url: "/pages/LoadAndVerifyQRVC-57SFONQA.js", revision: "A7E8861426A904DB" },
    { url: "/pages/LogsPage-N2NGMBJU.js", revision: "A2346A26B7E0D913" },
    { url: "/pages/MenuPage-WUYT4VCX.js", revision: "D3D96B443CF7766F" },
-   { url: "/pages/MicroWallet-EA3EZUSH.js", revision: "9AA7DD3712770EA5" },
-   { url: "/pages/SWNotify-TOMPYGGP.js", revision: "76EC577EBB5F642D" },
+   { url: "/pages/MicroWallet-JW5E22UN.js", revision: "CC977F045B03B657" },
+   { url: "/pages/SWNotify-3SN423PI.js", revision: "7A0A50197625C047" },
    { url: "/pages/ScanQrPage-JQUHJVS7.js", revision: "D7205C5A727B78E4" },
    { url: "/pages/SelectCamera-H4QRXB32.js", revision: "E6E60AD2D8311AC" },
    { url: "/pages/SettingsPage-AEYF2SPL.js", revision: "4D2AB8BCCED1EF02" },

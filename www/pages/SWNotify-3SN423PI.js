@@ -1,21 +1,22 @@
-import { html } from '../components/aggregated.js'
+import "../chunks/chunk-EYB4XBPC.js";
+import {
+  html
+} from "../chunks/chunk-TSJ2HKAF.js";
+import "../chunks/chunk-W7NC74ZX.js";
 
+// front/src/pages/SWNotify.js
 window.MHR.register("SWNotify", class SWNotify extends window.MHR.AbstractPage {
-
-    constructor(id) {
-        super(id)
+  constructor(id) {
+    super(id);
+  }
+  enter(pageData) {
+    let msg;
+    if (pageData && pageData.isUpdate) {
+      msg = T("Application updated");
+    } else {
+      msg = T("Application available");
     }
-
-    enter(pageData) {
-
-        let msg
-        if (pageData && pageData.isUpdate) {
-            msg = T("Application updated")
-        } else {
-            msg = T("Application available")
-        }
-
-        let theHtml = html`
+    let theHtml = html`
         <ion-card>
             <ion-card-header>
             <ion-card-title>${msg}</ion-card-title>
@@ -35,8 +36,8 @@ window.MHR.register("SWNotify", class SWNotify extends window.MHR.AbstractPage {
             </ion-button>
             </div>
         </ion-card>
-        `
-
-        this.render(theHtml)
-    }
-})
+        `;
+    this.render(theHtml);
+  }
+});
+//# sourceMappingURL=SWNotify-3SN423PI.js.map

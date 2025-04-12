@@ -334,4 +334,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-EA3EZUSH.js.map
+//# sourceMappingURL=MicroWallet-JW5E22UN.js.map

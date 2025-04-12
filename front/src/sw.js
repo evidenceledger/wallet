@@ -1,7 +1,7 @@
 // sw.js - Vanilla JavaScript Service Worker for Precaching Hashed Assets
 
 // Version is just informative
-const ver = "1.0.2";
+const ver = "1.0.4";
 
 // This controls resetting the cache to solve problems with past buggy Service Workers
 const reset = false
