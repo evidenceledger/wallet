@@ -33,3 +33,5 @@ function T(key) {
 }
 // Set the function in the global scope
 window.T = T
+
+export {T}

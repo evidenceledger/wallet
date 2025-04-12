@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/evanw/esbuild/pkg/api"
 	"github.com/evidenceledger/wallet/faster"
 	"github.com/hesusruiz/vcutils/yaml"
 	"github.com/labstack/echo/v5"
@@ -25,6 +26,7 @@ const (
 var (
 	configFile = flag.String("config", LookupEnvOrString("CONFIG_FILE", defaultConfigFile), "path to configuration file")
 	autobuild  = flag.Bool("auto", true, "Perform build on every request to the root path")
+	meta       = flag.Bool("m", false, "Write the meta info to a file")
 )
 
 func main() {
@@ -63,7 +65,20 @@ func main() {
 
 	// Perform a standard build
 	if args["build"] {
-		faster.BuildFront(*configFile)
+		result, err := faster.BuildFront(*configFile)
+		if err != nil {
+			fmt.Println("Error building:", err.Error())
+			os.Exit(1)
+		}
+		if *meta {
+			processedResult := api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{})
+			err = os.WriteFile("meta.txt", []byte(processedResult), 0755)
+			if err != nil {
+				fmt.Println("Error writing the metas file", err.Error())
+				os.Exit(1)
+			}
+			fmt.Println("Result written to meta.txt")
+		}
 		os.Exit(0)
 	}
 

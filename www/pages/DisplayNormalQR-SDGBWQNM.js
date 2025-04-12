@@ -1,25 +1,20 @@
-
-// Display a "normal" QR, with a URL embedded
+// front/src/pages/DisplayNormalQR.js
 window.MHR.register(
-   "DisplayNormalQR",
-   class DisplayNormalQR extends window.MHR.AbstractPage {
-      constructor(id) {
-         super(id);
+  "DisplayNormalQR",
+  class DisplayNormalQR extends window.MHR.AbstractPage {
+    constructor(id) {
+      super(id);
+    }
+    // We receive the QR data to process
+    enter(qrData) {
+      if (qrData == null) {
+        qrData = "No data received";
       }
-
-      // We receive the QR data to process
-      enter(qrData) {
-         if (qrData == null) {
-            qrData = "No data received";
-         }
-
-         // Make sure it is a fully qualified URL
-         let isURL = false;
-         if (qrData.startsWith("https://") || qrData.startsWith("http://")) {
-            isURL = true;
-         }
-
-         let theHtml = this.html`
+      let isURL = false;
+      if (qrData.startsWith("https://") || qrData.startsWith("http://")) {
+        isURL = true;
+      }
+      let theHtml = this.html`
             <ion-grid>
                <ion-row>
                   <ion-col>
@@ -47,8 +42,8 @@ window.MHR.register(
             </ion-grid>
 
          `;
-
-         this.render(theHtml);
-      }
-   }
+      this.render(theHtml);
+    }
+  }
 );
+//# sourceMappingURL=DisplayNormalQR-SDGBWQNM.js.map

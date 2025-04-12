@@ -1,8 +1,7 @@
-import { Base64 } from "js-base64";
-
-import { decodeUnsafeJWT } from "../components/jwt";
-import { renderAnyCredentialCard } from "../components/renderAnyCredential";
-import { importFromJWK, verify, verifyJWT, signJWT } from "../components/crypto";
+import { Base64 } from "../components/aggregated.js";
+import { decodeUnsafeJWT } from "../components/aggregated.js";
+import { renderAnyCredentialCard } from "../components/aggregated.js";
+import { signJWT } from "../components/aggregated.js";
 
 // @ts-ignore
 const MHR = globalThis.MHR;

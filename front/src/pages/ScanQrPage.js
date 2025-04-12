@@ -1,5 +1,5 @@
-import { html } from "uhtml";
-import { getPreferredVideoDevice, getPlatformOS } from "../components/camerainfo";
+import { html } from "../components/aggregated.js";
+import { getPreferredVideoDevice, getPlatformOS } from "../components/aggregated.js";
 
 let myerror = window.MHR.storage.myerror;
 let mylog = window.MHR.storage.mylog;

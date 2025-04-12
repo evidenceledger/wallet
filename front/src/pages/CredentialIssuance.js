@@ -1,14 +1,7 @@
-import { credentialsSave } from "../components/db";
-import { decodeUnsafeJWT } from "../components/jwt";
-import {
-   getOrCreateDidKey,
-   importFromJWK,
-   verify,
-   signWithJWK,
-   signJWT,
-} from "../components/crypto";
-
-import { renderAnyCredentialCard } from "../components/renderAnyCredential";
+import { credentialsSave } from "../components/aggregated.js";
+import { decodeUnsafeJWT } from "../components/aggregated.js";
+import { getOrCreateDidKey, signJWT } from "../components/aggregated.js";
+import { renderAnyCredentialCard } from "../components/aggregated.js";
 
 // Setup some local variables for convenience
 let gotoPage = window.MHR.gotoPage;

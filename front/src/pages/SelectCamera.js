@@ -1,4 +1,4 @@
-import { getPreferredVideoDevice } from '../components/camerainfo'
+import { getPreferredVideoDevice } from '../components/aggregated.js'
 
 let gotoPage = window.MHR.gotoPage
 let goHome = window.MHR.goHome

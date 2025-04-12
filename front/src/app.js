@@ -66,6 +66,54 @@ if (basePath.length > 1) {
 // Implements gotoPage(pageName, pageData) and goHome()
 // *****************************************************
 
+
+function loadSWnew() {
+   // In your main application JS (e.g., app.js)
+
+if ('serviceWorker' in navigator) {
+   window.addEventListener('load', () => {
+     navigator.serviceWorker.register('/sw.js') // Ensure this path points to your sw.js file
+       .then(registration => {
+         console.log('Service Worker registered successfully with scope:', registration.scope);
+ 
+         // Optional: Add logic to prompt user to update if a new SW is waiting
+         registration.addEventListener('updatefound', () => {
+           const newWorker = registration.installing;
+           console.log('New service worker found. Installing...');
+ 
+           newWorker.addEventListener('statechange', () => {
+             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+               // New service worker is installed and waiting, but an old one is still controlling the page.
+               // You could show a "New version available, refresh?" button here.
+               // For example, to trigger the update immediately (like skipWaiting):
+               // newWorker.postMessage({ type: 'SKIP_WAITING' });
+               console.log('New service worker installed and waiting. Refresh page or send SKIP_WAITING message to activate immediately.');
+             }
+           });
+         });
+ 
+       })
+       .catch(error => {
+         console.error('Service Worker registration failed:', error);
+       });
+ 
+     // Optional: Detect controller change (when a new SW takes over)
+     let refreshing;
+     navigator.serviceWorker.addEventListener('controllerchange', () => {
+       if (refreshing) return;
+       console.log('Controller changed. New service worker has taken control.');
+       // Optional: Automatically reload the page to use the latest assets
+       // window.location.reload();
+       refreshing = true;
+     });
+   });
+ } else {
+   console.log('Service workers are not supported in this browser.');
+ }
+ 
+}
+
+
 // The default home page where to start and when refreshing the app is set
 // in the HTML page importing us in the window.homePage variable.
 // @ts-ignore
@@ -112,8 +160,9 @@ async function goHome() {
 /**
  * @param {string} pageName
  * @param {any} pageData
+ * @param {boolean} replace
  */
-async function gotoPage(pageName, pageData) {
+async function gotoPage(pageName, pageData, replace) {
    mylog("Inside gotoPage:", pageName);
 
    // Catch any exceptions and present an error page in case of error
@@ -133,14 +182,16 @@ async function gotoPage(pageName, pageData) {
          }
       }
 
-      // Create a new state in the browser history, to support the back button in the browser.
-      window.history.pushState({ pageName: pageName, pageData: pageData }, `${pageName}`);
+      if (!replace) {
+         // Create a new state in the browser history, to support the back button in the browser.
+         window.history.pushState({ pageName: pageName, pageData: pageData }, `${pageName}`);
+      }
 
       // Process the page transition
       await processPageEntered(pageNameToClass, pageName, pageData, false);
    } catch (error) {
       myerror(error);
-      // Show an error
+      // Show an error. The ErrorPage is preloaded so we don't need to dynamically import it
       await processPageEntered(
          pageNameToClass,
          "ErrorPage",
@@ -166,7 +217,8 @@ async function processPageEntered(pageNameToClass, pageName, pageData, historyDa
       // Hide the page
       classInstance.domElem.style.display = "none";
 
-      // Call the page exit() method for all pages except the target page, so they can perform any cleanup.
+      // Call the page exit() method for all currently loaded pages except the target page,
+      // so they can perform any cleanup.
       // Implementation of the exit() function is optional, so we check for its existence
       if (name !== pageName && classInstance.exit) {
          try {
@@ -270,10 +322,10 @@ window.addEventListener("DOMContentLoaded", async (event) => {
    // Go to the home page
    await goHome();
 
-   // Preload the pages of the application in parallel
-   for (const path in pageModulesMap) {
-      import(pageModulesMap[path]);
-   }
+   // // Preload the pages of the application in parallel
+   // for (const path in pageModulesMap) {
+   //    import(pageModulesMap[path]);
+   // }
 });
 
 var INSTALL_SERVICE_WORKER = true;
@@ -394,7 +446,7 @@ function HeaderBar(backButton = true, loginData) {
    }
 
    var menuButton = html` <ion-buttons slot="end">
-      <ion-button @click=${() => gotoPage("MenuPage", "")}>
+      <ion-button aria-label="Menu" @click=${() => gotoPage("MenuPage", "")}>
          <ion-icon name="menu"></ion-icon>
       </ion-button>
    </ion-buttons>`;

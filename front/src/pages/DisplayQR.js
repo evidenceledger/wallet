@@ -1,4 +1,4 @@
-import { QRCode } from 'easyqrcodejs'
+import { QRCode } from '../components/aggregated.js'
 
 window.MHR.register("DisplayQR", class DisplayQR extends window.MHR.AbstractPage {
 

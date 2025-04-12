@@ -7,12 +7,11 @@
  * to a RelyingParty
  */
 
-import { renderAnyCredentialCard } from "../components/renderAnyCredential";
-import { getOrCreateDidKey, generateEd25519KeyPair } from "../components/crypto";
-import { generateP256did as generateDidKeyDOME } from "../components/crypto_ec";
-import { importFromJWK, verify, verifyJWT, signJWT } from "../components/crypto";
-import { decodeUnsafeJWT } from "../components/jwt";
-import { credentialsSave } from "../components/db";
+import { renderAnyCredentialCard } from "../components/aggregated.js";
+import { generateDidKeyDOME } from "../components/aggregated.js";
+import { verifyJWT, signJWT } from "../components/aggregated.js";
+import { decodeUnsafeJWT } from "../components/aggregated.js";
+import { credentialsSave } from "../components/aggregated.js";
 
 // Enable to debug the application
 var debug = false;

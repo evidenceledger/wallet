@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
+	"io/fs"
 	"math"
 	"os"
 	"path"
@@ -174,7 +176,7 @@ func buildOptions(config *Config) api.BuildOptions {
 		MinifyIdentifiers: false,
 		MinifySyntax:      false,
 		Define: map[string]string{
-			"JR_IN_DEVELOPMENT": "true",
+			"JR_IN_DEVELOPMENT": "false",
 		},
 		Loader: map[string]api.Loader{
 			".png": api.LoaderDataURL,
@@ -370,7 +372,7 @@ func postprocess(r api.BuildResult, config *Config) error {
 			"EntryPoints": rootEntries,
 		}
 
-		te := template.Must(template.New("letter").Parse(string(bytesOut)))
+		te := template.Must(template.New("index").Parse(string(bytesOut)))
 		var templateoutputBuffer bytes.Buffer
 		err = te.Execute(&templateoutputBuffer, templateInputData)
 		if err != nil {
@@ -384,6 +386,79 @@ func postprocess(r api.BuildResult, config *Config) error {
 			log.Fatal(err)
 		}
 
+	}
+
+	type cachedEntry struct {
+		Url      string
+		Revision string
+	}
+	tobecached := []cachedEntry{}
+
+	// Get the files to be cached
+	targetDir := config.Targetdir
+
+	fileSystem := os.DirFS(targetDir)
+
+	fs.WalkDir(fileSystem, ".", func(thepath string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+		if d.IsDir() {
+			return nil
+		}
+
+		if thepath == "sw.js" {
+			return nil
+		}
+
+		// Extract the file extension from the path
+		extension := path.Ext(thepath)
+
+		switch extension {
+		case ".html", ".js", ".css", ".png", ".ico", ".svg":
+			contents, err := os.ReadFile(path.Join(targetDir, thepath))
+			if err != nil {
+				log.Fatal(err)
+			}
+			h := fnv.New64a()
+			h.Write(contents)
+			thehash := h.Sum64()
+			fmt.Printf("## %s --> %X\n", thepath, thehash)
+			entry := cachedEntry{
+				Url:      "/" + thepath,
+				Revision: fmt.Sprintf("%X", thehash),
+			}
+			tobecached = append(tobecached, entry)
+			return nil
+		default:
+			return nil
+		}
+
+	})
+
+	serviceWorkerFilePath := path.Join(config.Targetdir, "sw.js")
+
+	bytesOut, err := os.ReadFile(serviceWorkerFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templateInputData := map[string]any{
+		"ToBeCached": tobecached,
+	}
+
+	te := template.Must(template.New("sw").Parse(string(bytesOut)))
+	var templateoutputBuffer bytes.Buffer
+	err = te.Execute(&templateoutputBuffer, templateInputData)
+	if err != nil {
+		log.Println("executing template:", err)
+	}
+	bytesOut = templateoutputBuffer.Bytes()
+
+	// Overwrite file with modified contents
+	err = os.WriteFile(serviceWorkerFilePath, bytesOut, 0755)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return nil
@@ -475,11 +550,9 @@ func printErrors(resultErrors []api.Message) {
 // A file 'images/example.png' in the source staticAssets directory will be accessed as '/images/example.png'
 // via the web.
 func copyStaticAssets(config *Config) {
-	sourceDir := config.StaticAssets.Source
-	targetDir := config.StaticAssets.Target
 
-	// Copy the source directory to the target root
-	err := copy.Copy(sourceDir, targetDir)
+	// Copy static assets
+	err := copy.Copy(config.StaticAssets.Source, config.StaticAssets.Target)
 	if err != nil {
 		panic(err)
 	}
@@ -489,16 +562,18 @@ func copyStaticAssets(config *Config) {
 	// In the future, the 'htmlfiles' entry may be used to pre-process the html files in special ways
 	pages := config.HtmlFiles
 
-	sourceDir = config.Sourcedir
-	targetDir = config.Targetdir
-
-	// Copy all HTML files from source to target
+	// Copy all HTML files from source root to target root
 	for _, page := range pages {
-		sourceFile := filepath.Join(sourceDir, page)
-		targetFile := filepath.Join(targetDir, page)
+		sourceFile := filepath.Join(config.Sourcedir, page)
+		targetFile := filepath.Join(config.Targetdir, page)
 		// copyFile(sourceFile, targetFile)
 		copy.Copy(sourceFile, targetFile)
 	}
+
+	// Copy the Service Worker file
+	sourceFile := filepath.Join(config.Sourcedir, "sw.js")
+	targetFile := filepath.Join(config.Targetdir, "sw.js")
+	copy.Copy(sourceFile, targetFile)
 
 }
 

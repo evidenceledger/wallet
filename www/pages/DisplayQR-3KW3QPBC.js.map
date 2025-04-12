@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../front/src/pages/DisplayQR.js"],
+  "sourcesContent": ["import { QRCode } from '../components/aggregated.js'\n\nwindow.MHR.register(\"DisplayQR\", class DisplayQR extends window.MHR.AbstractPage {\n\n    constructor(id) {\n        super(id)\n    }\n\n    enter() {\n        let html = this.html\n\n        const myqr = window.localStorage.getItem(\"MYEUDCC\")\n        console.log(myqr)\n\n        let qrelement = document.createElement(\"div\");\n\n        let params = {\n            text: myqr,\n            correctLevel : QRCode.CorrectLevel.L,\n            width: 300,\n            height: 300\n        }\n        var qrcode = new QRCode(qrelement, params);\n\n        let theHtml = html`\n        <div style=\"text-align:center; margin-top:100px\">\n            ${qrelement}\n        </div>\n        `\n\n        this.render(theHtml)\n    }\n})\n"],
+  "mappings": ";;;;;;;AAEA,OAAO,IAAI,SAAS,aAAa,MAAM,kBAAkB,OAAO,IAAI,aAAa;AAAA,EAE7E,YAAY,IAAI;AACZ,UAAM,EAAE;AAAA,EACZ;AAAA,EAEA,QAAQ;AACJ,QAAI,OAAO,KAAK;AAEhB,UAAM,OAAO,OAAO,aAAa,QAAQ,SAAS;AAClD,YAAQ,IAAI,IAAI;AAEhB,QAAI,YAAY,SAAS,cAAc,KAAK;AAE5C,QAAI,SAAS;AAAA,MACT,MAAM;AAAA,MACN,cAAe,2BAAO,aAAa;AAAA,MACnC,OAAO;AAAA,MACP,QAAQ;AAAA,IACZ;AACA,QAAI,SAAS,IAAI,2BAAO,WAAW,MAAM;AAEzC,QAAI,UAAU;AAAA;AAAA,cAER,SAAS;AAAA;AAAA;AAIf,SAAK,OAAO,OAAO;AAAA,EACvB;AACJ,CAAC;",
+  "names": []
+}

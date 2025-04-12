@@ -39,7 +39,5 @@ hashEntrypointNames: true
 subdomainprefix: ""
 
 # Configuration specific to the development server process
-# In addition to serving local content, the server can forward some requests from the frontend to other
-# servers, helping development in complex projects
 devserver:
   listenAddress: ":3500"

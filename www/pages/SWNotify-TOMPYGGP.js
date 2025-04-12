@@ -1,21 +1,22 @@
-import { html } from '../components/aggregated.js'
+import "../chunks/chunk-EYB4XBPC.js";
+import {
+  html
+} from "../chunks/chunk-TSJ2HKAF.js";
+import "../chunks/chunk-W7NC74ZX.js";
 
+// front/src/pages/SWNotify.js
 window.MHR.register("SWNotify", class SWNotify extends window.MHR.AbstractPage {
-
-    constructor(id) {
-        super(id)
+  constructor(id) {
+    super(id);
+  }
+  enter(pageData) {
+    let msg;
+    if (pageData && pageData.isUpdate) {
+      msg = T("Application updated");
+    } else {
+      msg = T("Application available");
     }
-
-    enter(pageData) {
-
-        let msg
-        if (pageData && pageData.isUpdate) {
-            msg = T("Application updated")
-        } else {
-            msg = T("Application available")
-        }
-
-        let theHtml = html`
+    let theHtml = html`
         <div class="w3-container w3-padding-64">
             <div class="w3-card-4 w3-center">
         
@@ -29,13 +30,13 @@ window.MHR.register("SWNotify", class SWNotify extends window.MHR.AbstractPage {
                 </div>
                 
                 <div class="w3-container w3-center">
-                    <btn-primary class="w3-margin-bottom" onclick=${()=>window.location.reload()}>${T("Accept")}</btn-primary>        
+                    <btn-primary class="w3-margin-bottom" onclick=${() => window.location.reload()}>${T("Accept")}</btn-primary>        
                 </div>
 
             </div>
         </div>
-        `
-
-        this.render(theHtml)
-    }
-})
+        `;
+    this.render(theHtml);
+  }
+});
+//# sourceMappingURL=SWNotify-TOMPYGGP.js.map

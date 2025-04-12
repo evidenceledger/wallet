@@ -1,7 +1,5 @@
 // @ts-check
 
-import { decodeUnsafeJWT } from "../components/jwt";
-
 // @ts-ignore
 const MHR = window.MHR;
 
