@@ -9,7 +9,7 @@ import {
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/MicroWallet.js
-var debug = false;
+var debug = eudi.debug;
 MHR.register(
   "MicroWallet",
   class extends MHR.AbstractPage {
@@ -33,7 +33,7 @@ MHR.register(
       } else {
         domedid = JSON.parse(domedid);
       }
-      mylog("My DID", domedid.did);
+      mylog("My DID is:", domedid.did);
       let html = this.html;
       let params = new URL(globalThis.document.location.href).searchParams;
       if (document.URL.includes("state=") && document.URL.includes("auth-mock")) {
@@ -334,4 +334,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-JW5E22UN.js.map
+//# sourceMappingURL=MicroWallet-ADMKGT74.js.map

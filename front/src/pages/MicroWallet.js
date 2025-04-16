@@ -13,7 +13,7 @@ import { verifyJWT, signJWT, decodeUnsafeJWT } from "../components/aggregated.js
 import { credentialsSave } from "../components/aggregated.js";
 
 // Enable to debug the application
-var debug = false;
+var debug = eudi.debug;
 
 
 MHR.register(
@@ -52,7 +52,7 @@ MHR.register(
             domedid = JSON.parse(domedid);
          }
 
-         mylog("My DID", domedid.did);
+         mylog("My DID is:", domedid.did);
 
          let html = this.html;
 

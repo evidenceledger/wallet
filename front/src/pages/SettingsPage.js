@@ -1,19 +1,16 @@
 // @ts-check
 
-// @ts-ignore
-const MHR = window.MHR;
-
 // Copy some globals to make code less verbose
-let gotoPage = MHR.gotoPage;
-let goHome = MHR.goHome;
-let storage = MHR.storage;
-let myerror = window.MHR.storage.myerror;
-let mylog = window.MHR.storage.mylog;
-let html = MHR.html;
+let gotoPage = eudi.gotoPage;
+let goHome = eudi.goHome;
+let storage = eudi.storage;
+let myerror = eudi.storage.myerror;
+let mylog = eudi.storage.mylog;
+let html = eudi.html;
 
-MHR.register(
+eudi.register(
    "SettingsPage",
-   class extends MHR.AbstractPage {
+   class extends eudi.AbstractPage {
       /**
        * @param {string} id
        */
@@ -37,6 +34,7 @@ MHR.register(
                            window.localStorage.setItem("MHRdebug", "false");
                         }
                         MHR.debug = currentDebug;
+                        eudi.debug = currentDebug;
                         console.log("DEBUG", currentDebug);
                      }}
                      id="Debug"

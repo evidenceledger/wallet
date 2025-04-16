@@ -1,8 +1,10 @@
 // @ts-check
 
-// This is the starting point for the application
-// This module starts executing as soon as parsing of the HTML has finished
-// We will bootstrap the app and start the loading process for all components
+// This is the starting point for the application.
+// This module starts executing as soon as parsing of the HTML has finished.
+// We will bootstrap the app and start the loading process for all components.
+// The module also exports to the global environment a set of functions and
+// variables which are useful for the rest of the modules without having to import.
 
 // For rendering the HTML in the pages
 import { render, html, svg } from "uhtml";
@@ -14,6 +16,7 @@ import "./i18n/tr.js";
 import { storage } from "./components/db";
 // @ts-ignore
 window.myerror = storage.myerror;
+
 // @ts-ignore
 window.mylog = storage.mylog;
 
@@ -65,53 +68,6 @@ if (basePath.length > 1) {
 //
 // Implements gotoPage(pageName, pageData) and goHome()
 // *****************************************************
-
-
-function loadSWnew() {
-   // In your main application JS (e.g., app.js)
-
-if ('serviceWorker' in navigator) {
-   window.addEventListener('load', () => {
-     navigator.serviceWorker.register('/sw.js') // Ensure this path points to your sw.js file
-       .then(registration => {
-         console.log('Service Worker registered successfully with scope:', registration.scope);
- 
-         // Optional: Add logic to prompt user to update if a new SW is waiting
-         registration.addEventListener('updatefound', () => {
-           const newWorker = registration.installing;
-           console.log('New service worker found. Installing...');
- 
-           newWorker.addEventListener('statechange', () => {
-             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-               // New service worker is installed and waiting, but an old one is still controlling the page.
-               // You could show a "New version available, refresh?" button here.
-               // For example, to trigger the update immediately (like skipWaiting):
-               // newWorker.postMessage({ type: 'SKIP_WAITING' });
-               console.log('New service worker installed and waiting. Refresh page or send SKIP_WAITING message to activate immediately.');
-             }
-           });
-         });
- 
-       })
-       .catch(error => {
-         console.error('Service Worker registration failed:', error);
-       });
- 
-     // Optional: Detect controller change (when a new SW takes over)
-     let refreshing;
-     navigator.serviceWorker.addEventListener('controllerchange', () => {
-       if (refreshing) return;
-       console.log('Controller changed. New service worker has taken control.');
-       // Optional: Automatically reload the page to use the latest assets
-       // window.location.reload();
-       refreshing = true;
-     });
-   });
- } else {
-   console.log('Service workers are not supported in this browser.');
- }
- 
-}
 
 
 // The default home page where to start and when refreshing the app is set
@@ -707,6 +663,48 @@ register(
    }
 );
 
+register("SWNotify", class extends AbstractPage {
+
+   constructor(id) {
+       super(id)
+   }
+
+   enter(pageData) {
+
+       let msg
+       if (pageData && pageData.isUpdate) {
+           msg = T("Application updated")
+       } else {
+           msg = T("Application available")
+       }
+
+       let theHtml = html`
+       <ion-card>
+           <ion-card-header>
+           <ion-card-title>${msg}</ion-card-title>
+           </ion-card-header>
+
+           <ion-card-content class="ion-padding-bottom">
+           <div class="text-larger">
+               <p>${T("There is a new version of the application and it has already been updated.")}</p>
+               <p>${T("Please click Accept to refresh the page.")}</p>
+           </div>
+           </ion-card-content>
+
+           <div class="ion-margin-start ion-margin-bottom">
+           <ion-button @click=${() => MHR.cleanReload()}>
+               <ion-icon slot="start" name="home"></ion-icon>
+               ${T("Home")}
+           </ion-button>
+           </div>
+       </ion-card>
+       `
+
+       this.render(theHtml)
+   }
+})
+
+
 /**
  * @param {string} input
  */
@@ -742,6 +740,28 @@ function atobUrl(input) {
 globalThis.MHR = {
    debug: debug,
    mylog: storage.mylog,
+   storage: storage,
+   route: route,
+   goHome: goHome,
+   gotoPage: gotoPage,
+   processPageEntered: processPageEntered,
+   // @ts-ignore
+   AbstractPage: AbstractPage,
+   register: register,
+   ErrorPanel: ErrorPanel,
+   cleanReload: cleanReload,
+   html: html,
+   render: render,
+   btoaUrl: btoaUrl,
+   atobUrl: atobUrl,
+   pageNameToClass: pageNameToClass,
+};
+
+// @ts-ignore
+globalThis.eudi = {
+   debug: debug,
+   mylog: storage.mylog,
+   myerror: storage.myerror,
    storage: storage,
    route: route,
    goHome: goHome,

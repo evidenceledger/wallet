@@ -32,7 +32,7 @@
       };
    </script>
 
-   <!-- Load the JavaScrip entry point. Inserted by the build process. -->
+   <!-- Load the JavaScrip entry points. Inserted by the build process. -->
    {{ range .EntryPoints }}
    <script type="module" src="{{ .EntryPoint }}"></script>
    {{ end }}

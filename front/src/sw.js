@@ -78,7 +78,6 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
    console.log("[SW Activate] Event");
    const cleanUpCache = async () => {
-      debugger;
       try {
          const cache = await caches.open(CACHE_NAME);
 

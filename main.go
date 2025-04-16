@@ -106,19 +106,14 @@ func StartServices(configFileName string) error {
 
 	// Stop the whole server remotely
 	staticServer.GET("/stopserver", func(c echo.Context) error {
+		fmt.Println("I received a request to stop the server: ", c.Request().URL)
 		os.Exit(0)
 		return nil
 	})
 
-	staticServer.GET("/fake", func(c echo.Context) error {
+	staticServer.GET("/health", func(c echo.Context) error {
 		fmt.Println("Me han llamado al GET: ", c.Request().URL)
-
-		return nil
-	})
-	staticServer.POST("/fake", func(c echo.Context) error {
-		fmt.Println("Me han llamado al POST")
-
-		return nil
+		return c.String(http.StatusOK, "OK")
 	})
 
 	type forwardRequest struct {

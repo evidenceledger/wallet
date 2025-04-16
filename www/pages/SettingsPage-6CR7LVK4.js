@@ -1,14 +1,13 @@
 // front/src/pages/SettingsPage.js
-var MHR = window.MHR;
-var gotoPage = MHR.gotoPage;
-var goHome = MHR.goHome;
-var storage = MHR.storage;
-var myerror = window.MHR.storage.myerror;
-var mylog = window.MHR.storage.mylog;
-var html = MHR.html;
-MHR.register(
+var gotoPage = eudi.gotoPage;
+var goHome = eudi.goHome;
+var storage = eudi.storage;
+var myerror = eudi.storage.myerror;
+var mylog = eudi.storage.mylog;
+var html = eudi.html;
+eudi.register(
   "SettingsPage",
-  class extends MHR.AbstractPage {
+  class extends eudi.AbstractPage {
     /**
      * @param {string} id
      */
@@ -30,6 +29,7 @@ MHR.register(
           window.localStorage.setItem("MHRdebug", "false");
         }
         MHR.debug = currentDebug;
+        eudi.debug = currentDebug;
         console.log("DEBUG", currentDebug);
       }}
                      id="Debug"
@@ -65,4 +65,4 @@ MHR.register(
     }
   }
 );
-//# sourceMappingURL=SettingsPage-AEYF2SPL.js.map
+//# sourceMappingURL=SettingsPage-6CR7LVK4.js.map
