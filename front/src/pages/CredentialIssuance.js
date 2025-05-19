@@ -727,6 +727,7 @@ window.MHR.register(
  */
 async function performAuthCodeFlow(credentialOffer, issuerMetaData, authServerMetaData) {
    // Get the credential supported by issuer
+   // TODO: This is outdated and has to be updated to the current version of the specs
    const credentialTypes = credentialOffer.credentials[0].types;
 
    // The state will be used by the issuer to match request/reply
@@ -1084,13 +1085,11 @@ async function performPreAuthorizedCodeFlow(
    console.log("authServerMetaData");
    console.log(authServerMetaData);
 
-   // Get the credential supported by issuer
-   const credentialTypes = credentialOffer.credentials[0].types;
 
    // Get an accesstoken for retrieving the credential
    const tokenEndpoint = authServerMetaData["token_endpoint"];
    const code = credentialOffer["grants"][PRE_AUTHORIZED_CODE_GRANT_TYPE]["pre-authorized_code"];
-   const authTokenObject = await getPreAuthToken(tokenEndpoint, code, user_pin, "via_server");
+   const authTokenObject = await getPreAuthToken(tokenEndpoint, code, user_pin);
 
    // Get the nonce and access token from the retrieved object
    const nonce = authTokenObject.c_nonce;
@@ -1110,7 +1109,6 @@ async function performPreAuthorizedCodeFlow(
       proof,
       access_token,
       issuerMetaData.credential_endpoint,
-      credentialTypes
    );
 
    return credentialResponse.credential;
@@ -1134,7 +1132,7 @@ async function getPreAuthToken(tokenEndpoint, preAuthCode, user_pin) {
    formBody = formBody.join("&");
    mylog("getPreAuthToken Body: " + formBody);
 
-   // Send to server
+   // Send to server and retrieve the token
    var tokenBody = await doPOST(tokenEndpoint, formBody, "application/x-www-form-urlencoded");
 
    mylog("getPreAuthToken tokenBody:", tokenBody);
@@ -1144,8 +1142,7 @@ async function getPreAuthToken(tokenEndpoint, preAuthCode, user_pin) {
 async function requestCredential(proof, accessToken, credentialEndpoint, credentialTypes) {
    debugger;
    var credentialReq = {
-      types: credentialTypes,
-      format: "jwt_vc_json",
+      credential_configuration_id: "LEARCredentialEmployee",
       proof: {
          proof_type: "jwt",
          jwt: proof,
@@ -1560,6 +1557,12 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
       throw new Error("No serverURL");
    }
 
+   // Check if the received body is already a string
+   if (typeof body !== "string") {
+      // If not, convert it to a string
+      body = JSON.stringify(body);
+   }
+
    var response;
    if (proxyIssuer) {
       let forwardBody = {
@@ -1580,12 +1583,17 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
          cache: "no-cache",
       });
    } else {
+      var headers = {
+         "Content-Type": mimetype,
+      }
+      if (authorization) {
+         headers["Authorization"] = "Bearer " + authorization;
+      }
+
       response = await fetch(serverURL, {
          method: "POST",
-         body: JSON.stringify(body),
-         headers: {
-            "Content-Type": mimetype,
-         },
+         body: body,
+         headers: headers,
          cache: "no-cache",
       });
    }
