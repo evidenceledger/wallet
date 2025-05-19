@@ -4,7 +4,7 @@
 const ver = "1.0.4";
 
 // This controls resetting the cache to solve problems with past buggy Service Workers
-const reset = true;
+const reset = false;
 
 // Use a single, static cache name. Versioning is handled by the hashed filenames.
 const CACHE_NAME = "wallet-static-assets";
