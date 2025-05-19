@@ -94,24 +94,11 @@ self.addEventListener("install", (event) => {
                console.log(`[SW Install] Response was redirected: ${mustBeCachedUrl} ---> ${networkResponse.url}`);
                continue;
             }
-            // Clone the response to use it in the cache and return it
-            const clonedResponse = networkResponse.clone();
-            // Check if the response is valid
-            if (!clonedResponse || !clonedResponse.ok) {
-               console.error(`[SW Install] Failed to clone response for ${mustBeCachedUrl}:`, clonedResponse);
-               throw new Error(`Failed to clone response for ${mustBeCachedUrl}`);
-            }
-            // Check if the response is a valid response
-            if (clonedResponse.status !== 200) {
-               console.error(`[SW Install] Invalid response for ${mustBeCachedUrl}:`, clonedResponse);
-               throw new Error(`Invalid response for ${mustBeCachedUrl}`);
-            }
-
-
+ 
             console.log(`[SW Install] Adding entry to cache: ${mustBeCachedUrl}`);
 
             // Cache using the url which includes the revision as key
-            cache.put(mustBeCachedUrl, clonedResponse);
+            cache.put(mustBeCachedUrl, networkResponse);
          }
       }
 
