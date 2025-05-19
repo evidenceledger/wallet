@@ -64,7 +64,7 @@ self.addEventListener("install", (event) => {
                throw new Error(`Failed to fetch ${mustBeCachedUrl}`);
             }
             if (networkResponse.redirected === true) {
-               console.log(`[SW Install] Response was redirected: ${networkResponse.url}`);
+               console.log(`[SW Install] Response was redirected: ${mustBeCachedUrl} ---> ${networkResponse.url}`);
             }
             // Clone the response to use it in the cache and return it
             const clonedResponse = networkResponse.clone();
