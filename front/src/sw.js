@@ -60,11 +60,12 @@ self.addEventListener("install", (event) => {
             console.log(`[SW Install] To be cached: ${mustBeCachedUrl}`);
             const networkResponse = await fetch(mustBeCachedHref, {redirect: "follow"});
             if (!networkResponse || !networkResponse.ok) {
-               console.error(`[SW Install] Failed to fetch ${mustBeCachedUrl}:`, networkResponse);
+               console.error(`[SW Install] Failed to fetch ${mustBeCachedHref}:`, networkResponse);
                throw new Error(`Failed to fetch ${mustBeCachedUrl}`);
             }
             if (networkResponse.redirected === true) {
                console.log(`[SW Install] Response was redirected: ${mustBeCachedUrl} ---> ${networkResponse.url}`);
+               continue;
             }
             // Clone the response to use it in the cache and return it
             const clonedResponse = networkResponse.clone();
