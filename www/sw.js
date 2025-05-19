@@ -4,7 +4,7 @@
 const ver = "1.0.4";
 
 // This controls resetting the cache to solve problems with past buggy Service Workers
-const reset = false
+const reset = true;
 
 // Use a single, static cache name. Versioning is handled by the hashed filenames.
 const CACHE_NAME = "wallet-static-assets";
@@ -73,7 +73,7 @@ self.addEventListener("install", (event) => {
          // Like: 'https://wallet.mycredential.eu/app-ZUVSYDJ2.js'
          const mustBeCachedHref = new URL(entry.url, self.location.origin).href;
 
-         // The is the full url including thge revision.
+         // The is the full url including the revision.
          // Like: 'https://wallet.mycredential.eu/app-ZUVSYDJ2.js?revision=c9c6749fa094ca85fbde5ae3206dcce6 '
          const mustBeCachedUrl = mustBeCachedHref + "?revision=" + entry.revision;
 
@@ -86,10 +86,31 @@ self.addEventListener("install", (event) => {
             // The entry is not in the cache, add it to the list to be requested from the server and cached
             console.log(`[SW Install] To be cached: ${mustBeCachedUrl}`);
             const networkResponse = await fetch(mustBeCachedHref, {redirect: "follow"});
+            if (!networkResponse || !networkResponse.ok) {
+               console.error(`[SW Install] Failed to fetch ${mustBeCachedUrl}:`, networkResponse);
+               throw new Error(`Failed to fetch ${mustBeCachedUrl}`);
+            }
+            if (networkResponse.redirected === true) {
+               console.log(`[SW Install] Response was redirected: ${networkResponse.url}`);
+            }
+            // Clone the response to use it in the cache and return it
+            const clonedResponse = networkResponse.clone();
+            // Check if the response is valid
+            if (!clonedResponse || !clonedResponse.ok) {
+               console.error(`[SW Install] Failed to clone response for ${mustBeCachedUrl}:`, clonedResponse);
+               throw new Error(`Failed to clone response for ${mustBeCachedUrl}`);
+            }
+            // Check if the response is a valid response
+            if (clonedResponse.status !== 200) {
+               console.error(`[SW Install] Invalid response for ${mustBeCachedUrl}:`, clonedResponse);
+               throw new Error(`Invalid response for ${mustBeCachedUrl}`);
+            }
+
+
             console.log(`[SW Install] Adding entry to cache: ${mustBeCachedUrl}`);
 
             // Cache using the url which includes the revision as key
-            cache.put(mustBeCachedUrl, networkResponse);
+            cache.put(mustBeCachedUrl, clonedResponse);
          }
       }
 
