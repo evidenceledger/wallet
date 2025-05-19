@@ -58,8 +58,8 @@ self.addEventListener("install", (event) => {
          } else {
             // The entry is not in the cache, add it to the list to be requested from the server and cached
             console.log(`[SW Install] To be cached: ${mustBeCachedUrl}`);
-
-            const networkResponse = await fetch(mustBeCachedHref);
+            const networkResponse = await fetch(mustBeCachedHref, {redirect: "follow"});
+            console.log(`[SW Install] Adding entry to cache: ${mustBeCachedUrl}`);
 
             // Cache using the url which includes the revision as key
             cache.put(mustBeCachedUrl, networkResponse);
@@ -185,8 +185,7 @@ self.addEventListener("fetch", (event) => {
          );
 
          try {
-
-            const networkResponse = await fetch(event.request);
+            const networkResponse = await fetch(event.request, {redirect: "follow"});
             console.log(`[SW Fetch] Adding entry to cache: ${event.request.url}`);
             cache.put(fullRequestUrl, networkResponse.clone());
             return networkResponse;
