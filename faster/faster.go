@@ -102,9 +102,9 @@ func buildAndBundle(config *Config) api.BuildResult {
 
 	// Print any errors
 	printErrors(result.Errors)
-	if len(result.Errors) > 0 {
-		os.Exit(1)
-	}
+	// if len(result.Errors) > 0 {
+	// 	os.Exit(1)
+	// }
 
 	return result
 
@@ -175,9 +175,6 @@ func buildOptions(config *Config) api.BuildOptions {
 		MinifyWhitespace:  false,
 		MinifyIdentifiers: false,
 		MinifySyntax:      false,
-		Define: map[string]string{
-			"JR_IN_DEVELOPMENT": "false",
-		},
 		Loader: map[string]api.Loader{
 			".png": api.LoaderDataURL,
 			".svg": api.LoaderDataURL,
@@ -186,6 +183,16 @@ func buildOptions(config *Config) api.BuildOptions {
 		Sourcemap:      api.SourceMapLinked,
 		SourcesContent: api.SourcesContentInclude,
 		Metafile:       true,
+	}
+
+	if config.Environment != "production" {
+		options.Define = map[string]string{
+			"JR_IN_DEVELOPMENT": "true",
+		}
+	} else {
+		options.Define = map[string]string{
+			"JR_IN_DEVELOPMENT": "false",
+		}
 	}
 
 	if config.HashEntrypointNames {
@@ -640,6 +647,7 @@ func processTemplates(config *Config) {
 // events, resetting the wait period for every new event.
 func watchAndBuild(config *Config) {
 
+	// Perform an initial build
 	Build(config)
 
 	// Create a new watcher.

@@ -4,12 +4,9 @@ import photo_woman from "../img/photo_woman.png";
 import avatar from "../img/logo.png";
 
 // Setup some local variables for convenience
-let gotoPage = window.MHR.gotoPage;
-let goHome = window.MHR.goHome;
-let html = window.MHR.html;
-let storage = window.MHR.storage;
-let myerror = window.MHR.storage.myerror;
-let mylog = window.MHR.storage.mylog;
+var html = window.eudi.html;
+let myerror = window.eudi.myerror;
+let mylog = window.eudi.mylog;
 
 /**
  * renderAnyCredentialCard creates the HTML rendering the credential as a Card.
@@ -30,8 +27,6 @@ export function renderAnyCredentialCard(vc, status = "signed") {
 
    if (vctypes.includes("LEARCredentialEmployee")) {
       credCard = renderLEARCredentialCard(vc, status);
-   } else if (vctypes.includes("YAMKETServiceCertification")) {
-      credCard = renderYAMKETCertificationCard(vc, status);
    } else {
       throw new Error(`credential type unknown: ${vctypes}`);
    }
@@ -104,7 +99,26 @@ export function renderLEARCredentialCard(vc, status) {
    // To make it easier for the template to present the powers
    const powers = vcs.mandate.power;
 
-   const learCard = html`
+   debugger;
+
+   let renderOnePower = (pow) => {
+      let h = eudi.html`
+         <ion-label>
+            ${pow.domain}
+            ${pow.function}
+            ${JSON.stringify(pow.action)}
+         </ion-label>`;
+      return h
+   };
+
+   let renderPowers = (powers) => powers.map((pow) => {
+      return eudi.html`
+         <ion-item>
+            ${renderOnePower(pow)}
+         </ion-item>`;
+   });
+
+   const learCard = eudi.html`
       <ion-card-header>
          <ion-card-title>${first_name} ${last_name}</ion-card-title>
          <ion-card-subtitle>${vcs.mandate.mandator.organization}</ion-card-subtitle>
@@ -129,33 +143,14 @@ export function renderLEARCredentialCard(vc, status) {
                         </tr>
                      </table>
                   </ion-label>
-                  ${status != "signed"
-                     ? html`<ion-label color="danger"><b>Status: signature pending</b></ion-label>`
-                     : null}
+                  ${
+                     status != "signed"
+                        ? eudi.html`<ion-label color="danger"><b>Status: signature pending</b></ion-label>`
+                        : null
+                  }
                </ion-item>
 
-               ${powers.map((pow) => {
-                  return html` <ion-item>
-                     ${pow.tmf_domain
-                        ? html`
-                             <ion-label>
-                                ${typeof pow.tmf_domain == "string"
-                                   ? pow.tmf_domain
-                                   : pow.tmf_domain[0]}
-                                ${pow.tmf_function} [${pow.tmf_action}]
-                             </ion-label>
-                          `
-                        : null}
-                     ${pow.domain
-                        ? html`
-                             <ion-label>
-                                ${typeof pow.domain == "string" ? pow.domain : pow.domain[0]}
-                                ${pow.function} [${pow.action}]
-                             </ion-label>
-                          `
-                        : null}
-                  </ion-item>`;
-               })}
+               ${renderPowers(powers)}
             </ion-list>
          </div>
       </ion-card-content>
@@ -163,40 +158,3 @@ export function renderLEARCredentialCard(vc, status) {
    return learCard;
 }
 
-/**
- * renderYAMKETCertificationCard creates the HTML rendering the credential as a Card.
- * The result can be embedded in other HTML for presenting the credential.
- * @param {JSONObject}  vc - The Verifiable Credential.
- * @param {string}  status - One of 'offered', 'tobesigned' or 'signed'.
- * @returns {Tag<HTMLElement>} - The HTML representing the credential
- */
-export function renderYAMKETCertificationCard(vc, status) {
-   console.log("renderYAMKETCertificationCard with:", status, vc);
-
-   // TODO: perform some verifications to make sure the credential is a YAMKETServiceCertification
-
-   const serviceName = "TheServiceName";
-
-   const theCard = html`
-      <ion-card-header>
-         <ion-card-title>${serviceName}</ion-card-title>
-         <ion-card-subtitle>Service certification</ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content class="ion-padding-bottom">
-         <div>
-            <ion-list>
-               <ion-item>
-                  <ion-thumbnail slot="start">
-                     <img alt="Avatar" src=${avatar} />
-                  </ion-thumbnail>
-                  ${status != "signed"
-                     ? html`<ion-label color="danger"><b>Status: signature pending</b></ion-label>`
-                     : null}
-               </ion-item>
-            </ion-list>
-         </div>
-      </ion-card-content>
-   `;
-   return theCard;
-}

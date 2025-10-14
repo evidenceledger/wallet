@@ -20,6 +20,8 @@ var debug = localStorage.getItem("MHRdebug") == "true";
 const viaServer = "https://wallet.mycredential.eu/serverhandler";
 var proxyIssuer = true;
 
+var sameDevice = false;
+
 // We will perform SIOP/OpenID4VP Authentication flow
 MHR.register(
    "AuthenticationRequestPage",
@@ -34,8 +36,10 @@ MHR.register(
       /**
        * @param {string} openIdUrl The url for an OID4VP Authentication Request
        */
-      async enter(openIdUrl) {
+      async enter(openIdUrl, _sameDevice = false) {
          let html = this.html;
+         sameDevice = _sameDevice;
+
          proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
 
          if (debug) {
@@ -90,6 +94,7 @@ MHR.register(
          // The request_uri will be used to retrieve the AR from the Verifier
          var request_uri = params.get("request_uri");
          if (!request_uri) {
+            myerror("request_uri not found in URL");
             gotoPage("ErrorPage", {
                title: "Error",
                msg: "'request_uri' parameter not found in URL",
@@ -107,7 +112,11 @@ MHR.register(
          // Retrieve the AR from the Verifier
          const authRequestJWT = await getAuthRequest(request_uri);
          if (!authRequestJWT) {
-            mylog("authRequest is null, aborting");
+            myerror("authRequest is null, aborting");
+            gotoPage("ErrorPage", {
+               title: "Error",
+               msg: "'AuthRequest is empty",
+            });
             return;
          }
          if (authRequestJWT == "error") {
@@ -264,6 +273,7 @@ MHR.register(
       // Render the credential with buttons so the user can select it for authentication
       vcToHtml(cc, nonce, response_uri, state, webAuthnSupported) {
          // TODO: retrieve the holder and its private key from DB
+         debugger
 
          // Get the holder that will present the credential
          // We get this from the credential subject
@@ -325,8 +335,8 @@ MHR.register(
          var domedid = localStorage.getItem("domedid");
          domedid = JSON.parse(domedid);
 
+         // We will send the response here
          const endpointURL = new URL(response_uri);
-         const origin = endpointURL.origin;
 
          mylog("sending AuthenticationResponse to:", response_uri);
 
@@ -366,13 +376,6 @@ MHR.register(
          const vp_token = Base64.encodeURI(jwt);
          mylog("The encoded vpToken ", vp_token);
 
-         // var formBody =
-         //    "vp_token=" +
-         //    vp_token +
-         //    "&state=" +
-         //    state +
-         //    "&presentation_submission=" +
-         //    Base64.encodeURI(JSON.stringify(presentationSubmissionJSON()));
          var formBody = "vp_token=" + vp_token + "&state=" + state;
          mylog(formBody);
 
@@ -383,7 +386,12 @@ MHR.register(
                formBody,
                "application/x-www-form-urlencoded"
             );
+            if (response && response.redirectURL) {
+               window.location.href = response.redirectURL;
+               return;
+            }
             await gotoPage("AuthenticationResponseSuccess");
+
          } catch (error) {
             myerror(error);
             this.showError("Error authenticating", error.message);
@@ -739,7 +747,7 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
    } else {
       response = await fetch(serverURL, {
          method: "POST",
-         body: JSON.stringify(body),
+         body: body,
          headers: {
             "Content-Type": mimetype,
          },

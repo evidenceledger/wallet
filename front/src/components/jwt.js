@@ -1,6 +1,6 @@
-let log = window.MHR.log;
-let myerror = window.MHR.storage.myerror;
-let mylog = window.MHR.storage.mylog;
+
+let myerror = window.eudi.myerror;
+let mylog = window.eudi.mylog;
 
 /**
  * decodeJWT decodes the JWT without checking the signature.

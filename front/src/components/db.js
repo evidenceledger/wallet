@@ -248,6 +248,12 @@ async function mylog_entry(_level, _desc, ..._item) {
 
     // _item should be compatible with Dexie (most objects are)
 
+    let itemString = ""
+    if (_item.length > 0) {
+        itemString = JSON.stringify(_item)
+    }
+
+
     // Create the object to store
     var logItem = {
         timestamp: Date.now(),
@@ -513,4 +519,11 @@ export var storage = {
     recentLogs: recentLogs,
     clearLogs: clearLogs,
     resetDatabase: resetDatabase
+};
+
+// @ts-ignore
+globalThis.eudi = {
+   mylog: storage.mylog,
+   myerror: storage.myerror,
+   storage: storage,
 };

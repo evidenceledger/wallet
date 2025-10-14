@@ -15,7 +15,6 @@ import { credentialsSave } from "../components/aggregated.js";
 // Enable to debug the application
 var debug = eudi.debug;
 
-
 MHR.register(
    "MicroWallet",
    class extends MHR.AbstractPage {
@@ -34,7 +33,7 @@ MHR.register(
 
          // Set the default state of the proxy issuer server
          if (localStorage.getItem("proxyIssuer") === null) {
-            localStorage.setItem("proxyIssuer", "true")
+            localStorage.setItem("proxyIssuer", "true");
          }
 
          // TODO: generate a default did:key the first time the wallet is used,
@@ -75,6 +74,14 @@ MHR.register(
          if (document.URL.includes("state=") && document.URL.includes("auth-mock")) {
             mylog("Redirected with state:", document.URL);
             MHR.gotoPage("CredentialIssuance", document.URL);
+            return;
+         }
+
+         if (document.URL.includes("reset")) {
+            alert("going to reset")
+            await window.eudi.storage.resetDatabase();
+            // Reload the application
+            window.eudi.cleanReload();
             return;
          }
 
@@ -170,10 +177,7 @@ MHR.register(
                            ${T("Details")}
                         </ion-button>
 
-                        <ion-button
-                           color="danger"
-                           @click=${() => this.presentActionSheet(currentId)}
-                        >
+                        <ion-button color="danger" @click=${() => this.presentActionSheet(currentId)}>
                            <ion-icon slot="start" name="trash"></ion-icon>
                            ${T("Delete")}
                         </ion-button>
@@ -224,10 +228,7 @@ MHR.register(
 
                ${theDivs}
 
-               <ion-action-sheet
-                  id="mw_actionSheet"
-                  @ionActionSheetDidDismiss=${(ev) => this.deleteVC(ev)}
-               >
+               <ion-action-sheet id="mw_actionSheet" @ionActionSheetDidDismiss=${(ev) => this.deleteVC(ev)}>
                </ion-action-sheet>
             `;
          } else {
@@ -235,44 +236,47 @@ MHR.register(
 
             // We do not have a QR in the local storage
             theHtml = html`
-
                <ion-grid>
                   <ion-row>
                      <ion-col>
                         <div class="text-title ion-text-center ion-padding">The Wallet is empy</div>
                         <div class="text-message ion-padding">
-                           You need to obtain a Verifiable Credential from an Issuer, by scanning
-                           the QR in the screen of the Issuer page.
+                           You need to obtain a Verifiable Credential from an Issuer, by scanning the QR in
+                           the screen of the Issuer page.
                         </div>
                      </ion-col>
                   </ion-row>
                   <ion-row>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-                           <ion-card-content>
-                              <h2>Use the camera to authenticate or receive a new credential.</h2>
-                           </ion-card-content>
 
-                           <div class="ion-margin-start ion-margin-bottom">
+                           <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => MHR.gotoPage("ScanQrPage")}>
                                  <ion-icon slot="start" name="camera"></ion-icon>
                                  ${T("Scan QR")}
                               </ion-button>
                            </div>
+
+                           <ion-card-content>
+                              <h2>Use the camera to authenticate or receive a new credential.</h2>
+                           </ion-card-content>
+
                         </ion-card>
                      </ion-col>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-                           <ion-card-content>
-                              <h2>Paste a QR code image you captured from elsewhere.</h2>
-                           </ion-card-content>
 
-                           <div class="ion-margin-start ion-margin-bottom">
+                           <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => pasteImage()}>
                                  <ion-icon slot="start" name="clipboard"></ion-icon>
                                  ${T("Paste QR")}
                               </ion-button>
                            </div>
+
+                           <ion-card-content>
+                              <h2>Paste a QR code image you captured from elsewhere in your device.</h2>
+                           </ion-card-content>
+
                         </ion-card>
                      </ion-col>
                   </ion-row>
@@ -330,7 +334,6 @@ MHR.register(
 );
 
 async function test_generateDIDKeyProof(subjectDID, issuerID, nonce) {
-   debugger;
    const subjectKid = subjectDID.did;
 
    // Create the headers of the JWT

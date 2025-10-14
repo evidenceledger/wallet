@@ -1,4 +1,3 @@
-import { html } from "../components/aggregated.js";
 import { getPreferredVideoDevice, getPlatformOS } from "../components/aggregated.js";
 
 let myerror = window.MHR.storage.myerror;
@@ -29,7 +28,7 @@ MHR.register(
    class extends window.MHR.AbstractPage {
       displayPage; // The page name used to display the HC1 QR code
       detectionInterval = 200; // Milliseconds between attempts to decode QR
-      videoElement = {}; // DOMElement where the video is displayed, reused across invocations
+      videoElementcurrent = {}; // DOMElement where the video is displayed, reused across invocations
       nativeBarcodeDetector; // Instance of the native barcode detector object
       zxingReader; // Barcode detector in JavaScript
       lastUsedCameraId; // The last used camera ID
@@ -52,13 +51,15 @@ MHR.register(
             this.nativeBarcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
          }
 
-         this.videoElement = {};
+         this.videoElementcurrent = {};
          this.canvasElement = document.createElement("canvas");
          this.canvasSpace = this.canvasElement.getContext("2d");
       }
 
       // Scan a QR and then route to the proper page to display the QR
       async enter(displayPage) {
+
+
          // displayPage is the page that should display the scanned QR
          // If not specified, we default to the LoadAndVerifyQRVC page
          if (!displayPage) {
@@ -83,18 +84,18 @@ MHR.register(
          this.lastUsedCameraId = await this.selectCamera();
 
          // Display the screen with the video element
-         // The 'ref' in the template will set the 'current' property in the specified object
-         // to the video DOM element. In this case, the video DOM element can be accessed later at
-         // this.videoElement.current
-         let theHtml = html`<div class="w3-content" style="margin:auto;max-width:500px">
+         let theHtml = this.html`<div class="w3-content" style="margin:auto;max-width:500px">
             <video
+               id="scanvideoelement"
                style="max-width:500px"
-               ref=${this.videoElement}
                @canplay=${() => this.canPlay()}
                @playing=${() => this.playing()}
             ></video>
          </div>`;
          this.render(theHtml);
+
+         // Retrieve the video element just created in the DOM
+         this.videoElementcurrent = document.getElementById("scanvideoelement");
 
          let constraints;
          if (!this.lastUsedCameraId) {
@@ -130,14 +131,14 @@ MHR.register(
 
             // Assign the camera stream to the video element in the page
             // Eventually, the event 'canPlay' will be fired signallig video is ready to be displayed
-            this.videoElement.current.setAttribute("autoplay", "true");
-            this.videoElement.current.setAttribute("muted", "true");
-            this.videoElement.current.setAttribute("playsinline", "true");
-            this.videoElement.current.srcObject = stream;
+            this.videoElementcurrent.setAttribute("autoplay", "true");
+            this.videoElementcurrent.setAttribute("muted", "true");
+            this.videoElementcurrent.setAttribute("playsinline", "true");
+            this.videoElementcurrent.srcObject = stream;
 
-            this.videoElement.current.style.display = "block";
+            this.videoElementcurrent.style.display = "block";
          } catch (error) {
-            log.error("Error getting stream", error);
+            myerror("Error getting stream", error);
             window.MHR.gotoPage("ErrorPage", {
                title: "Error getting video stream",
                msg: "There was an error trying to start the camera.",
@@ -167,7 +168,7 @@ MHR.register(
                allVideoDevices = await getPreferredVideoDevice();
                mylog("Video devices in Android:", allVideoDevices);
             } catch (error) {
-               log.error("Error requesting camera access", error);
+               myerror("Error requesting camera access", error);
             }
             if (allVideoDevices && allVideoDevices.defaultPreferredCamera) {
                selectedCameraId = allVideoDevices.defaultPreferredCamera.deviceId;
@@ -186,10 +187,10 @@ MHR.register(
       async canPlay() {
          mylog("Video can play event fired, try to detect QR");
          // The video stream is ready, show the 'video' element
-         this.videoElement.current.style.display = "block";
+         this.videoElementcurrent.style.display = "block";
 
          // Start playing the video from the camera
-         this.videoElement.current.play();
+         this.videoElementcurrent.play();
 
          // Start the detector of QR codes directly in the video element
          this.detectCode();
@@ -213,10 +214,10 @@ MHR.register(
 
             let codes;
             try {
-               codes = await this.nativeBarcodeDetector.detect(this.videoElement.current);
+               codes = await this.nativeBarcodeDetector.detect(this.videoElementcurrent);
             } catch (error) {
                // Log an error if one happens
-               log.error(error);
+               myerror(error);
                return;
             }
 
@@ -243,12 +244,12 @@ MHR.register(
 
             try {
                const result = await this.zxingReader.decodeOnceFromVideoElement(
-                  this.videoElement.current
+                  this.videoElementcurrent
                );
                qrData = result.text;
                mylog("RESULT", qrData);
             } catch (error) {
-               log.error("ZXING decoding error", error);
+               myerror("ZXING decoding error", error);
             }
 
             qrType = this.detectQRtype(qrData);
@@ -299,7 +300,8 @@ MHR.register(
          if (qrType === QR_Verifiable_Issuance) {
             mylog("Going to ", "CredentialIssuance");
             // Create a valid URL
-            qrData = qrData.replace("openid-credential-offer://", "https://www.example.com/");
+            mylog("qrData", qrData)
+            qrData = qrData.replace("openid-credential-offer://", "https://");
             window.MHR.gotoPage("CredentialIssuance", qrData);
             return true;
          }
@@ -307,18 +309,20 @@ MHR.register(
 
       async exit() {
          mylog("Exit method on ScanQrPage")
-         if (!this.videoElement.current) {
+         if (!this.videoElementcurrent) {
             mylog("No video element found")
             return;
          }
 
          // Reset the decoder just in case the camera was still working
-         this.videoElement.current.style.display = "none";
+         if (this.videoElementcurrent.style) {
+            this.videoElementcurrent.style.display = "none";
+         }
 
          // Release resources
-         if (this.videoElement.current.srcObject !== undefined) {
+         if (this.videoElementcurrent.srcObject !== undefined) {
             mylog("releasing resources")
-            this.videoElement.current.srcObject.getVideoTracks().forEach((track) => {
+            this.videoElementcurrent.srcObject.getVideoTracks().forEach((track) => {
                mylog("releasing track")
                track.stop();
             });
@@ -328,7 +332,7 @@ MHR.register(
       // Try to detect the type of data received
       detectQRtype(qrData) {
          if (!qrData || !qrData.startsWith) {
-            log.error("detectQRtype: data is not string");
+            myerror("detectQRtype: data is not string");
             return QR_UNKNOWN;
          }
 

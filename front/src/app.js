@@ -7,7 +7,8 @@
 // variables which are useful for the rest of the modules without having to import.
 
 // For rendering the HTML in the pages
-import { render, html, svg } from "uhtml";
+// import { render, html, svg } from "uhtml";
+import { render, html } from "./components/aggregated.js";
 
 // Translation support
 import "./i18n/tr.js";
@@ -120,7 +121,6 @@ async function goHome() {
  */
 async function gotoPage(pageName, pageData, replace) {
    mylog("Inside gotoPage:", pageName);
-
    // Catch any exceptions and present an error page in case of error
    try {
       // We load dynamically the page if it is not yet loaded
@@ -278,13 +278,13 @@ window.addEventListener("DOMContentLoaded", async (event) => {
    // Go to the home page
    await goHome();
 
-   // // Preload the pages of the application in parallel
-   // for (const path in pageModulesMap) {
-   //    import(pageModulesMap[path]);
-   // }
+   // Preload the pages of the application in parallel
+   for (const path in pageModulesMap) {
+      import(pageModulesMap[path]);
+   }
 });
 
-var INSTALL_SERVICE_WORKER = true;
+var INSTALL_SERVICE_WORKER = false;
 
 // This function is called on first load and when a refresh is triggered in any page
 // When called the DOM is fully loaded and safe to manipulate
@@ -299,6 +299,7 @@ window.addEventListener("load", async (event) => {
       INSTALL_SERVICE_WORKER = false;
    } else {
       console.log("In production");
+      INSTALL_SERVICE_WORKER = true;
    }
 
    // Install service worker for off-line support
@@ -394,15 +395,17 @@ function HeaderBar(backButton = true, loginData) {
    var backButtonHTML;
    if (backButton) {
       backButtonHTML = html` <ion-buttons slot="start">
-         <ion-button @click=${() => history.back()}>
+         <ion-button onclick="history.back();">
             <ion-icon slot="start" name="chevron-back"></ion-icon>
             Back
          </ion-button>
       </ion-buttons>`;
+   } else {
+      backButtonHTML = html``;
    }
 
    var menuButton = html` <ion-buttons slot="end">
-      <ion-button aria-label="Menu" @click=${() => gotoPage("MenuPage", "")}>
+      <ion-button aria-label="Menu" onclick="eudi.gotoPage('MenuPage', '')">
          <ion-icon name="menu"></ion-icon>
       </ion-button>
    </ion-buttons>`;
@@ -477,7 +480,7 @@ class AbstractPage {
 
       // Set the 'html' and 'svg' tag function so subclasses do not have to import 'uhtml'
       this.html = html;
-      this.svg = svg;
+      // this.svg = svg;
 
       // Create a <div> tag to contain the page
       this.domElem = document.createElement("page");
@@ -518,8 +521,13 @@ class AbstractPage {
       // Redraw the header just in case the menu was active
       // The caller can specify if the back button has to be displayed in the header
       let header = document.getElementById("the_header");
+      let hb = HeaderBar(backButton, this.loginData)
       if (header) {
-         render(header, HeaderBar(backButton, this.loginData));
+         try {
+            render(header, hb);         
+         } catch (error) {
+            console.error
+         }
       }
 
       // Render the html of the page into the DOM element of this page
@@ -778,3 +786,4 @@ globalThis.eudi = {
    atobUrl: atobUrl,
    pageNameToClass: pageNameToClass,
 };
+

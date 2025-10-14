@@ -81,7 +81,6 @@ window.MHR.register(
             // The QR points to an an OpenID4VCI credential issuance offer
 
             // Retrieve the credential offer from the Issuer
-            // Until CORS is enabled in Issuer, send request via a server
             this.credentialOffer = await getCredentialOffer(qrData, "via_server");
 
             // Save temporarily for redirections which cause page reloads
@@ -169,7 +168,7 @@ window.MHR.register(
                return;
             }
          } else {
-            mylog("Non-standard issuance");
+            mylog("Non-standard issuance", qrData);
             // This is a non-standard nechanism to issue credentials (easier in controlled environments).
             // We have received a URL that was scanned as a QR code.
             // First we should do a GET to the URL to retrieve the VC.
@@ -1403,7 +1402,7 @@ async function generateDIDKeyProof(subjectDID, issuerID, nonce) {
    // The JWT is intended for the entity that is issuing the Verifiable Credential in the OID4VCI flow. This is the
    // reason why the 'aud' claim is set to the did (whatever did method is used) of the VC Issuer.
    var jwtPayload = {
-      // iss: subjectDID.did,
+      iss: subjectDID.did,
       aud: issuerID,
       iat: iat,
       exp: exp,
@@ -1524,6 +1523,7 @@ async function doGETJSON(serverURL) {
 
    var response;
    if (proxyIssuer) {
+      mylog("PROXY doFetchJSON", serverURL);
       let forwardBody = {
          method: "GET",
          url: serverURL,
@@ -1537,6 +1537,7 @@ async function doGETJSON(serverURL) {
          cache: "no-cache",
       });
    } else {
+      mylog("doFetchJSON", serverURL)
       response = await fetch(serverURL);
    }
 

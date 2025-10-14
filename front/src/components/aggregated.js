@@ -1,9 +1,10 @@
+export { render, html } from 'https://esm.run/uhtml/dev';
+
+export { storage } from "./db.js";
+
 export { getPlatformOS, getVideoDevices, getPreferredVideoDevice } from "./camerainfo.js"
 
-// app.js
-export { render, html, svg } from "uhtml";
 export { T } from "../i18n/tr.js";
-export { storage } from "./db.js";
 
 // AuthenticationRequestPage
 export { Base64 } from "js-base64";

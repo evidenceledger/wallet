@@ -5,8 +5,8 @@
    <link rel="stylesheet" href="/assets/css/common.css" />
    <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
-   <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+   <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@7.8.6/dist/ionic/ionic.esm.js"></script>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@7.8.6/css/ionic.bundle.css" />
 
    <script>
       // Set here the default home page for the app, before loading app.js
@@ -30,12 +30,9 @@
             mode: "ios",
          },
       };
+
    </script>
 
-   <!-- Load the JavaScrip entry points. Inserted by the build process. -->
-   {{ range .EntryPoints }}
-   <script type="module" src="{{ .EntryPoint }}"></script>
-   {{ end }}
 
    <meta charset="utf-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -141,9 +138,14 @@
       </ion-content>
    </ion-app>
 
-   <footer></footer>
+   <footer>
+   </footer>
 
    <script src="/assets/js/prism.js" defer></script>
 </body>
+   <!-- Load the JavaScrip entry points. Inserted by the build process. -->
+   {{ range .EntryPoints }}
+   <script type="module" src="{{ .EntryPoint }}"></script>
+   {{ end }}
 
 </html>

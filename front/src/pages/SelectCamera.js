@@ -35,7 +35,7 @@ window.MHR.register("SelectCamera", class extends window.MHR.AbstractPage {
             </ion-list-header>
             ${videoDevices.map((camera) =>
                 html`<ion-item button @click=${() => this.setCamera(camera.deviceId)}><ion-label>
-                <div class="text-larger">${camera.label}</div></a>
+                <a><div class="text-larger">${camera.label}</div></a>
                 </ion-label></ion-item>`
             )}
         </ion-list>`

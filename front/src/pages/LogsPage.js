@@ -36,7 +36,7 @@ window.MHR.register("LogsPage", class extends window.MHR.AbstractPage {
                 } else {
                     var theHtml = html`
                     <ion-item><ion-label class="ion-text-wrap">
-                    ${shortDate(timestamp)} ${desc} ${item}
+                    ${shortDate(timestamp)} ${desc} ${item && item.length > 0 ? item : html``}
                     </ion-label></ion-item>
                     `
                 }

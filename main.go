@@ -88,6 +88,9 @@ func main() {
 		os.Exit(0)
 	}
 
+	// No valid command given, print usage message
+	flag.Usage()
+
 }
 
 func StartServices(configFileName string) error {
@@ -142,7 +145,8 @@ func StartServices(configFileName string) error {
 		}
 
 		// Forward the received request to the target server
-		if received.Method == "GET" {
+		switch received.Method {
+		case "GET":
 			fmt.Println("Received GET request to: ", received.URL)
 			resp, err := http.Get(received.URL)
 			if err != nil {
@@ -156,7 +160,7 @@ func StartServices(configFileName string) error {
 			fmt.Println("Response Body:", string(body))
 			return c.String(resp.StatusCode, string(body))
 
-		} else if received.Method == "POST" {
+		case "POST":
 			fmt.Println("Received POST request to: ", received.URL)
 
 			receivedBodyMap := make(map[string]any)
@@ -209,7 +213,7 @@ func StartServices(configFileName string) error {
 			body, _ := io.ReadAll(resp.Body)
 			fmt.Println("Response Body:", string(body))
 			return c.String(resp.StatusCode, string(body))
-		} else {
+		default:
 			fmt.Println("Received BAD request to: ", received.URL)
 			return c.String(http.StatusBadRequest, "bad request")
 		}

@@ -1,5 +1,5 @@
-let gotoPage = window.MHR.gotoPage
-let goHome = window.MHR.goHome
+let gotoPage = window.eudi.gotoPage
+let goHome = window.eudi.goHome
 
 window.MHR.register("ConfirmResetApp", class extends window.MHR.AbstractPage {
 
