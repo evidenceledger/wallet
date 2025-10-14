@@ -33,7 +33,7 @@ MHR.register(
 
          // Set the default state of the proxy issuer server
          if (localStorage.getItem("proxyIssuer") === null) {
-            localStorage.setItem("proxyIssuer", "true");
+            localStorage.setItem("proxyIssuer", "false");
          }
 
          // TODO: generate a default did:key the first time the wallet is used,

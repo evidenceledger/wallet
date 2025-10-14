@@ -18,7 +18,7 @@ var debug = localStorage.getItem("MHRdebug") == "true";
 
 // Make all requests via the server instead of from the JavaScript client
 const viaServer = "https://wallet.mycredential.eu/serverhandler";
-var proxyIssuer = true;
+var proxyIssuer = false;
 
 var sameDevice = false;
 
