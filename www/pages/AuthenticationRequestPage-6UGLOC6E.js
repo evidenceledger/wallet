@@ -16,7 +16,7 @@ var mylog = globalThis.MHR.storage.mylog;
 var html = MHR.html;
 var debug = localStorage.getItem("MHRdebug") == "true";
 var viaServer = "https://wallet.mycredential.eu/serverhandler";
-var proxyIssuer = true;
+var proxyIssuer = false;
 var sameDevice = false;
 MHR.register(
   "AuthenticationRequestPage",
@@ -390,4 +390,4 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error("Error in request to server");
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage-NYMYQRSE.js.map
+//# sourceMappingURL=AuthenticationRequestPage-6UGLOC6E.js.map

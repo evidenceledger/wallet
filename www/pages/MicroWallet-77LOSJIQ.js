@@ -21,7 +21,7 @@ MHR.register(
       mylog("MicroWallet", globalThis.document.location);
       debug = localStorage.getItem("MHRdebug") == "true";
       if (localStorage.getItem("proxyIssuer") === null) {
-        localStorage.setItem("proxyIssuer", "true");
+        localStorage.setItem("proxyIssuer", "false");
       }
       var domedid;
       domedid = localStorage.getItem("domedid");
@@ -335,4 +335,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-VJFTO4LJ.js.map
+//# sourceMappingURL=MicroWallet-77LOSJIQ.js.map
