@@ -51,7 +51,7 @@ window.MHR.register("LoadAndVerifyQRVC", class LoadAndVerifyQRVC extends window.
         
                 <div class="w3-container ptb-16">
                   <p>Name: ${claims.name}</p>
-                  <p>Roles: ${roles}<p>
+                  <p>Roles: ${roles}</p>
                 </div>
         
        
@@ -248,4 +248,4 @@ async function getCredentialOffer(url) {
     return null;
   }
 }
-//# sourceMappingURL=LoadAndVerifyQRVC-57SFONQA.js.map
+//# sourceMappingURL=LoadAndVerifyQRVC-BMALGOMS.js.map

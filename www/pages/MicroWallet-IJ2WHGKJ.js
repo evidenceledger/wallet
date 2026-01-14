@@ -53,14 +53,14 @@ MHR.register(
       let scope = params.get("scope");
       if (scope !== null) {
         mylog("detected scope:", scope);
-        MHR.gotoPage("AuthenticationRequestPage", document.URL);
+        MHR.gotoPage("AuthenticationRequestPage", document.URL, true);
         return;
       }
       let request_uri = params.get("request_uri");
       if (request_uri) {
         request_uri = decodeURIComponent(request_uri);
         mylog("MicroWallet request_uri", request_uri);
-        MHR.gotoPage("AuthenticationRequestPage", document.URL);
+        MHR.gotoPage("AuthenticationRequestPage", document.URL, true);
         return;
       }
       let credential_offer_uri = params.get("credential_offer_uri");
@@ -335,4 +335,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-77LOSJIQ.js.map
+//# sourceMappingURL=MicroWallet-IJ2WHGKJ.js.map
