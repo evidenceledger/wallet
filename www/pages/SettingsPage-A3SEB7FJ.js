@@ -17,8 +17,10 @@ eudi.register(
     async enter() {
       let currentDebug = localStorage.getItem("MHRdebug") == "true";
       let proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
+      let version = localStorage.getItem("VERSION");
       var mainPage = html`
             <ion-card>
+               <ion-card-subtitle>Version: ${version}</ion-card-subtitle>
                <ion-item>
                   <ion-toggle
                      @ionChange=${(e) => {
@@ -65,4 +67,4 @@ eudi.register(
     }
   }
 );
-//# sourceMappingURL=SettingsPage-6CR7LVK4.js.map
+//# sourceMappingURL=SettingsPage-A3SEB7FJ.js.map

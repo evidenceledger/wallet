@@ -256,7 +256,7 @@ async function getAndUpdateVersion() {
    // @ts-ignore
    // let version = import.meta.env.VITE_APP_VERSION
    // TODO: put version info in the config file
-   let version = "1.1.2";
+   let version = "1.1.3";
 
    // Store the version in global Window object and in local storage
    // @ts-ignore
