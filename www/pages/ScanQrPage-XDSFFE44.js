@@ -203,12 +203,12 @@ MHR.register(
       }
       if (qrType === QR_VP_old) {
         mylog("Old VP requested, going to ", "AuthenticationRequestPage", qrData);
-        window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+        window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
         return true;
       }
       if (qrType === QR_Verifiable_Presentation) {
         mylog("Going to ", "AuthenticationRequestPage", qrData);
-        window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+        window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
         return true;
       }
       if (qrType === QR_HC1) {
@@ -478,4 +478,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-SGMBGTTZ.js.map
+//# sourceMappingURL=ScanQrPage-XDSFFE44.js.map
