@@ -95,7 +95,7 @@ MHR.register(
          let scope = params.get("scope");
          if (scope !== null) {
             mylog("detected scope:", scope);
-            MHR.gotoPage("AuthenticationRequestPage", document.URL, true);
+            MHR.gotoPage("AuthenticationRequestPage", {url: document.URL, sameDevice: true});
             return;
          }
 
@@ -105,7 +105,7 @@ MHR.register(
             // Unescape the query parameter
             request_uri = decodeURIComponent(request_uri);
             mylog("MicroWallet request_uri", request_uri);
-            MHR.gotoPage("AuthenticationRequestPage", document.URL, true);
+            MHR.gotoPage("AuthenticationRequestPage", {url: document.URL, sameDevice: true});
             return;
          }
 
@@ -464,7 +464,7 @@ function detectQRtype(qrData) {
    if (qrData.startsWith("openid4vp:")) {
       // An Authentication Request, for Verifiable Presentation
       mylog("Authentication Request");
-      window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+      window.MHR.gotoPage("AuthenticationRequestPage", {url: qrData, sameDevice: false});
       return;
    } else if (qrData.startsWith("openid-credential-offer://")) {
       // An OpenID Credential Issuance
@@ -484,7 +484,7 @@ function detectQRtype(qrData) {
       let jar = params.get("jar");
       if (jar == "yes") {
          mylog("Going to ", "AuthenticationRequestPage", qrData);
-         window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+         window.MHR.gotoPage("AuthenticationRequestPage", {url: qrData, sameDevice: false});
          return;
       }
 
