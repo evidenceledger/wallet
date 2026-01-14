@@ -72,7 +72,7 @@ window.MHR.register("LoadAndVerifyQRVC", class LoadAndVerifyQRVC extends window.
         
                 <div class="w3-container ptb-16">
                   <p>Name: ${claims.name}</p>
-                  <p>Roles: ${roles}<p>
+                  <p>Roles: ${roles}</p>
                 </div>
         
        

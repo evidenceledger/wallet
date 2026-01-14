@@ -95,7 +95,7 @@ MHR.register(
          let scope = params.get("scope");
          if (scope !== null) {
             mylog("detected scope:", scope);
-            MHR.gotoPage("AuthenticationRequestPage", document.URL);
+            MHR.gotoPage("AuthenticationRequestPage", document.URL, true);
             return;
          }
 
@@ -105,7 +105,7 @@ MHR.register(
             // Unescape the query parameter
             request_uri = decodeURIComponent(request_uri);
             mylog("MicroWallet request_uri", request_uri);
-            MHR.gotoPage("AuthenticationRequestPage", document.URL);
+            MHR.gotoPage("AuthenticationRequestPage", document.URL, true);
             return;
          }
 

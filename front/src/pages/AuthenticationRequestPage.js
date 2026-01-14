@@ -47,6 +47,7 @@ MHR.register(
          }
 
          mylog("Inside AuthenticationRequestPage:", openIdUrl);
+         mylog("samedevice:", sameDevice)
          if (openIdUrl == null) {
             myerror("No URL has been specified");
             this.showError("Error", "No URL has been specified");
@@ -386,7 +387,7 @@ MHR.register(
                formBody,
                "application/x-www-form-urlencoded"
             );
-            if (response && response.redirectURL) {
+            if (sameDevice && response && response.redirectURL) {
                window.location.href = response.redirectURL;
                return;
             }
