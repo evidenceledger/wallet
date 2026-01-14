@@ -20,7 +20,7 @@ eudi.register(
       let version = localStorage.getItem("VERSION");
       var mainPage = html`
             <ion-card>
-               <ion-card-subtitle>Version: ${version}</ion-card-subtitle>
+               <ion-card-content>Version: ${version}</ion-card-content>
                <ion-item>
                   <ion-toggle
                      @ionChange=${(e) => {
@@ -67,4 +67,4 @@ eudi.register(
     }
   }
 );
-//# sourceMappingURL=SettingsPage-A3SEB7FJ.js.map
+//# sourceMappingURL=SettingsPage-IM2DWPZE.js.map

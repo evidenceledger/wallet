@@ -25,7 +25,7 @@ eudi.register(
 
          var mainPage = html`
             <ion-card>
-               <ion-card-subtitle>Version: ${version}</ion-card-subtitle>
+               <ion-card-content>Version: ${version}</ion-card-content>
                <ion-item>
                   <ion-toggle
                      @ionChange=${(e) => {

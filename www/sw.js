@@ -26,7 +26,7 @@ const MUST_BE_CACHED_ARRAY = [
    { url: "/icon-152.png", revision: "3BDE98AB7A5F7CF" },
    { url: "/icon-192.png", revision: "6A656C4FF1D80F73" },
    { url: "/icon-512.png", revision: "6DA77461D6A97AE5" },
-   { url: "/index.html", revision: "E47C2CD0DDD8514D" },
+   { url: "/index.html", revision: "695AB5043E4C49CA" },
    { url: "/pages/AuthenticationRequestPage-JNMZIRO4.js", revision: "2A353536234E529A" },
    { url: "/pages/AuthenticatorPage-ZQ5LL26K.js", revision: "79D20D94F91D695E" },
    { url: "/pages/ConfirmDeleteAll-WAGRMZMH.js", revision: "39BE26FAA4851BBB" },
@@ -41,7 +41,7 @@ const MUST_BE_CACHED_ARRAY = [
    { url: "/pages/MicroWallet-IJ2WHGKJ.js", revision: "1449985611B89BF2" },
    { url: "/pages/ScanQrPage-SGMBGTTZ.js", revision: "884DE1613E6E58DC" },
    { url: "/pages/SelectCamera-Y7Y5IHXJ.js", revision: "8097166DFE2C7040" },
-   { url: "/pages/SettingsPage-A3SEB7FJ.js", revision: "E6E5CB3AD6C8B3EC" },
+   { url: "/pages/SettingsPage-IM2DWPZE.js", revision: "9736FEA41069477B" },
 ];
 
 // --- Service Worker Lifecycle ---
