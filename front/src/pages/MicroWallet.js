@@ -173,7 +173,7 @@ MHR.register(
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
 
-                     <div class="ion-padding-start ion-padding-end">
+                     <div class="ion-padding-start ion-padding-end ion-padding-bottom">
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}

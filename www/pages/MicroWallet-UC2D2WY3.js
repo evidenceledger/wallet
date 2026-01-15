@@ -104,7 +104,7 @@ MHR.register(
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
 
-                     <div class="ion-padding-start ion-padding-end">
+                     <div class="ion-padding-start ion-padding-end ion-padding-bottom">
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}
@@ -335,4 +335,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-3JPJBSOS.js.map
+//# sourceMappingURL=MicroWallet-UC2D2WY3.js.map
