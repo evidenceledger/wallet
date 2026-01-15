@@ -4,7 +4,9 @@
  * MicroWallet is the main page of the wallet application.
  * It shows the list of credentials stored in the wallet,
  * and allows the user to scan a QR code to add a new credential or authenticate
- * to a RelyingParty
+ * to a RelyingParty.
+ * It is initialised and its `enter` entry point is called automatically by the nano-router
+ * when the application is loaded or reloaded.
  */
 
 import { renderAnyCredentialCard } from "../components/aggregated.js";
@@ -35,11 +37,6 @@ MHR.register(
          if (localStorage.getItem("proxyIssuer") === null) {
             localStorage.setItem("proxyIssuer", "false");
          }
-
-         // TODO: generate a default did:key the first time the wallet is used,
-         // and give the user the possibility to create a new one when issuing
-         // a new credential which has to be bound to the user.
-         // And move the code to a component.
 
          // Generate a did:key if it does not exist yet
          var domedid;
@@ -77,14 +74,17 @@ MHR.register(
             return;
          }
 
+         // This is to enable resetting the application by loading a special URL.
+         // It always asks permission from the user.
          if (document.URL.includes("reset")) {
-            alert("going to reset")
+            alert("going to reset");
             await window.eudi.storage.resetDatabase();
             // Reload the application
             window.eudi.cleanReload();
             return;
          }
 
+         // There was a redirection with authorization code flow
          if (document.URL.includes("code=")) {
             mylog("Redirected with code:", document.URL);
             MHR.gotoPage("CredentialIssuance", document.URL);
@@ -95,17 +95,17 @@ MHR.register(
          let scope = params.get("scope");
          if (scope !== null) {
             mylog("detected scope:", scope);
-            MHR.gotoPage("AuthenticationRequestPage", {url: document.URL, sameDevice: true});
+            MHR.gotoPage("AuthenticationRequestPage", { url: document.URL, sameDevice: true });
             return;
          }
 
-         // Check if we are authenticating
+         // Authentication Request which has to be retrieved from the passed request_uri
          let request_uri = params.get("request_uri");
          if (request_uri) {
             // Unescape the query parameter
             request_uri = decodeURIComponent(request_uri);
             mylog("MicroWallet request_uri", request_uri);
-            MHR.gotoPage("AuthenticationRequestPage", {url: document.URL, sameDevice: true});
+            MHR.gotoPage("AuthenticationRequestPage", { url: document.URL, sameDevice: true });
             return;
          }
 
@@ -132,13 +132,15 @@ MHR.register(
             }
          }
 
+         // We are here if no recognized URL was passed to the Wallet
+
          // Retrieve all recent credentials from storage (all for the moment)
          var credentials = await MHR.storage.credentialsGetAllRecent(-1);
 
-         // We should get a result even if it is an empty array (no credentials match)
-         // Otherwise, it is an error
+         // We always get an array, even if it is empty (no credentials match).
+         // Otherwise, it is an error.
          if (!credentials) {
-            myerror("Error getting recent credentials");
+            myerror("Error getting recent credentials: received null array");
             MHR.gotoPage("ErrorPage", {
                title: "Error",
                msg: "Error getting recent credentials",
@@ -154,11 +156,11 @@ MHR.register(
          const theDivs = [];
 
          for (const vcraw of credentials) {
-            // For the moment, we only understand the credentials in the "jwt_vc" format
+            // We only understand credentials in "jwt_vc" or "jwt_vc_json" format
             if (vcraw.type == "jwt_vc" || vcraw.type == "jwt_vc_json") {
                console.log(vcraw);
 
-               // We use the hash of the credential as its unique ID
+               // We use the hash of the credential as its unique ID in this application
                const currentId = vcraw.hash;
 
                // Get the unencoded payload
@@ -166,18 +168,21 @@ MHR.register(
 
                const status = vcraw.status;
 
-               // Render the credential
+               // Generate the HTML representing the credential
                const div = html`
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
-
                      <div class="ion-margin-start ion-margin-bottom">
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}
                         </ion-button>
 
-                        <ion-button color="danger" @click=${() => this.presentActionSheet(currentId)}>
+                        <ion-button
+                           class="ion-float-right"
+                           color="danger"
+                           @click=${() => this.presentActionSheet(currentId)}
+                        >
                            <ion-icon slot="start" name="trash"></ion-icon>
                            ${T("Delete")}
                         </ion-button>
@@ -198,7 +203,7 @@ MHR.register(
                      <ion-col size="6">
                         <ion-card class="scanbutton">
                            <ion-card-content>
-                              <h2>Use the camera to authenticate or receive a new credential.</h2>
+                              <h2>Use the camera to authenticate or receive a credential.</h2>
                            </ion-card-content>
 
                            <div class="ion-margin-start ion-margin-bottom">
@@ -249,7 +254,6 @@ MHR.register(
                   <ion-row>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-
                            <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => MHR.gotoPage("ScanQrPage")}>
                                  <ion-icon slot="start" name="camera"></ion-icon>
@@ -260,12 +264,10 @@ MHR.register(
                            <ion-card-content>
                               <h2>Use the camera to authenticate or receive a new credential.</h2>
                            </ion-card-content>
-
                         </ion-card>
                      </ion-col>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-
                            <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => pasteImage()}>
                                  <ion-icon slot="start" name="clipboard"></ion-icon>
@@ -276,7 +278,6 @@ MHR.register(
                            <ion-card-content>
                               <h2>Paste a QR code image you captured from elsewhere in your device.</h2>
                            </ion-card-content>
-
                         </ion-card>
                      </ion-col>
                   </ion-row>
@@ -464,7 +465,7 @@ function detectQRtype(qrData) {
    if (qrData.startsWith("openid4vp:")) {
       // An Authentication Request, for Verifiable Presentation
       mylog("Authentication Request");
-      window.MHR.gotoPage("AuthenticationRequestPage", {url: qrData, sameDevice: false});
+      window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
       return;
    } else if (qrData.startsWith("openid-credential-offer://")) {
       // An OpenID Credential Issuance
@@ -484,7 +485,7 @@ function detectQRtype(qrData) {
       let jar = params.get("jar");
       if (jar == "yes") {
          mylog("Going to ", "AuthenticationRequestPage", qrData);
-         window.MHR.gotoPage("AuthenticationRequestPage", {url: qrData, sameDevice: false});
+         window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
          return;
       }
 

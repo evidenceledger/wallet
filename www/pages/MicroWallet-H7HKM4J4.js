@@ -83,7 +83,7 @@ MHR.register(
       }
       var credentials = await MHR.storage.credentialsGetAllRecent(-1);
       if (!credentials) {
-        myerror("Error getting recent credentials");
+        myerror("Error getting recent credentials: received null array");
         MHR.gotoPage("ErrorPage", {
           title: "Error",
           msg: "Error getting recent credentials"
@@ -103,14 +103,17 @@ MHR.register(
           const div = html`
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
-
                      <div class="ion-margin-start ion-margin-bottom">
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}
                         </ion-button>
 
-                        <ion-button color="danger" @click=${() => this.presentActionSheet(currentId)}>
+                        <ion-button
+                           class="ion-float-right"
+                           color="danger"
+                           @click=${() => this.presentActionSheet(currentId)}
+                        >
                            <ion-icon slot="start" name="trash"></ion-icon>
                            ${T("Delete")}
                         </ion-button>
@@ -128,7 +131,7 @@ MHR.register(
                      <ion-col size="6">
                         <ion-card class="scanbutton">
                            <ion-card-content>
-                              <h2>Use the camera to authenticate or receive a new credential.</h2>
+                              <h2>Use the camera to authenticate or receive a credential.</h2>
                            </ion-card-content>
 
                            <div class="ion-margin-start ion-margin-bottom">
@@ -177,7 +180,6 @@ MHR.register(
                   <ion-row>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-
                            <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => MHR.gotoPage("ScanQrPage")}>
                                  <ion-icon slot="start" name="camera"></ion-icon>
@@ -188,12 +190,10 @@ MHR.register(
                            <ion-card-content>
                               <h2>Use the camera to authenticate or receive a new credential.</h2>
                            </ion-card-content>
-
                         </ion-card>
                      </ion-col>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-
                            <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => pasteImage()}>
                                  <ion-icon slot="start" name="clipboard"></ion-icon>
@@ -204,7 +204,6 @@ MHR.register(
                            <ion-card-content>
                               <h2>Paste a QR code image you captured from elsewhere in your device.</h2>
                            </ion-card-content>
-
                         </ion-card>
                      </ion-col>
                   </ion-row>
@@ -335,4 +334,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-VJMTI2BE.js.map
+//# sourceMappingURL=MicroWallet-H7HKM4J4.js.map
