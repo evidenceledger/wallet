@@ -172,7 +172,8 @@ MHR.register(
                const div = html`
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
-                     <div class="ion-margin-start ion-margin-bottom">
+
+                     <ion-card-content>
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}
@@ -186,7 +187,8 @@ MHR.register(
                            <ion-icon slot="start" name="trash"></ion-icon>
                            ${T("Delete")}
                         </ion-button>
-                     </div>
+                     </ion-card-content>
+
                   </ion-card>
                `;
 
