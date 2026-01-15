@@ -2,7 +2,7 @@ import {
   html,
   render,
   storage
-} from "./chunks/chunk-ULNROR7V.js";
+} from "./chunks/chunk-FUD4I7SA.js";
 import "./chunks/chunk-W7NC74ZX.js";
 
 // front/src/app.js
@@ -114,7 +114,7 @@ window.addEventListener("popstate", async function(event) {
   }
 });
 async function getAndUpdateVersion() {
-  let version = "1.1.2";
+  let version = "1.1.3";
   window.appVersion = version;
   window.localStorage.setItem("VERSION", version);
   console.log("Version:", version);
@@ -459,4 +459,4 @@ globalThis.eudi = {
   atobUrl,
   pageNameToClass
 };
-//# sourceMappingURL=app-YXBWVJYW.js.map
+//# sourceMappingURL=app-GFLIKO6B.js.map

@@ -21,9 +21,11 @@ eudi.register(
       async enter() {
          let currentDebug = localStorage.getItem("MHRdebug") == "true";
          let proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
+         let version = localStorage.getItem("VERSION")
 
          var mainPage = html`
             <ion-card>
+               <ion-card-content>Version: ${version}</ion-card-content>
                <ion-item>
                   <ion-toggle
                      @ionChange=${(e) => {

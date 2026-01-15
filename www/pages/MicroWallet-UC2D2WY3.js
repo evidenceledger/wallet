@@ -3,7 +3,7 @@ import {
   decodeUnsafeJWT,
   generateP256did,
   renderAnyCredentialCard
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/MicroWallet.js
@@ -53,14 +53,14 @@ MHR.register(
       let scope = params.get("scope");
       if (scope !== null) {
         mylog("detected scope:", scope);
-        MHR.gotoPage("AuthenticationRequestPage", document.URL);
+        MHR.gotoPage("AuthenticationRequestPage", { url: document.URL, sameDevice: true });
         return;
       }
       let request_uri = params.get("request_uri");
       if (request_uri) {
         request_uri = decodeURIComponent(request_uri);
         mylog("MicroWallet request_uri", request_uri);
-        MHR.gotoPage("AuthenticationRequestPage", document.URL);
+        MHR.gotoPage("AuthenticationRequestPage", { url: document.URL, sameDevice: true });
         return;
       }
       let credential_offer_uri = params.get("credential_offer_uri");
@@ -83,7 +83,7 @@ MHR.register(
       }
       var credentials = await MHR.storage.credentialsGetAllRecent(-1);
       if (!credentials) {
-        myerror("Error getting recent credentials");
+        myerror("Error getting recent credentials: received null array");
         MHR.gotoPage("ErrorPage", {
           title: "Error",
           msg: "Error getting recent credentials"
@@ -104,13 +104,17 @@ MHR.register(
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
 
-                     <div class="ion-margin-start ion-margin-bottom">
+                     <div class="ion-padding-start ion-padding-end ion-padding-bottom">
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}
                         </ion-button>
 
-                        <ion-button color="danger" @click=${() => this.presentActionSheet(currentId)}>
+                        <ion-button
+                           class="ion-float-right"
+                           color="danger"
+                           @click=${() => this.presentActionSheet(currentId)}
+                        >
                            <ion-icon slot="start" name="trash"></ion-icon>
                            ${T("Delete")}
                         </ion-button>
@@ -128,7 +132,7 @@ MHR.register(
                      <ion-col size="6">
                         <ion-card class="scanbutton">
                            <ion-card-content>
-                              <h2>Use the camera to authenticate or receive a new credential.</h2>
+                              <h2>Use the camera to authenticate or receive a credential.</h2>
                            </ion-card-content>
 
                            <div class="ion-margin-start ion-margin-bottom">
@@ -177,7 +181,6 @@ MHR.register(
                   <ion-row>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-
                            <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => MHR.gotoPage("ScanQrPage")}>
                                  <ion-icon slot="start" name="camera"></ion-icon>
@@ -188,12 +191,10 @@ MHR.register(
                            <ion-card-content>
                               <h2>Use the camera to authenticate or receive a new credential.</h2>
                            </ion-card-content>
-
                         </ion-card>
                      </ion-col>
                      <ion-col size="6">
                         <ion-card class="scanbutton">
-
                            <div class="ion-margin-start ion-margin-top">
                               <ion-button @click=${() => pasteImage()}>
                                  <ion-icon slot="start" name="clipboard"></ion-icon>
@@ -204,7 +205,6 @@ MHR.register(
                            <ion-card-content>
                               <h2>Paste a QR code image you captured from elsewhere in your device.</h2>
                            </ion-card-content>
-
                         </ion-card>
                      </ion-col>
                   </ion-row>
@@ -306,7 +306,7 @@ function detectQRtype(qrData) {
   }
   if (qrData.startsWith("openid4vp:")) {
     mylog("Authentication Request");
-    window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+    window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
     return;
   } else if (qrData.startsWith("openid-credential-offer://")) {
     mylog("Credential Issuance");
@@ -323,7 +323,7 @@ function detectQRtype(qrData) {
     let jar = params.get("jar");
     if (jar == "yes") {
       mylog("Going to ", "AuthenticationRequestPage", qrData);
-      window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+      window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
       return;
     }
     mylog("Going to ", this.displayPage);
@@ -335,4 +335,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-77LOSJIQ.js.map
+//# sourceMappingURL=MicroWallet-UC2D2WY3.js.map

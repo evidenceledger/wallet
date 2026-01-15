@@ -1,6 +1,6 @@
 import {
   import_easyqrcodejs
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/DisplayQR.js
@@ -28,4 +28,4 @@ window.MHR.register("DisplayQR", class DisplayQR extends window.MHR.AbstractPage
     this.render(theHtml);
   }
 });
-//# sourceMappingURL=DisplayQR-T5XVSCA2.js.map
+//# sourceMappingURL=DisplayQR-KZTZDQ2R.js.map

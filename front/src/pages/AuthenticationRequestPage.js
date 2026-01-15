@@ -36,9 +36,12 @@ MHR.register(
       /**
        * @param {string} openIdUrl The url for an OID4VP Authentication Request
        */
-      async enter(openIdUrl, _sameDevice = false) {
+      async enter(pageData) {
          let html = this.html;
-         sameDevice = _sameDevice;
+         if (pageData.sameDevice) {
+            sameDevice = pageData.sameDevice;
+         }
+         var openIdUrl = pageData.url;
 
          proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
 
@@ -47,6 +50,7 @@ MHR.register(
          }
 
          mylog("Inside AuthenticationRequestPage:", openIdUrl);
+         mylog("samedevice:", sameDevice);
          if (openIdUrl == null) {
             myerror("No URL has been specified");
             this.showError("Error", "No URL has been specified");
@@ -59,8 +63,7 @@ MHR.register(
             this.WebAuthnSupported = true;
 
             // Check for PlatformAuthenticator
-            let available =
-               await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+            let available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
             if (available) {
                this.PlatformAuthenticatorSupported = true;
             }
@@ -160,9 +163,7 @@ MHR.register(
                <p><b>scope: </b>${ar.scope}</p>
 
                <div class="ion-margin-start ion-margin-bottom">
-                  <ion-button @click=${() => this.displayCredentials(authRequestJWT)}
-                     >Continue
-                  </ion-button>
+                  <ion-button @click=${() => this.displayCredentials(authRequestJWT)}>Continue </ion-button>
                </div>
             </div>
          `;
@@ -236,8 +237,8 @@ MHR.register(
          if (credentials.length == 0) {
             var msg = html`
                <p>
-                  <b>${rpDomain}</b> has requested a Verifiable Credential of type
-                  ${displayCredType}, but you do not have any credential of that type.
+                  <b>${rpDomain}</b> has requested a Verifiable Credential of type ${displayCredType}, but you
+                  do not have any credential of that type.
                </p>
                <p>Please go to an Issuer to obtain one.</p>
             `;
@@ -251,20 +252,14 @@ MHR.register(
                   <ion-card-title>Authentication Request</ion-card-title>
                </ion-card-header>
                <ion-card-content>
-                  <b>${rpDomain}</b> has requested a Verifiable Credential of type
-                  ${displayCredType}. Use one of the credentials below to authenticate.
+                  <b>${rpDomain}</b> has requested a Verifiable Credential of type ${displayCredType}. Use one
+                  of the credentials below to authenticate.
                </ion-card-content>
             </ion-card>
 
             ${credentials.map(
                (cred) =>
-                  html`${this.vcToHtml(
-                     cred,
-                     ar.nonce,
-                     ar.response_uri,
-                     ar.state,
-                     this.WebAuthnSupported
-                  )}`
+                  html`${this.vcToHtml(cred, ar.nonce, ar.response_uri, ar.state, this.WebAuthnSupported)}`
             )}
          `;
          this.render(theHtml);
@@ -273,7 +268,7 @@ MHR.register(
       // Render the credential with buttons so the user can select it for authentication
       vcToHtml(cc, nonce, response_uri, state, webAuthnSupported) {
          // TODO: retrieve the holder and its private key from DB
-         debugger
+         debugger;
 
          // Get the holder that will present the credential
          // We get this from the credential subject
@@ -381,17 +376,12 @@ MHR.register(
 
          debugger;
          try {
-            const response = await doPOST(
-               response_uri,
-               formBody,
-               "application/x-www-form-urlencoded"
-            );
-            if (response && response.redirectURL) {
+            const response = await doPOST(response_uri, formBody, "application/x-www-form-urlencoded");
+            if (sameDevice && response && response.redirectURL) {
                window.location.href = response.redirectURL;
                return;
             }
             await gotoPage("AuthenticationResponseSuccess");
-
          } catch (error) {
             myerror(error);
             this.showError("Error authenticating", error.message);
@@ -445,12 +435,9 @@ async function registerUser(origin, username, state) {
       // Get from the server the CredentialCreationOptions
       // It will be associated to the username that corresponds to the current state, which is the
       // username inside the credential that was sent to the Verifier
-      var response = await fetch(
-         origin + apiPrefix + "/register/begin/" + username + "?state=" + state,
-         {
-            mode: "cors",
-         }
-      );
+      var response = await fetch(origin + apiPrefix + "/register/begin/" + username + "?state=" + state, {
+         mode: "cors",
+      });
       if (!response.ok) {
          var errorText = await response.text();
          mylog(errorText);
@@ -470,9 +457,7 @@ async function registerUser(origin, username, state) {
       credentialCreationOptions.publicKey.challenge = bufferDecode(
          credentialCreationOptions.publicKey.challenge
       );
-      credentialCreationOptions.publicKey.user.id = bufferDecode(
-         credentialCreationOptions.publicKey.user.id
-      );
+      credentialCreationOptions.publicKey.user.id = bufferDecode(credentialCreationOptions.publicKey.user.id);
 
       // Decode each of the excluded credentials
       // This is a list of existing credentials in the server, to avoid the authenticator creating a new one
@@ -521,18 +506,15 @@ async function registerUser(origin, username, state) {
 
       // Perform a POST to the server
       mylog("sending Authenticator credential to server");
-      var response = await fetch(
-         origin + apiPrefix + "/register/finish/" + username + "?state=" + state,
-         {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-               session_id: session,
-            },
-            mode: "cors",
-            body: JSON.stringify(wholeData), // body data type must match "Content-Type" header
-         }
-      );
+      var response = await fetch(origin + apiPrefix + "/register/finish/" + username + "?state=" + state, {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+            session_id: session,
+         },
+         mode: "cors",
+         body: JSON.stringify(wholeData), // body data type must match "Content-Type" header
+      });
       if (!response.ok) {
          var errorText = await response.text();
          mylog(errorText);
@@ -550,12 +532,9 @@ async function registerUser(origin, username, state) {
 async function loginUser(origin, username, state) {
    try {
       // Get from the server the CredentialRequestOptions
-      var response = await fetch(
-         origin + apiPrefix + "/login/begin/" + username + "?state=" + state,
-         {
-            mode: "cors",
-         }
-      );
+      var response = await fetch(origin + apiPrefix + "/login/begin/" + username + "?state=" + state, {
+         mode: "cors",
+      });
       if (!response.ok) {
          myerror("error requesting CredentialRequestOptions", response.status);
          return "error";
@@ -622,18 +601,15 @@ async function loginUser(origin, username, state) {
 
       // Perform a POST to the server
       try {
-         var response = await fetch(
-            origin + apiPrefix + "/login/finish/" + username + "?state=" + state,
-            {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-                  session_id: session,
-               },
-               mode: "cors",
-               body: JSON.stringify(wholeData),
-            }
-         );
+         var response = await fetch(origin + apiPrefix + "/login/finish/" + username + "?state=" + state, {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+               session_id: session,
+            },
+            mode: "cors",
+            body: JSON.stringify(wholeData),
+         });
 
          if (!response.ok) {
             var errorText = await response.text();

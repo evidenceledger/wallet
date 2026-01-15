@@ -3,7 +3,7 @@ import {
   gBase64,
   renderAnyCredentialCard,
   signJWT
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/AuthenticationRequestPage.js
@@ -29,14 +29,18 @@ MHR.register(
     /**
      * @param {string} openIdUrl The url for an OID4VP Authentication Request
      */
-    async enter(openIdUrl, _sameDevice = false) {
+    async enter(pageData) {
       let html2 = this.html;
-      sameDevice = _sameDevice;
+      if (pageData.sameDevice) {
+        sameDevice = pageData.sameDevice;
+      }
+      var openIdUrl = pageData.url;
       proxyIssuer = localStorage.getItem("proxyIssuer") == "true";
       if (debug) {
         alert(`SelectCredential: ${openIdUrl}`);
       }
       mylog("Inside AuthenticationRequestPage:", openIdUrl);
+      mylog("samedevice:", sameDevice);
       if (openIdUrl == null) {
         myerror("No URL has been specified");
         this.showError("Error", "No URL has been specified");
@@ -116,9 +120,7 @@ MHR.register(
                <p><b>scope: </b>${ar.scope}</p>
 
                <div class="ion-margin-start ion-margin-bottom">
-                  <ion-button @click=${() => this.displayCredentials(authRequestJWT)}
-                     >Continue
-                  </ion-button>
+                  <ion-button @click=${() => this.displayCredentials(authRequestJWT)}>Continue </ion-button>
                </div>
             </div>
          `;
@@ -170,8 +172,8 @@ MHR.register(
       if (credentials.length == 0) {
         var msg = html`
                <p>
-                  <b>${rpDomain}</b> has requested a Verifiable Credential of type
-                  ${displayCredType}, but you do not have any credential of that type.
+                  <b>${rpDomain}</b> has requested a Verifiable Credential of type ${displayCredType}, but you
+                  do not have any credential of that type.
                </p>
                <p>Please go to an Issuer to obtain one.</p>
             `;
@@ -184,19 +186,13 @@ MHR.register(
                   <ion-card-title>Authentication Request</ion-card-title>
                </ion-card-header>
                <ion-card-content>
-                  <b>${rpDomain}</b> has requested a Verifiable Credential of type
-                  ${displayCredType}. Use one of the credentials below to authenticate.
+                  <b>${rpDomain}</b> has requested a Verifiable Credential of type ${displayCredType}. Use one
+                  of the credentials below to authenticate.
                </ion-card-content>
             </ion-card>
 
             ${credentials.map(
-        (cred) => html`${this.vcToHtml(
-          cred,
-          ar.nonce,
-          ar.response_uri,
-          ar.state,
-          this.WebAuthnSupported
-        )}`
+        (cred) => html`${this.vcToHtml(cred, ar.nonce, ar.response_uri, ar.state, this.WebAuthnSupported)}`
       )}
          `;
       this.render(theHtml);
@@ -280,12 +276,8 @@ MHR.register(
       mylog(formBody);
       debugger;
       try {
-        const response = await doPOST(
-          response_uri,
-          formBody,
-          "application/x-www-form-urlencoded"
-        );
-        if (response && response.redirectURL) {
+        const response = await doPOST(response_uri, formBody, "application/x-www-form-urlencoded");
+        if (sameDevice && response && response.redirectURL) {
           window.location.href = response.redirectURL;
           return;
         }
@@ -390,4 +382,4 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error("Error in request to server");
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage-6UGLOC6E.js.map
+//# sourceMappingURL=AuthenticationRequestPage-23DFHEE5.js.map

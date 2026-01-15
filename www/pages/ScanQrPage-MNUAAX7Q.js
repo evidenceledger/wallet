@@ -1,7 +1,7 @@
 import {
   getPlatformOS,
   getPreferredVideoDevice
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/ScanQrPage.js
@@ -203,12 +203,12 @@ MHR.register(
       }
       if (qrType === QR_VP_old) {
         mylog("Old VP requested, going to ", "AuthenticationRequestPage", qrData);
-        window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+        window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
         return true;
       }
       if (qrType === QR_Verifiable_Presentation) {
         mylog("Going to ", "AuthenticationRequestPage", qrData);
-        window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+        window.MHR.gotoPage("AuthenticationRequestPage", { url: qrData, sameDevice: false });
         return true;
       }
       if (qrType === QR_HC1) {
@@ -478,4 +478,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-SGMBGTTZ.js.map
+//# sourceMappingURL=ScanQrPage-MNUAAX7Q.js.map

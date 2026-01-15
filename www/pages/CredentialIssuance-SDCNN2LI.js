@@ -4,7 +4,7 @@ import {
   getOrCreateDidKey,
   renderAnyCredentialCard,
   signJWT
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/CredentialIssuance.js
@@ -1136,4 +1136,4 @@ window.MHR.register(
     }
   }
 );
-//# sourceMappingURL=CredentialIssuance-ZGN4ITQG.js.map
+//# sourceMappingURL=CredentialIssuance-SDCNN2LI.js.map

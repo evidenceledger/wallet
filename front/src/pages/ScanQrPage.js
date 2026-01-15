@@ -271,14 +271,14 @@ MHR.register(
          // Handle an old format AuthenticationRequest QR
          if (qrType === QR_VP_old) {
             mylog("Old VP requested, going to ", "AuthenticationRequestPage", qrData);
-            window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+            window.MHR.gotoPage("AuthenticationRequestPage", {url: qrData, sameDevice: false});
             return true;
          }
 
          // Handle an AuthenticationRequest QR
          if (qrType === QR_Verifiable_Presentation) {
             mylog("Going to ", "AuthenticationRequestPage", qrData);
-            window.MHR.gotoPage("AuthenticationRequestPage", qrData);
+            window.MHR.gotoPage("AuthenticationRequestPage", {url: qrData, sameDevice: false});
             return true;
          }
 
