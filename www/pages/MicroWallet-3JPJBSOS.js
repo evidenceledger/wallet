@@ -104,7 +104,7 @@ MHR.register(
                   <ion-card>
                      ${renderAnyCredentialCard(vc, vcraw.status)}
 
-                     <ion-card-content>
+                     <div class="ion-padding-start ion-padding-end">
                         <ion-button @click=${() => MHR.gotoPage("DisplayVC", vcraw)}>
                            <ion-icon slot="start" name="construct"></ion-icon>
                            ${T("Details")}
@@ -118,8 +118,7 @@ MHR.register(
                            <ion-icon slot="start" name="trash"></ion-icon>
                            ${T("Delete")}
                         </ion-button>
-                     </ion-card-content>
-
+                     </div>
                   </ion-card>
                `;
           theDivs.push(div);
@@ -336,4 +335,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-CPMI3FSF.js.map
+//# sourceMappingURL=MicroWallet-3JPJBSOS.js.map
