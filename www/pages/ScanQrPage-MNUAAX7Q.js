@@ -1,7 +1,7 @@
 import {
   getPlatformOS,
   getPreferredVideoDevice
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/ScanQrPage.js
@@ -478,4 +478,4 @@ async function ReceiveQRtick() {
 export {
   initiateReceiveQRScanning
 };
-//# sourceMappingURL=ScanQrPage-XDSFFE44.js.map
+//# sourceMappingURL=ScanQrPage-MNUAAX7Q.js.map

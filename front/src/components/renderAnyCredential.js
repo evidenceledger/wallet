@@ -124,7 +124,7 @@ export function renderLEARCredentialCard(vc, status) {
          <ion-card-subtitle>${vcs.mandate.mandator.organization}</ion-card-subtitle>
       </ion-card-header>
 
-      <ion-card-content class="ion-padding-bottom">
+      <ion-card-content>
          <div>
             <ion-list>
                <ion-item>

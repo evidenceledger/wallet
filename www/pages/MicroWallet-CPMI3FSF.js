@@ -3,7 +3,7 @@ import {
   decodeUnsafeJWT,
   generateP256did,
   renderAnyCredentialCard
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/MicroWallet.js
@@ -336,4 +336,4 @@ function detectQRtype(qrData) {
     return;
   }
 }
-//# sourceMappingURL=MicroWallet-5NLSNTGE.js.map
+//# sourceMappingURL=MicroWallet-CPMI3FSF.js.map

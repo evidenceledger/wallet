@@ -3,7 +3,7 @@ import {
   gBase64,
   renderAnyCredentialCard,
   signJWT
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/AuthenticationRequestPage.js
@@ -382,4 +382,4 @@ async function doPOST(serverURL, body, mimetype = "application/json", authorizat
     throw new Error("Error in request to server");
   }
 }
-//# sourceMappingURL=AuthenticationRequestPage-V2EZOLA4.js.map
+//# sourceMappingURL=AuthenticationRequestPage-23DFHEE5.js.map

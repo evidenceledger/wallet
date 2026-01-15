@@ -1,6 +1,6 @@
 import {
   getPreferredVideoDevice
-} from "../chunks/chunk-ULNROR7V.js";
+} from "../chunks/chunk-FUD4I7SA.js";
 import "../chunks/chunk-W7NC74ZX.js";
 
 // front/src/pages/SelectCamera.js
@@ -44,4 +44,4 @@ window.MHR.register("SelectCamera", class extends window.MHR.AbstractPage {
     goHome();
   }
 });
-//# sourceMappingURL=SelectCamera-Y7Y5IHXJ.js.map
+//# sourceMappingURL=SelectCamera-5STJQFKJ.js.map
