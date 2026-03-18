@@ -94,6 +94,13 @@ func main() {
 }
 
 func StartServices(configFileName string) error {
+
+	// // Load the configuration
+	// config, err := faster.LoadConfig(*configFile)
+	// if err != nil {
+	// 	return fmt.Errorf("error loading configuration: %w", err)
+	// }
+
 	cfg := readConfiguration(configFileName)
 
 	// Start the server for static Wallet assets

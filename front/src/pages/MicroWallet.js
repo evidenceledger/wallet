@@ -12,7 +12,10 @@
 import { renderAnyCredentialCard } from "../components/aggregated.js";
 import { generateDidKeyDOME } from "../components/aggregated.js";
 import { verifyJWT, signJWT, decodeUnsafeJWT } from "../components/aggregated.js";
-import { credentialsSave } from "../components/aggregated.js";
+import { createPasskeyRaw, getPasskeyRaw } from "../components/passkeys.js";
+
+// Session timeout in seconds to request reauthentication
+const SESSION_TIMEOUT = 60;
 
 // Enable to debug the application
 var debug = eudi.debug;
@@ -37,6 +40,72 @@ MHR.register(
          if (localStorage.getItem("proxyIssuer") === null) {
             localStorage.setItem("proxyIssuer", "false");
          }
+
+         debugger;
+
+         // Check if the browser supports the PRF extension for Passkeys
+         if (window.PublicKeyCredential &&
+            typeof PublicKeyCredential.getClientCapabilities === 'function') {
+            const caps = await PublicKeyCredential.getClientCapabilities();
+            const prfExtension = caps["extension:prf"];
+            if (prfExtension === true) {
+               console.log("This browser supports the PRF extension.");
+            } else {
+               console.log("This browser does not support the PRF extension.");
+            }
+         }
+
+         // We store in localStorage the username for the Wallet user and the last time that the user authenticated
+         // We use those items to request from the user either to create a new passkey or to authenticate
+         // The first item stored is the username, under the key "username"
+         // The second item stored is the last time the user authenticated, under the key "lastAuthenticationTime"
+
+         // Check if we already have the username. If not, this is the first time the user is opening the wallet
+         var username = localStorage.getItem("username");
+         if (username === null) {
+            mylog("no username found, redirecting to CreatePasskeyPage")
+            eudi.gotoPage("CreatePasskeyPage");
+            return;
+         }
+
+         // If we are here is because the user already authenticated at least once (creating a passkey or authenticating)
+
+         // But for sanity reasons, check if we have a passkey stored
+         var passkey = localStorage.getItem("thepasskey");
+         if (passkey === null) {
+            // Reset the passkey info, including the user name and last authentication time
+            localStorage.removeItem("username");
+            localStorage.removeItem("lastAuthenticationTime");
+            localStorage.removeItem("thepasskey");
+            mylog("no passkey found, redirecting to CreatePasskeyPage")
+            eudi.gotoPage("CreatePasskeyPage");
+            return;
+         }
+
+         // Retrieve the last time of authentication of the user
+         var lastAuthenticationTimeString = localStorage.getItem("lastAuthenticationTime");
+         // lastAuthenticationTimeString should not be null, but if it is, we set it to 0 just in case
+         if (lastAuthenticationTimeString !== null) {
+            console.log("Last time the user authenticated:", lastAuthenticationTimeString);
+         } else {
+            console.log("No last authentication time found");
+            lastAuthenticationTimeString = "0";
+         }
+         // Convert lastAuthenticationTime which is a number of milliseconds as string to a number
+         var lastAuthenticationTime = parseInt(lastAuthenticationTimeString);
+
+         // Compare with the current time and check if it is more than SESSION_TIMEOUT seconds ago
+         // If so, reauthenticate the user by redirecting to EnterPasskeyPage
+         var currentTime = Date.now();
+         const difference = (currentTime - lastAuthenticationTime) / 1000
+         console.log("Difference in seconds:", difference);
+         if (difference > SESSION_TIMEOUT) {
+            console.log("The user authenticated more than " + SESSION_TIMEOUT + " seconds ago");
+            eudi.gotoPage("EnterPasskeyPage");
+            return;
+         }
+
+         // If we reach here, the user is authenticated and the session is valid
 
          // Generate a did:key if it does not exist yet
          var domedid;
@@ -335,50 +404,8 @@ MHR.register(
    }
 );
 
-async function test_generateDIDKeyProof(subjectDID, issuerID, nonce) {
-   const subjectKid = subjectDID.did;
-
-   // Create the headers of the JWT
-   var jwtHeaders = {
-      typ: "openid4vci-proof+jwt",
-      alg: "ES256",
-      kid: subjectKid,
-   };
-
-   // It expires in one day (it could be much shorter in many flows)
-   const iat = Math.floor(Date.now() / 1000) - 2;
-   const exp = iat + 86500;
-
-   // The issuer of the JWT is the person who will receive the Verifiable Credential at the end of the OID4VCI flow.
-   // This is why the 'iss' claim is set to the did:key of the Subject.
-   // The JWT is intended for the entity that is issuing the Verifiable Credential in the OID4VCI flow. This is the
-   // reason why the 'aud' claim is set to the did (whatever did method is used) of the VC Issuer.
-   var jwtPayload = {
-      // iss: subjectDID.did,
-      aud: issuerID,
-      iat: iat,
-      exp: exp,
-      nonce: nonce,
-   };
-
-   // The JWT is signed with the private key associated to the did:key of the creator of the JWT.
-   const jwt = await signJWT(jwtHeaders, jwtPayload, subjectDID.privateKey);
-
-   const ok = await verifyJWT(jwt, subjectDID.publicKey);
-
-   return jwt;
-}
-
-function base64ToBytes(base64) {
-   const binString = atob(base64);
-   return Uint8Array.from(binString, (m) => m.codePointAt(0));
-}
-
-var in2Credential =
-   "eyJhbGciOiJSUzI1NiIsImtpZCI6Ik1JSFFNSUczcElHME1JR3hNU0l3SUFZRFZRUUREQmxFU1VkSlZFVk1JRlJUSUVGRVZrRk9RMFZFSUVOQklFY3lNUkl3RUFZRFZRUUZFd2xDTkRjME5EYzFOakF4S3pBcEJnTlZCQXNNSWtSSlIwbFVSVXdnVkZNZ1EwVlNWRWxHU1VOQlZFbFBUaUJCVlZSSVQxSkpWRmt4S0RBbUJnTlZCQW9NSDBSSlIwbFVSVXdnVDA0Z1ZGSlZVMVJGUkNCVFJWSldTVU5GVXlCVFRGVXhFekFSQmdOVkJBY01DbFpoYkd4aFpHOXNhV1F4Q3pBSkJnTlZCQVlUQWtWVEFoUWdhQUtFL3owd3paUzM5Y2J5SWZ1TGdrdHFHdz09IiwieDV0I1MyNTYiOiJIb0pEWGJzb2xaOTIwSWZHZWxqaEVFekxxOHZBTVBHTUZ4T2VRWUlIVEZnIiwieDVjIjpbIk1JSUcyVENDQk1HZ0F3SUJBZ0lVSUdnQ2hQODlNTTJVdC9YRzhpSDdpNEpMYWhzd0RRWUpLb1pJaHZjTkFRRU5CUUF3Z2JFeElqQWdCZ05WQkFNTUdVUkpSMGxVUlV3Z1ZGTWdRVVJXUVU1RFJVUWdRMEVnUnpJeEVqQVFCZ05WQkFVVENVSTBOelEwTnpVMk1ERXJNQ2tHQTFVRUN3d2lSRWxIU1ZSRlRDQlVVeUJEUlZKVVNVWkpRMEZVU1U5T0lFRlZWRWhQVWtsVVdURW9NQ1lHQTFVRUNnd2ZSRWxIU1ZSRlRDQlBUaUJVVWxWVFZFVkVJRk5GVWxaSlEwVlRJRk5NVlRFVE1CRUdBMVVFQnd3S1ZtRnNiR0ZrYjJ4cFpERUxNQWtHQTFVRUJoTUNSVk13SGhjTk1qVXdNekkzTURnek5UTTJXaGNOTWpnd016STJNRGd6TlRNMVdqQ0JtekUyTURRR0ExVUVBd3d0VTJWaGJDQlRhV2R1WVhSMWNtVWdRM0psWkdWdWRHbGhiSE1nYVc0Z1UwSllJR1p2Y2lCMFpYTjBhVzVuTVJnd0ZnWURWUVFGRXc5V1FWUkZVeTFDTmpBMk5EVTVNREF4R0RBV0JnTlZCR0VNRDFaQlZFVlRMVUkyTURZME5Ua3dNREVNTUFvR0ExVUVDZ3dEU1U0eU1SSXdFQVlEVlFRSERBbENZWEpqWld4dmJtRXhDekFKQmdOVkJBWVRBa1ZUTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwSit6cEpPQnBCUzRtMUcwRkd6Ymx5WDRyQkp3bEM0WUxER2VKbHN4dkZpUXFzNDV2ZHNQYUdhMmNjaEl0aTNlTnlNWXI4SkU1aE9EUERneEY4bTViSGxxSTB1YVpCTnJaNXAxM3N2K0RwRjd1eVlNVXorQkl4dXQ4Ni9XdUYwdjlIM0pJbk1PTVN1STlIaWZ0aE11S25aeEc4NUEwU0ZhZllvL2xLTWR3akpKR2hJNkpYZit3YmVnemVIQVVHRDZmb2Z5Zm1IakxlZmcvVTNPYStnOVFNazNJT2syNzFISWloTkJXcHNjSzhnd1RPZTAyOFloQW12aTdEbENWNklVWnpDbjNSVTkxZHBtYjVOZkwwMUVzNG9ud2dXQjZ5YTJoR2J2ak4rd3ltSUFweG9JOVcrRE1wekJVazVtK1dDaUs4WnRNbE5KZXlnMnlDZ216TVlLOXdJREFRQUJvNElCK3pDQ0FmY3dEQVlEVlIwVEFRSC9CQUl3QURBZkJnTlZIU01FR0RBV2dCU0NFNkdqQXBUT1lnM2dCclkzVmtGd1hFV3VLekIwQmdnckJnRUZCUWNCQVFSb01HWXdQZ1lJS3dZQkJRVUhNQUtHTW1oMGRIQTZMeTl3YTJrdVpHbG5hWFJsYkhSekxtVnpMMFJKUjBsVVJVeFVVMUZWUVV4SlJrbEZSRU5CUnpFdVkzSjBNQ1FHQ0NzR0FRVUZCekFCaGhob2RIUndPaTh2YjJOemNDNWthV2RwZEdWc2RITXVaWE13Z2F3R0ExVWRJQVNCcERDQm9UQ0JuZ1lMS3dZQkJBR0RwMUVLQWdFd2dZNHdQd1lJS3dZQkJRVUhBZ0VXTTJoMGRIQnpPaTh2Y0d0cExtUnBaMmwwWld4MGN5NWxjeTlrY0dNdlJFbEhTVlJGVEZSVFgwUlFReTUyTWk0eExuQmtaakJMQmdnckJnRUZCUWNDQWpBL0REMURaWEowYVdacFkyRmtieUJqZFdGc2FXWnBZMkZrYnlCa1pTQnpaV3hzYnlCaGRtRnVlbUZrYnlCa1pTQndaWEp6YjI1aElHcDFjbWxrYVdOaE1BOEdDU3NHQVFVRkJ6QUJCUVFDQlFBd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3SUdDQ3NHQVFVRkJ3TUVNRUlHQTFVZEh3UTdNRGt3TjZBMW9ET0dNV2gwZEhBNkx5OWpjbXd4TG5CcmFTNWthV2RwZEdWc2RITXVaWE12UkZSVFVYVmhiR2xtYVdWa1EwRkhNUzVqY213d0hRWURWUjBPQkJZRUZIOVV6QVlVZ1VzSHh1Rk5qY20vSzRLS1hSenJNQTRHQTFVZER3RUIvd1FFQXdJR3dEQU5CZ2txaGtpRzl3MEJBUTBGQUFPQ0FnRUFzdU8xMG9QdHJOMEFkc056MXErZ2lzMlZoVEYvM0E4TzkxL0o0R2dqNkhQM1VGa0pPQmRoRGsvWURlKytZSEo0M014d2kzZDJCeC92SHJnWDF3c25CVGwydUhmQ25xMDFZbWJla0s3TmZzbXlGc3R5blAxM3dsWm5SMGtvb0RUc3Z2aXFqRzliVlFWR0JoaDJqemFvMHMrRTJwM1gxUGhrNkRkZlNUTnBESklSL1Z3eTVBa0J0MWRoMjRvZjhKMjFVM3FVaWhDbmw0cVl6ZEkvcmV1Qi9lR25pMkc2Z0tlS2hzSUswejdzZkl6bGYrbW1wR0l2RFk4VExPV1dtWUttMHFEQTFDVU5tZ0tDdWZQa1V4dW92S3FxbXVKajhuZnJRL0hZSFh2UlJibktCVk0xZ2pmbnNmWURuaVRneUJxak8vK1U4UHZaOVZnVG04V2R5VjBFQ3h5YzVJMUV6ZDZtRHdROERaSGhjMWZ4Q2tnTGk4MGxPQ29zV1NseElORmExNWJIQjVIOGhtQTM3dmhxSzN6L3EwMW9VUTJiYnVqS3dpbFRXdXFhUUM0cGgrODkrRVY4UXNiM09nZWdtZElmZHBUWU5vS0M5YWNFZTJjbXh3MEhaK1RPamdqSHd0dWVYUTUyVUhIbTlncGpETllsNTFPSmU1NnpPZFQza2VJamtIcExKSGVYZHA5VnpaWnJGRVBySE14VzhaRkFjWDgweEkrM1EveXRqVnBZZlZUdkkwT2s5eXhuazh0R04xdFdiTVhOeTRENFhtUWlKMFhxR25DQWJNT2VGNDlzVld6RjRKNVY2Skpsa0U5eFZhU2s5eHRWOWxjcjlSenVTT1NYU0J4YlQwRHlnajJtMFFFT0taSzFYQ0ZmNllmRWxBd3o1dFltdU0rM2dZYz0iLCJNSUlHVlRDQ0JEMmdBd0lCQWdJVUU2cDNYV2FxVjh3aWRUMEdnRmVjcTlNYkhsNHdEUVlKS29aSWh2Y05BUUVOQlFBd2diRXhJakFnQmdOVkJBTU1HVVJKUjBsVVJVd2dWRk1nUVVSV1FVNURSVVFnUTBFZ1J6SXhFakFRQmdOVkJBVVRDVUkwTnpRME56VTJNREVyTUNrR0ExVUVDd3dpUkVsSFNWUkZUQ0JVVXlCRFJWSlVTVVpKUTBGVVNVOU9JRUZWVkVoUFVrbFVXVEVvTUNZR0ExVUVDZ3dmUkVsSFNWUkZUQ0JQVGlCVVVsVlRWRVZFSUZORlVsWkpRMFZUSUZOTVZURVRNQkVHQTFVRUJ3d0tWbUZzYkdGa2IyeHBaREVMTUFrR0ExVUVCaE1DUlZNd0hoY05NalF3TlRJNU1USXdNRFF3V2hjTk16Y3dOVEkyTVRJd01ETTVXakNCc1RFaU1DQUdBMVVFQXd3WlJFbEhTVlJGVENCVVV5QkJSRlpCVGtORlJDQkRRU0JITWpFU01CQUdBMVVFQlJNSlFqUTNORFEzTlRZd01Tc3dLUVlEVlFRTERDSkVTVWRKVkVWTUlGUlRJRU5GVWxSSlJrbERRVlJKVDA0Z1FWVlVTRTlTU1ZSWk1TZ3dKZ1lEVlFRS0RCOUVTVWRKVkVWTUlFOU9JRlJTVlZOVVJVUWdVMFZTVmtsRFJWTWdVMHhWTVJNd0VRWURWUVFIREFwV1lXeHNZV1J2Ykdsa01Rc3dDUVlEVlFRR0V3SkZVekNDQWlJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dJUEFEQ0NBZ29DZ2dJQkFNT1FhQkpHVW5Ldng0MEtaRDZFZXVZTVN4QUFjY3NIeU5KVzZxTW5rNjduT1BIQjk3Z2pSZ25zSnhlaFU4UVBneGhPYmhxN2tXYzAydlc4blFJUzJxeTcwSGpXK3k2SU1hT3RseWtzb05YT2N6UW9aQ25WcUJJaS9rRHNPaEZWMXJjRVhhaUJFVC9OdUlyU0t2R1lFSWR6QTlKYXFZZGZpL0pRL2xyWWF5RGZQM2Q3M2hzdXErbElqTjBkOWgrcEtjWXdML21JSWJLL2NRd2xsQVVtZGRyQXc5V0VtcWtsKzVSdURXcXBsRFdoaHZwR0pGUFh0NFJxS2dhYVZONVRVd1MyT0dKU05xQ3M2WkkrYVNkbmVUZ0NxcVEvLzgzaE45UXNtMG1CME44Tk85bHFTcENtUE9qWUdPVHA3SWs4aUI3dGV4MU9OeWVYTUhsOXpLRGNpcVYxNjJaUnBHdEptMnJ1ODZJVUNTalBsc3FUWE1uVzE0Mk1LdWdzVzNYNzFZMHF4M0RSVSszTHdnY0pxYU8xWS85RDJrUUVRSjN2NVplaUdRYXVSV3FmampBa0VSZ2grOG0zV1hYTHJuekFvRmhyUWRsQmExUTYxSTJVcWJxeGJBMGRTOUxkT3Q1K25GRlZabStFN0FBZVZ5cjhValZXVGRKUXZUTjN1cTBWa0wwbjJwcTAzK0hiNGdQUjh2cnBENzlKeWx5VWNJUjBRTklnTXRFRmU0ZUZKK2lDOSttYmVPanpIUWtsOFpHNTUxWDJLeTZzbDNPT25mOTNYZWRRRDB2RzByQ1lwUkdaKzUwazA1amx1S3pSamNpcUFDZ0xIQ0ZTcGNMeUJTS2dyWGNBMHFscFlEVEliZXg4OVR2UkdZMW5vd3JDNWxtR05UOGpKcnhDWU9ZREFnTUJBQUdqWXpCaE1BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0h3WURWUjBqQkJnd0ZvQVVnaE9ob3dLVXptSU40QWEyTjFaQmNGeEZyaXN3SFFZRFZSME9CQllFRklJVG9hTUNsTTVpRGVBR3RqZFdRWEJjUmE0ck1BNEdBMVVkRHdFQi93UUVBd0lCaGpBTkJna3Foa2lHOXcwQkFRMEZBQU9DQWdFQUpHUUtyWjJVM0ovU3BHaFA3eldqdndlQlh4alc1dVNkeDBWN213djRtdkMyVmxDMVR2eEVuNXlWbmRFVUNwbEdwL20wUzNBMDdCdFBaMjRaU3VSdyttSXB0Qm1DaGJuVTF2ajJCRnBGRlRocHNRSkcwa0RqRDIzSG82cDNSdE1yaWI4SWkwUm5vVWJ3cFA1TjJMaWVPYnVvZDlPUzlxM01nQ2xoeTlGOTltT1d2RC9xNXZDVm8rdUxXWnVRNGFjdVRUTnhhNURIeWlqZ0IrR0dvMk9oSGxkclNwcCtMUmdVNWZrTktHMEx6aGxJRUdkRUJhbDBwdVovK1FxdFNyckxETVQ0WFBLV01KNmdwc3IzbFhmYmEwRWw3YmIvNzU2dE1ZQWJYem1ua2tVcWRpT0k1N3JWREZUOUZKeGpWZ281b1c4WE9LR1NMcU1IMzFYaUpDTm9INXJKWThWUTNabU1TdWg5N2tBQWhYdUZJYlFaN0Zya0YyeStHc0twYjBhOVpVcUZCckpsekh4Q0tsOFNTVHdmR0RnY3BlUFp4VUlJZ1BQY0k0b1h3Um9CMEhidDU0SXJSb0c3a1drNjhnWDJjaktWMFl0SG1WaEVFRnIzZGlaZk83bUFUQTU0c0xaWDluMWxvc25mOXhyZUV6ZEVZV2J5R1RoVXdsMzNNUDZYTGFGUlBkYm5Rc2hicm9lcHpnK25rc1U1VlZLMlpaRklXVlk2ZytSaElDWFZkaHFrQnBObStlSzArd1VDQTF0WFl5UktvU1VWcE1GU0FaaG5zeVVlWnphbVBIRGU0R2tUYW1NSzRxZlhLUU9iN0V0V1VXaDVmb1ZTemFxeXZGcHBVNFZNcC9nS3JQWUhENmJXckhKNXZDL0I3V3IvYVB0aE5rZ1hGTUdNclIwPSJdLCJ0eXAiOiJqb3NlIiwic2lnVCI6IjIwMjUtMDMtMzFUMDc6NTk6NTZaIiwiY3JpdCI6WyJzaWdUIl19.eyJzdWIiOiJkaWQ6a2V5OnpEbmFlakw5cUZYRFY1cEZhOFRwZHg5OU1hblE4anBLRG5SVmpncmtmNHF2Z0YxWkEiLCJuYmYiOjE3NDM0MDc4OTksImlzcyI6ImRpZDplbHNpOlZBVEVTLUI2MDY0NTkwMCIsImV4cCI6MTc3NDk0Mzg5OSwiaWF0IjoxNzQzNDA3ODk5LCJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvbnMvY3JlZGVudGlhbHMvdjIiLCJodHRwczovL3d3dy5kb21lLW1hcmtldHBsYWNlLmV1LzIwMjUvY3JlZGVudGlhbHMvbGVhcmNyZWRlbnRpYWxlbXBsb3llZS92MiJdLCJpZCI6IjNlYTdjYzU1LWVmYWItNDljNi1iOWM0LTVkMTlmMzM0MDc5MyIsInR5cGUiOlsiTEVBUkNyZWRlbnRpYWxFbXBsb3llZSIsIlZlcmlmaWFibGVDcmVkZW50aWFsIl0sImRlc2NyaXB0aW9uIjoiVmVyaWZpYWJsZSBDcmVkZW50aWFsIGZvciBlbXBsb3llZXMgb2YgYW4gb3JnYW5pemF0aW9uIiwiY3JlZGVudGlhbFN1YmplY3QiOnsibWFuZGF0ZSI6eyJpZCI6ImQxNWNiN2QzLTRlMzktNGM0Yi04MjRmLTQ5N2Q2YzY5MGUyMiIsIm1hbmRhdGVlIjp7ImlkIjoiZGlkOmtleTp6RG5hZWpMOXFGWERWNXBGYThUcGR4OTlNYW5ROGpwS0RuUlZqZ3JrZjRxdmdGMVpBIiwiZW1haWwiOiJoZXN1cy5ydWl6QGdtYWlsLmNvbSIsImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSIsIm5hdGlvbmFsaXR5IjoiU3BhbmlzaCJ9LCJtYW5kYXRvciI6eyJjb21tb25OYW1lIjoiSmVzdXMgUnVpeiIsImNvdW50cnkiOiJTcGFpbiIsImVtYWlsQWRkcmVzcyI6Implc3VzQGFsYXN0cmlhLmlvIiwib3JnYW5pemF0aW9uIjoiQWlyIFF1YWxpdHkgQ2xvdWQiLCJvcmdhbml6YXRpb25JZGVudGlmaWVyIjoiVkFURVMtQjM1NjY0ODc1In0sInBvd2VyIjpbeyJpZCI6IjRlYjk5YTM0LTVkNzUtNDYzYy05OWI4LWFmMjM0ZGUzMzRiMyIsImFjdGlvbiI6ImV4ZWN1dGUiLCJkb21haW4iOiJET01FIiwiZnVuY3Rpb24iOiJPbmJvYXJkaW5nIiwidHlwZSI6ImRvbWFpbiJ9XX19LCJpc3N1ZXIiOnsiaWQiOiJkaWQ6ZWxzaTpWQVRFUy1CNjA2NDU5MDAiLCJvcmdhbml6YXRpb25JZGVudGlmaWVyIjoiVkFURVMtQjYwNjQ1OTAwIiwib3JnYW5pemF0aW9uIjoiSU4yIiwiY291bnRyeSI6IkVTIiwiY29tbW9uTmFtZSI6IlNlYWwgU2lnbmF0dXJlIENyZWRlbnRpYWxzIGluIFNCWCBmb3IgdGVzdGluZyIsImVtYWlsQWRkcmVzcyI6Implc3VzQGFsYXN0cmlhLmlvIiwic2VyaWFsTnVtYmVyIjoiQjQ3NDQ3NTYwIn0sInZhbGlkRnJvbSI6IjIwMjUtMDMtMzFUMDc6NTg6MTkuMTMwNzU1MTQ5WiIsInZhbGlkVW50aWwiOiIyMDI2LTAzLTMxVDA3OjU4OjE5LjEzMDc1NTE0OVoifSwianRpIjoiNmM3NTFjOWMtYTI1Zi00OGYwLThlYTItMzQ0MmIyMmM3OTEzIn0.JA82hLs5pYAbMHB8VJjpIr4kBAjturxILKhKWCeDlNeU1q97IJCa3lYPVUmd2v0kWlx5OYYCiD445QYmSVQogPtt4hzOU1UAkgq_pmh0RaS8vcDf_RkqgzXx4I35zUsIJIa7nWfTUCIQYuRzlYbol4XgDKy-FIvUWUpWNG47U3Kg_-IYOXalX_v28N2WO_i7UQ_3kYi0bVzIfjIgmLC1948SMSQgEfkQoZVWIyu4Nf4s_6c_fBzHd_xN42R3kfudbt8Mvmwtobou2cGo2swzly8obhpe5VT7qW5IA2BsLNyB72654eMCmdew5rqgkpCGKNyn5uHCPUk2Zx8SGuymEg";
-
 MHR.register(
-   "SaveIN2Credential",
+   "CreatePasskeyPage",
    class extends MHR.AbstractPage {
       /**
        * @param {string} id
@@ -388,29 +415,232 @@ MHR.register(
       }
 
       async enter() {
-         var decodedBody;
+         mylog("CreatePasskeyPage", globalThis.document.location);
 
-         const decoded = decodeUnsafeJWT(in2Credential);
+         let html = this.html;
 
-         // Prepare for saving the credential in the local storage
-         var credStruct = {
-            type: "jwt_vc_json",
-            status: "signed",
-            encoded: in2Credential,
-            decoded: decoded.body?.vc,
-            id: decoded.body.jti,
-         };
+         // We have to create a form to let the user enter the user name he wants and then start the passkey creation process
+         // The form has to be implemented with the Ionic framework, assuming the skeleton of the app has already been created
+         // We create here just the "inner" form/page to inform the user and let the user accept (or cancel) the process
+         let theHtml = html`
+         <style>
+         ion-radio::part(container) {
+            width: 30px;
+            height: 30px;
 
-         // Save the credential, if there is no other one with the same id
-         var saved = await credentialsSave(credStruct, false);
-         if (!saved) {
+            border-radius: 8px;
+            border: 2px solid #ddd;
+         }
+
+         ion-radio::part(mark) {
+            background: none;
+            transition: none;
+            transform: none;
+            border-radius: 0;
+         }
+
+         ion-radio.radio-checked::part(container) {
+            background: black;
+            border-color: transparent;
+         }
+
+         ion-radio.radio-checked::part(mark) {
+            width: 6px;
+            height: 10px;
+
+            border-width: 0px 2px 2px 0px;
+            border-style: solid;
+            border-color: #fff;
+
+            transform: rotate(45deg);
+         }
+         </style>
+
+         <div class="ion-padding">
+            <div class="ion-text-center ion-padding-bottom">
+               <ion-icon name="finger-print-outline" style="font-size: 64px; color: var(--ion-color-primary);"></ion-icon>
+               <h2>Create a Passkey</h2>
+               <p>It will be used to protect your credentials saved to your device.</p>
+            </div>
+
+            <ion-list lines="none">
+
+               <ion-item style="border: 1px solid #ddd; border-radius: 8px;">
+                  <ion-icon slot="start" name="person-outline"></ion-icon>
+                  <ion-input 
+                     id="username-input"
+                     label="Enter a name for the passkey" 
+                     label-placement="stacked" 
+                     placeholder="User name"
+                     autofocus
+                     helper-text="This name will be used to identify the passkey on your device."
+                     required
+                  ></ion-input>
+               </ion-item>
+            </ion-list>
+
+            <p>Select the type of passkey that you want and click continue:</p>
+
+            <ion-list lines="none">
+
+               <ion-radio-group id="radio-group" value="platform">
+                  
+                  <ion-item class="ion-margin-bottom" style="border: 1px solid #ddd; border-radius: 8px;">
+                  <ion-icon slot="start" name="cloud-done-outline"></ion-icon>
+                  <ion-label>
+                     <h3>On this device (Recommended)</h3>
+                     <p>Syncs with your phone and cloud account for easy access.</p>
+                  </ion-label>
+                  <ion-radio slot="end" value="platform"></ion-radio>
+                  </ion-item>
+
+                  <ion-item style="border: 1px solid #ddd; border-radius: 8px;">
+                  <ion-icon slot="start" name="key-outline"></ion-icon>
+                  <ion-label>
+                     <h3>On external security key</h3>
+                     <p>Use a physical USB or NFC key for maximum protection.</p>
+                  </ion-label>
+                  <ion-radio slot="end" value="cross-platform"></ion-radio>
+                  </ion-item>
+
+               </ion-radio-group>
+            </ion-list>
+
+            <div class="ion-padding-top">
+               <ion-button expand="block" shape="round" @click=${() => this.createPasskey()}>
+                  Continue
+               </ion-button>
+            </div>
+         </div>
+         `;
+
+         this.render(theHtml, false);
+      }
+
+      async createPasskey() {
+         debugger;
+         const usernameInput = document.getElementById("username-input");
+         // @ts-ignore
+         const username = await usernameInput.getInputElement().then(el => el.value);
+
+         if (!username) {
+            alert("Please enter a username");
             return;
          }
 
-         alert("Credential succesfully saved");
+         // Generate a local challenge (32 random bytes) as there is no server
+         const challenge = window.crypto.getRandomValues(new Uint8Array(32));
+
+         // Generate a deterministic user ID from the username
+         const userid = new Uint8Array(await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(username)));
+         const user = { id: userid, name: username, displayName: username }
+
+         // Check what type of passkey to create
+         const radioGroup = document.getElementById("radio-group");
+         // @ts-ignore
+         const selectedValue = radioGroup.value;
+
+         mylog("Creating passkey", challenge, user, selectedValue);
+
+         try {
+            const response = await createPasskeyRaw(challenge, user, selectedValue);
+            mylog(response);
+            debugger
+            // Store the username and the last authentication time
+            localStorage.setItem("username", username)
+            localStorage.setItem("lastAuthenticationTime", Date.now().toString())
+         } catch (err) {
+            debugger
+            alert(err)
+            const error = this.handlePasskeyError(err);
+            if (error.type == "unknown") {
+               alert(err.message)
+            } else {
+               alert(error.message)
+            }
+         }
+
+         eudi.cleanReload()
+
+      }
+
+      /**
+       * @param {{ name: any; message: any; }} err
+       * @returns {{ ok: boolean, type: string, message: string }}
+       */
+      handlePasskeyError(err) {
+         if (!(err instanceof DOMException)) {
+            return { ok: false, type: "unknown", message: "Unexpected error" };
+         }
+         switch (err.name) {
+            case "NotAllowedError": return { ok: false, type: "cancel", message: "The operation was cancelled or timed out." };
+            case "InvalidStateError": return { ok: false, type: "exists", message: "A passkey for this account already exists." };
+            case "SecurityError": return { ok: false, type: "security", message: "Security constraints prevented the operation." };
+            case "ConstraintError": return { ok: false, type: "verification", message: "User verification requirements were not met." };
+            case "NotSupportedError": return { ok: false, type: "unsupported", message: "Passkeys are not supported on this device." };
+            default: return { ok: false, type: "unknown", message: err.message };
+         }
+      }
+
+      /**
+       * @param {any} message
+       */
+      async showToast(message, color = "danger") {
+         // @ts-ignore
+         const toast = await window.Ionic.toastController.create({
+            message,
+            duration: 2500,
+            color
+         });
+         toast.present();
+      }
+
+   }
+);
+
+MHR.register(
+   "EnterPasskeyPage",
+   class extends MHR.AbstractPage {
+      /**
+       * @param {string} id
+       */
+      constructor(id) {
+         super(id);
+      }
+
+      async enter() {
+         mylog("EnterPasskeyPage", globalThis.document.location);
+
+         let html = this.html;
+
+         let username = localStorage.getItem("username");
+         if (!username) {
+            alert("No user found");
+            return;
+         }
+
+         try {
+            const credentialResponse = await getPasskeyRaw()
+            mylog(credentialResponse)
+            // Update in localstorage the current time to record the last time the user authenticated
+            localStorage.setItem("lastAuthenticationTime", Date.now().toString());
+
+         } catch (error) {
+            mylog(error)
+            alert(error.message)
+         }
+
+         eudi.cleanReload()
+
       }
    }
 );
+
+
+function base64ToBytes(base64) {
+   const binString = atob(base64);
+   return Uint8Array.from(binString, (m) => m.codePointAt(0));
+}
 
 function atobUrl(input) {
    // Replace non-url compatible chars with base64 standard chars
@@ -436,6 +666,7 @@ async function pasteImage() {
    try {
       const clipboardContents = await navigator.clipboard.read();
       for (const item of clipboardContents) {
+         // @ts-ignore
          if (!item.types.includes("image/png")) {
             throw new Error("Clipboard does not contain PNG image data.");
          }

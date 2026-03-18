@@ -10,7 +10,15 @@
             "request": "launch",
             "mode": "debug",
             "program": "main.go",
-            "args": ["serve"]
+            "args": [
+                "serve"
+            ]
         },
+        {
+            "type": "chrome",
+            "name": "Chrome Wallet",
+            "request": "launch",
+            "url": "https://wallet.mycredential.eu"
+        }
     ]
 }
