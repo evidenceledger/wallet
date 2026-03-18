@@ -66,3 +66,14 @@ declare function me(selector: any): any
  * @param translatable The string to translate
  */
 declare function T(translatable: string): string;
+
+interface Window {
+  homePage: string;
+  myAppTitle: string;
+  pageModules: { [key: string]: string };
+  T: (s: string) => string;
+  appVersion: string;
+  myerror: any;
+  mylog: any;
+}
+

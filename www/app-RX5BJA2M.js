@@ -20,8 +20,8 @@ console.log("Fullpath of app:", fullPath);
 var basePath = fullPath.substring(0, fullPath.lastIndexOf("/"));
 console.log("Base path:", basePath);
 if (basePath.length > 1) {
-  for (const path in pageModulesMap) {
-    pageModulesMap[path] = basePath + pageModulesMap[path];
+  for (const pageName in pageModulesMap) {
+    pageModulesMap[pageName] = basePath + pageModulesMap[pageName];
   }
 }
 var homePage = window.homePage;
@@ -39,8 +39,8 @@ async function goHome() {
     await gotoPage(homePage, null);
   }
 }
-async function gotoPage(pageName, pageData, replace) {
-  mylog("Inside gotoPage:", pageName);
+async function gotoPage(pageName, pageData = {}, replace = false) {
+  mylog("gotoPage:", pageName);
   try {
     var pageClass = pageNameToClass.get(pageName);
     if (!pageClass) {
@@ -90,7 +90,7 @@ async function processPageEntered(pageNameToClass2, pageName, pageData, historyD
   if (targetPage.enter) {
     await targetPage.enter(pageData, historyData);
   } else {
-    targetPage.style.display = "block";
+    targetPage.domElem.style.display = "block";
   }
 }
 window.addEventListener("popstate", async function(event) {
@@ -254,7 +254,7 @@ var AbstractPage = class {
     }
   }
   /**
-   * @param {import("uhtml").Renderable} theHtml
+   * @param {import("uhtml").Hole} theHtml
    * @param {boolean} [backButton=true]
    */
   render(theHtml, backButton = true) {
@@ -273,6 +273,14 @@ var AbstractPage = class {
       }
     }
     render(this.domElem, theHtml);
+  }
+  /**
+   * @param {Object} pageData
+   * @param {boolean} historyData
+   */
+  async enter(pageData, historyData) {
+  }
+  async exit() {
   }
   /**
    * @param {string} title
@@ -302,7 +310,7 @@ register(
     /**
      * @param {string} pageData
      */
-    enter(pageData) {
+    async enter(pageData) {
       this.showError("Page not found", `The requested page does not exist: ${pageData}`, "");
     }
   }
@@ -319,7 +327,7 @@ register(
     /**
      * @param {{title:string; msg:string; details:string; back:boolean; level:string}} pageData
      */
-    enter(pageData) {
+    async enter(pageData) {
       let html2 = this.html;
       if (!pageData) {
         pageData = {
@@ -379,7 +387,7 @@ register("SWNotify", class extends AbstractPage {
   constructor(id) {
     super(id);
   }
-  enter(pageData) {
+  async enter(pageData) {
     let msg;
     if (pageData && pageData.isUpdate) {
       msg = T("Application updated");
@@ -459,4 +467,4 @@ globalThis.eudi = {
   atobUrl,
   pageNameToClass
 };
-//# sourceMappingURL=app-GFLIKO6B.js.map
+//# sourceMappingURL=app-RX5BJA2M.js.map

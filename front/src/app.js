@@ -7,7 +7,6 @@
 // variables which are useful for the rest of the modules without having to import.
 
 // For rendering the HTML in the pages
-// import { render, html, svg } from "uhtml";
 import { render, html } from "./components/aggregated.js";
 
 // Translation support
@@ -15,10 +14,9 @@ import "./i18n/tr.js";
 
 // The database operations
 import { storage } from "./components/db";
-// @ts-ignore
-window.myerror = storage.myerror;
 
-// @ts-ignore
+// Make the mylog and myerror functions available to the global environment
+window.myerror = storage.myerror;
 window.mylog = storage.mylog;
 
 // Initialise the debug flag based on the current settings
@@ -34,18 +32,17 @@ console.log("DEBUG", debug);
 // it could be overriden (manually) here. It has a structure like this:
 //
 // window.pageModules = {
+//     "MicroWallet": "/pages/MicroWallet-FGPE6TBO.js",
 //     "DisplayQR": "/pages/DisplayQR-PIO5OPZ6.js",
 //     "DisplayVC": "/pages/DisplayVC-7FJXVKLF.js",
 //     "LogsPage": "/pages/LogsPage-DHLVIEZ4.js",
 //     "MenuPage": "/pages/MenuPage-A455MOK2.js",
-//     "MicroWallet": "/pages/MicroWallet-FGPE6TBO.js",
 //     "AuthenticationRequestPage": "/pages/AuthenticationRequestPage-2XT6ESFD.js",
 //     "SWNotify": "/pages/SWNotify-GLIQS6YO.js",
 //     "ScanQrPage": "/pages/ScanQrPage-SMX7ETOS.js",
 //     "SelectCamera": "/pages/SelectCamera-PXJHLD5U.js",
 // }
 
-// @ts-ignore
 const pageModulesMap = window.pageModules;
 
 // Get the base path of the application in runtime
@@ -59,8 +56,8 @@ console.log("Base path:", basePath);
 // We do it only if the base path contains more than a '/', which means we are running under a base path
 // and the actual JavaScript modules should be loaded under that path
 if (basePath.length > 1) {
-   for (const path in pageModulesMap) {
-      pageModulesMap[path] = basePath + pageModulesMap[path];
+   for (const pageName in pageModulesMap) {
+      pageModulesMap[pageName] = basePath + pageModulesMap[pageName];
    }
 }
 
@@ -73,25 +70,25 @@ if (basePath.length > 1) {
 
 // The default home page where to start and when refreshing the app is set
 // in the HTML page importing us in the window.homePage variable.
-// @ts-ignore
+/** @type {string} */
 var homePage = window.homePage;
 if (!homePage) {
    throw "No homePage was set.";
 }
 
-// @ts-ignore
 var myAppTitle = window.myAppTitle;
 
 // The name of the page when we try to go to a non-existent page
 var name404 = "Page404";
 
 // This will hold all pages in a ("pageName", pageClass) structure, to facilitate page routing
+/** @type {Map<string, AbstractPage>} */
 var pageNameToClass = new Map();
 
 /**
  * Register a new page name, associated to a class instance
  * @param {string} pageName
- * @param {any} classInstance
+ * @param {AbstractPage} classInstance
  */
 function route(pageName, classInstance) {
    // Just populate the map
@@ -100,10 +97,10 @@ function route(pageName, classInstance) {
 
 // Set the default home page for the application
 /**
- * @param {any} page
+ * @param {string} pageName
  */
-function setHomePage(page) {
-   homePage = page;
+function setHomePage(pageName) {
+   homePage = pageName;
 }
 
 async function goHome() {
@@ -115,12 +112,12 @@ async function goHome() {
 // gotoPage transitions to the target page passing pageData object
 // It is up to the page to define the structure of pageData
 /**
- * @param {string} pageName
- * @param {any} pageData
- * @param {boolean} replace
+ * @param {string} pageName - The name of the page to transition to
+ * @param {Object} pageData - The data to pass to the page
+ * @param {boolean} replace - Whether to replace the current page in the history
  */
-async function gotoPage(pageName, pageData, replace) {
-   mylog("Inside gotoPage:", pageName);
+async function gotoPage(pageName, pageData = {}, replace = false) {
+   mylog("gotoPage:", pageName);
    // Catch any exceptions and present an error page in case of error
    try {
       // We load dynamically the page if it is not yet loaded
@@ -159,16 +156,15 @@ async function gotoPage(pageName, pageData, replace) {
 
 // Handle page transition
 /**
- * @param {Map<string, any>} pageNameToClass
+ * @param {Map<string, AbstractPage>} pageNameToClass
  * @param {string} pageName
- * @param {any} pageData
+ * @param {Object} pageData
  * @param {boolean} historyData
  */
 async function processPageEntered(pageNameToClass, pageName, pageData, historyData) {
    // Hide all pages of the application. Later we unhide the one we are entering
    // We also tell all other pages to exit, so they can perform any cleanup
    // We call all pages instead of just the active one, because it is more robust and performance does not suffer much
-   // @ts-ignore
    for (let [name, classInstance] of pageNameToClass) {
       // Hide the page
       classInstance.domElem.style.display = "none";
@@ -213,8 +209,10 @@ async function processPageEntered(pageNameToClass, pageName, pageData, historyDa
       // Static pages do not have to implement the enter() method.
       // Dynamic pages control their visibility as they need.
       // For static pages we make sure the target page is visible.
-      targetPage.style.display = "block";
+      targetPage.domElem.style.display = "block";
    }
+
+
 }
 
 // Listen for PopStateEvent (navigator Back or Forward buttons are clicked)
@@ -332,7 +330,7 @@ window.addEventListener("load", async (event) => {
       wb.addEventListener("waiting", (event) => {
          console.log(
             `A new service worker has installed, but it can't activate` +
-               `until all tabs running the current version have fully unloaded.`
+            `until all tabs running the current version have fully unloaded.`
          );
       });
 
@@ -440,12 +438,12 @@ function ErrorPanel(title, message, details) {
          </ion-card-content>
 
          ${details
-            ? html`
+         ? html`
                  <ion-card-content class="ion-padding-bottom">
                     <div class="text-medium">${details}</div>
                  </ion-card-content>
               `
-            : null}
+         : null}
 
          <div class="ion-margin-start ion-margin-bottom">
             <ion-button color="danger" @click=${() => cleanReload()}>
@@ -503,7 +501,7 @@ class AbstractPage {
    }
 
    /**
-    * @param {import("uhtml").Renderable} theHtml
+    * @param {import("uhtml").Hole} theHtml
     * @param {boolean} [backButton=true]
     */
    render(theHtml, backButton = true) {
@@ -524,7 +522,7 @@ class AbstractPage {
       let hb = HeaderBar(backButton, this.loginData)
       if (header) {
          try {
-            render(header, hb);         
+            render(header, hb);
          } catch (error) {
             console.error
          }
@@ -532,6 +530,18 @@ class AbstractPage {
 
       // Render the html of the page into the DOM element of this page
       render(this.domElem, theHtml);
+   }
+
+   /**
+    * @param {Object} pageData
+    * @param {boolean} historyData
+    */
+   async enter(pageData, historyData) {
+      // This is called when the page is entered
+   }
+
+   async exit() {
+      // This is called when the page is exited
    }
 
    /**
@@ -573,7 +583,7 @@ register(
       /**
        * @param {string} pageData
        */
-      enter(pageData) {
+      async enter(pageData) {
          this.showError("Page not found", `The requested page does not exist: ${pageData}`, "");
       }
    }
@@ -592,7 +602,7 @@ register(
       /**
        * @param {{title:string; msg:string; details:string; back:boolean; level:string}} pageData
        */
-      enter(pageData) {
+      async enter(pageData) {
          let html = this.html;
          if (!pageData) {
             pageData = {
@@ -642,25 +652,25 @@ register(
                   <div class="text-larger">${msg}</div>
 
                   ${pageData.details
-                     ? html` <div class="text-medium">${pageData.details}</div> `
-                     : null}
+               ? html` <div class="text-medium">${pageData.details}</div> `
+               : null}
                </ion-card-content>
 
                ${pageData.back == true
-                  ? null
-                  : html`
+               ? null
+               : html`
                        <ion-card-content class="ion-padding-bottom">
                           <div>${T("Please click Accept to refresh the page.")}</div>
                        </ion-card-content>
                     `
-                  }
+            }
 
                <div class="ion-margin-start ion-margin-bottom">
                   ${pageData.back == true
-                     ? html` <ion-button .color=${color} @click=${() => history.back()}>
+               ? html` <ion-button .color=${color} @click=${() => history.back()}>
                           <ion-icon slot="start" name="chevron-back"></ion-icon>${T("Back")}
                        </ion-button>`
-                     : html` <ion-button .color=${color} @click=${() => cleanReload()}
+               : html` <ion-button .color=${color} @click=${() => cleanReload()}
                           >${T("Accept")}
                        </ion-button>`}
                </div>
@@ -674,19 +684,19 @@ register(
 register("SWNotify", class extends AbstractPage {
 
    constructor(id) {
-       super(id)
+      super(id)
    }
 
-   enter(pageData) {
+   async enter(pageData) {
 
-       let msg
-       if (pageData && pageData.isUpdate) {
-           msg = T("Application updated")
-       } else {
-           msg = T("Application available")
-       }
+      let msg
+      if (pageData && pageData.isUpdate) {
+         msg = T("Application updated")
+      } else {
+         msg = T("Application available")
+      }
 
-       let theHtml = html`
+      let theHtml = html`
        <ion-card>
            <ion-card-header>
            <ion-card-title>${msg}</ion-card-title>
@@ -708,7 +718,7 @@ register("SWNotify", class extends AbstractPage {
        </ion-card>
        `
 
-       this.render(theHtml)
+      this.render(theHtml)
    }
 })
 
